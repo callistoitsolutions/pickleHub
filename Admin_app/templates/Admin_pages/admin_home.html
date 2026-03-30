@@ -127,6 +127,40 @@ textarea.inp{resize:vertical;min-height:65px;}
 .btn-type-select:focus{border-color:#e85d04;}
 /* SECTION DIVIDER */
 .section-divider{background:#f8f9fa;border-radius:10px;padding:10px 14px;margin:12px 0;font-size:11px;font-weight:800;color:#e85d04;border-left:3px solid #e85d04;}
+
+/* Container styling */
+.dropdown-container {
+  position: relative;
+  display: inline-block; /* Or block, depending on your layout */
+}
+
+/* Hide the dropdown content by default */
+.dropdown-content {
+  display: none;
+  position: absolute;
+  background-color: #f9f9f9;
+  min-width: 160px;
+  box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+  z-index: 1;
+}
+
+/* Style the links inside the dropdown */
+.dropdown-content a {
+  color: black;
+  padding: 12px 16px;
+  text-decoration: none;
+  display: block;
+}
+
+/* Add a hover effect to dropdown links */
+.dropdown-content a:hover {
+  background-color: #f1f1f1;
+}
+
+/* Show the dropdown menu on hover */
+.dropdown-container:hover .dropdown-content {
+  display: block;
+}
 </style>
 </head>
 <body>
@@ -145,7 +179,23 @@ textarea.inp{resize:vertical;min-height:65px;}
   <a class="sb-a" href="#"><i class="fa fa-shopping-bag"></i> Orders</a>
   <div class="sb-sec">Site Settings</div>
   <a class="sb-a" href="#"><i class="fa fa-sliders-h"></i> Header & Top Bar</a>
-  <a class="sb-a on" href="#"><i class="fa fa-home"></i> Home Page</a>
+
+  <div class="dropdown-container">
+    <a class="sb-a on dropdown-btn" href="#">
+      <i class="fa fa-home"></i> Home Page <i class="fa fa-caret-down"></i>
+    </a>
+    
+    <div class="dropdown-content">
+      <a href="#">Hero</a>
+      <a href="#">Features Strip</a>
+      <a href="#">Categories</a>
+      <a href="#">Offer Banner</a>
+      <a href="#">Brands</a>
+      <a href="#">Reviews</a>
+      <a href="#">Newsletter</a>
+    </div>
+  </div>
+
   <a class="sb-a" href="#"><i class="fa fa-shoe-prints"></i> Footer Settings</a>
   <a class="sb-a" href="#"><i class="fa fa-map-pin"></i> Pincode Manager</a>
   <a class="sb-a" href="#"><i class="fa fa-cog"></i> General Settings</a>
@@ -307,41 +357,26 @@ textarea.inp{resize:vertical;min-height:65px;}
 </div>
 
 <!-- ──────── PANEL 3: OFFER BANNER ──────── -->
-<div class="sec-panel" id="panel-3">
-  <div class="card">
-    <div class="card-head"><span class="ch-ico">🏷️</span><span class="ch-title">Offer Banner</span><span class="ch-sub">— green offer + Pickle of the Week</span>
-      <div class="ch-right"><div class="tog-row"><div class="tog on" id="tog-offer" onclick="togSwitch(this,'tog-offer')"></div><span class="tog-lbl" id="tog-offer-lbl">Visible</span></div></div>
-    </div>
-    <div class="card-body">
-      <div style="background:#e8f5e9;border-radius:10px;padding:12px 16px;margin-bottom:16px;">
-        <div style="font-size:12px;font-weight:800;color:#2d6a4f;margin-bottom:10px;">🟢 Main Offer Banner (Left)</div>
-        <div class="row g-3">
-          <div class="col-md-6"><label class="lbl">Badge Text</label><input class="inp" id="offerBadge" value="🔥 LIMITED STOCK" oninput="updatePreview()"></div>
-          <div class="col-md-6"><label class="lbl">Product Name</label><input class="inp" id="offerName" value="Andhra Avakaya Mango Pickle" oninput="updatePreview()"></div>
-          <div class="col-12"><label class="lbl">Description</label><input class="inp" id="offerDesc" value="Traditional spicy recipe with mustard oil &amp; red chillies" oninput="updatePreview()"></div>
-          <div class="col-md-4"><label class="lbl">Sale Price (₹)</label><input class="inp" id="offerPrice" value="299" oninput="updatePreview()"></div>
-          <div class="col-md-4"><label class="lbl">Original Price (₹)</label><input class="inp" id="offerOldPrice" value="450" oninput="updatePreview()"></div>
-          <div class="col-md-4"><label class="lbl">Discount Label</label><input class="inp" id="offerDiscount" value="33% OFF" oninput="updatePreview()"></div>
-          <div class="col-md-6"><label class="lbl">Buy Now URL</label><input class="inp" id="offerUrl" value="/product/andhra-avakaya-mango-pickle/"></div>
-        </div>
-      </div>
-      <div style="background:#fdecea;border-radius:10px;padding:12px 16px;">
-        <div style="font-size:12px;font-weight:800;color:#c62828;margin-bottom:10px;">🔴 Pickle of the Week (Right)</div>
-        <div class="row g-3">
-          <div class="col-md-6"><label class="lbl">Product Emoji</label><input class="inp" id="potwEmoji" value="🧄" maxlength="4" oninput="updatePreview()" style="font-size:20px;text-align:center;"></div>
-          <div class="col-md-6"><label class="lbl">Product Name</label><input class="inp" id="potwName" value="Rajasthani Garlic Pickle" oninput="updatePreview()"></div>
-          <div class="col-md-6"><label class="lbl">Weight / Type</label><input class="inp" id="potwWeight" value="500g | Traditional Recipe" oninput="updatePreview()"></div>
-          <div class="col-md-3"><label class="lbl">Sale Price (₹)</label><input class="inp" id="potwPrice" value="199" oninput="updatePreview()"></div>
-          <div class="col-md-3"><label class="lbl">Old Price (₹)</label><input class="inp" id="potwOldPrice" value="350" oninput="updatePreview()"></div>
-          <div class="col-md-6"><label class="lbl">Product URL</label><input class="inp" id="potwUrl" value="/product/rajasthani-garlic-pickle/"></div>
-          <div class="col-md-6">
-            <label class="lbl">Countdown Timer</label>
-            <div class="tog-row" style="margin-top:8px;"><div class="tog on" id="tog-countdown" onclick="togSwitch(this,'tog-countdown')"></div><span class="tog-lbl" id="tog-countdown-lbl">Show Timer</span></div>
-          </div>
-        </div>
-      </div>
-    </div>
+
+<div class="sec-panel" id="panel-offers">
+  <div class="card-head">
+    <span class="ch-ico">🏷️</span><span class="ch-title">Offer Banners Admin</span>
   </div>
+  <div class="card-body">
+    <div id="offersList"></div> 
+    <button type="button" class="btn btn-primary mt-2" onclick="addOfferBanner()" style="padding: 8px 16px; border-radius: 6px; cursor: pointer;">
+      + Add Offer Banner
+    </button>
+  </div>
+</div>
+
+<div class="sec-panel mt-4">
+    <div style="padding: 10px; background: #333; color: white; border-radius: 8px 8px 0 0; font-weight: bold;">
+        👁️ Live Customer Preview
+    </div>
+    <div style="border: 2px dashed #ccc; padding: 20px; border-radius: 0 0 8px 8px; background: #fff;">
+        <div id="banner-preview-container" class="row"></div>
+    </div>
 </div>
 
 <!-- ──────── PANEL 4: BEST SELLERS ──────── -->
@@ -419,65 +454,39 @@ textarea.inp{resize:vertical;min-height:65px;}
 
 </div><!-- /col-left -->
 
-<!-- ══ RIGHT PREVIEW ══ -->
 <div class="col-lg-5">
   <div class="preview-wrap">
     <div class="prev-lbl">👁️ Live Home Page Preview</div>
     <div class="pv-box">
 
-      <!-- HERO PREVIEW -->
       <div class="pv-hero" id="pv-hero">
         <div class="pv-badge" id="pv-heroBadge">🏆 Nagpur's #1 Pickle Store</div>
         <div class="pv-title" id="pv-heroTitle">Discover <span id="pv-heroHL">Rare &amp; Exclusive</span><br>Pickle Brands</div>
         <div class="pv-sub" id="pv-heroSub">Handpicked regional pickles from Andhra, Rajasthan &amp; more</div>
-        <!-- DYNAMIC BUTTONS PREVIEW -->
         <div class="pv-btns" id="pv-heroBtns"></div>
-        <!-- STATS -->
         <div class="pv-stats" id="pv-heroStats"></div>
-        <!-- IMAGE / JAR -->
         <div class="pv-hero-img-wrap">
           <img id="pv-heroImg" class="pv-hero-img" src="" alt="Hero Image" style="display:none;">
           <span id="pv-heroEmoji" class="pv-hero-emoji">🫙</span>
         </div>
-        <!-- FLOATING BADGES -->
         <div class="pv-float-badges" id="pv-floatBadges"></div>
       </div>
 
-      <!-- FEATURES -->
       <div class="pv-feats" id="pv-feats"></div>
 
-      <!-- CATEGORIES -->
       <div class="pv-cats" id="pv-cats"></div>
 
-      <!-- OFFER -->
-      <div class="pv-offer" id="pv-offer">
-        <div class="pv-o-badge" id="pv-offerBadge">🔥 LIMITED STOCK</div>
-        <div class="pv-o-name" id="pv-offerName">Andhra Avakaya Mango Pickle</div>
-        <div id="pv-offerDesc" style="font-size:10px;opacity:.8;margin-bottom:4px;"></div>
-        <div><span class="pv-o-price" id="pv-offerPrice">₹299</span> <span style="text-decoration:line-through;opacity:.5;font-size:12px;" id="pv-offerOldPrice">₹450</span> <span style="background:#ffd60a;color:#1a1a2e;padding:2px 8px;border-radius:50px;font-size:9px;font-weight:800;" id="pv-offerDiscount">33% OFF</span></div>
-      </div>
-      <div class="pv-potw" id="pv-potw">
-        <div class="pv-potw-badge">⭐ Pickle of the Week</div>
-        <div style="font-size:28px;" id="pv-potwEmoji">🧄</div>
-        <div style="font-size:12px;font-weight:800;" id="pv-potwName">Rajasthani Garlic Pickle</div>
-        <div style="font-size:10px;opacity:.8;" id="pv-potwWeight">500g | Traditional Recipe</div>
-        <div style="margin-top:4px;"><span style="font-size:16px;font-weight:800;color:#ffd60a;" id="pv-potwPrice">₹199</span> <span style="text-decoration:line-through;opacity:.5;font-size:11px;" id="pv-potwOldPrice">₹350</span></div>
-      </div>
+      <div id="right-offer-preview-box"></div>
 
-      <!-- BRANDS -->
       <div class="pv-brands" id="pv-brands"></div>
 
-      <!-- NEWSLETTER -->
       <div class="pv-news" id="pv-news">
         <h4 id="pv-newsHeading">🎁 Get 15% OFF Your First Order!</h4>
         <p id="pv-newsDesc">Subscribe for exclusive deals straight to your inbox.</p>
         <input class="pv-news-inp" placeholder="Enter your email..." disabled>
       </div>
 
-    </div><!-- /pv-box -->
-
-    <!-- HOW IT WORKS -->
-    <div style="background:#fff;border-radius:12px;padding:14px 16px;margin-top:14px;border:1.5px solid #f0f0f0;">
+    </div><div style="background:#fff;border-radius:12px;padding:14px 16px;margin-top:14px;border:1.5px solid #f0f0f0;">
       <div style="font-size:12px;font-weight:800;color:#1a1a2e;margin-bottom:6px;">📋 How it works</div>
       <div style="font-size:11px;color:#888;line-height:2;">
         ① Switch tabs to edit each section<br>
@@ -490,12 +499,138 @@ textarea.inp{resize:vertical;min-height:65px;}
   </div>
 </div>
 
-</div><!-- /row -->
-</div><!-- /page -->
-</div><!-- /main -->
-</div><!-- /wrap -->
+</div></div></div></div>
 
 <div class="toast-wrap" id="toastWrap"></div>
+
+<script>
+ 
+  // ==========================================
+// 1. GLOBALS & FAILSAFES
+// ==========================================
+window.STATE = window.STATE || {};
+window.STATE.offers = window.STATE.offers || [];
+
+// Helper to prevent HTML text breakage
+function esc(str) {
+    if (!str) return '';
+    return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#039;');
+}
+
+// ==========================================
+// 2. ADMIN PANEL RENDERING (Left Side)
+// ==========================================
+function renderOffers() {
+  var el = document.getElementById('offersList'); 
+  if (!el) return;
+  el.innerHTML = '';
+  
+  window.STATE.offers = window.STATE.offers || [];
+
+  window.STATE.offers.forEach(function(o, i) {
+    var d = document.createElement('div');
+    d.style = 'background:#f8f9fa;border-radius:12px;padding:14px;margin-bottom:12px;border:1.5px solid #f0f0f0;';
+    
+    var htmlString = 
+      '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">' +
+      '<span style="font-size:12px;font-weight:800;color:' + (o.type === 'main' ? '#2d6a4f' : '#c62828') + ';">' + 
+      (o.type === 'main' ? '🟢 Main Offer Banner' : '🔴 Pickle of the Week') + '</span>' +
+      '<button class="btn-danger" style="padding:4px 8px;border-radius:4px;font-size:12px;border:none;cursor:pointer;" onclick="window.STATE.offers.splice(' + i + ',1);renderOffers();updateOfferPreview()"><i class="fa fa-trash"></i> Remove</button>' +
+      '</div>';
+
+    if (o.type === 'main') {
+      htmlString += 
+        '<div class="row g-2">' +
+        '<div class="col-md-6"><label class="lbl">Badge Text</label><input class="inp" value="' + esc(o.badge) + '" oninput="window.STATE.offers[' + i + '].badge=this.value;updateOfferPreview()"></div>' +
+        '<div class="col-md-6"><label class="lbl">Product Name</label><input class="inp" value="' + esc(o.name) + '" oninput="window.STATE.offers[' + i + '].name=this.value;updateOfferPreview()"></div>' +
+        '<div class="col-12"><label class="lbl">Description</label><input class="inp" value="' + esc(o.desc) + '" oninput="window.STATE.offers[' + i + '].desc=this.value;updateOfferPreview()"></div>' +
+        '<div class="col-md-4"><label class="lbl">Sale Price (₹)</label><input class="inp" value="' + esc(o.price) + '" oninput="window.STATE.offers[' + i + '].price=this.value;updateOfferPreview()"></div>' +
+        '<div class="col-md-4"><label class="lbl">Original Price (₹)</label><input class="inp" value="' + esc(o.oldPrice) + '" oninput="window.STATE.offers[' + i + '].oldPrice=this.value;updateOfferPreview()"></div>' +
+        '<div class="col-md-4"><label class="lbl">Discount Label</label><input class="inp" value="' + esc(o.discount) + '" oninput="window.STATE.offers[' + i + '].discount=this.value;updateOfferPreview()"></div>' +
+        '</div>';
+    } else {
+      htmlString += 
+        '<div class="row g-2">' +
+        '<div class="col-md-2"><label class="lbl">Emoji</label><input class="inp" value="' + esc(o.emoji) + '" maxlength="4" style="font-size:20px;text-align:center;" oninput="window.STATE.offers[' + i + '].emoji=this.value;updateOfferPreview()"></div>' +
+        '<div class="col-md-5"><label class="lbl">Product Name</label><input class="inp" value="' + esc(o.name) + '" oninput="window.STATE.offers[' + i + '].name=this.value;updateOfferPreview()"></div>' +
+        '<div class="col-md-5"><label class="lbl">Weight / Type</label><input class="inp" value="' + esc(o.weight) + '" oninput="window.STATE.offers[' + i + '].weight=this.value;updateOfferPreview()"></div>' +
+        '<div class="col-md-6"><label class="lbl">Sale Price (₹)</label><input class="inp" value="' + esc(o.price) + '" oninput="window.STATE.offers[' + i + '].price=this.value;updateOfferPreview()"></div>' +
+        '<div class="col-md-6"><label class="lbl">Old Price (₹)</label><input class="inp" value="' + esc(o.oldPrice) + '" oninput="window.STATE.offers[' + i + '].oldPrice=this.value;updateOfferPreview()"></div>' +
+        '</div>';
+    }
+
+    d.innerHTML = htmlString;
+    el.appendChild(d);
+  });
+}
+
+// ==========================================
+// 3. LIVE PREVIEW RENDERING (Right Side - Updated for your theme!)
+// ==========================================
+function updateOfferPreview() {
+    var previewEl = document.getElementById('right-offer-preview-box');
+    if (!previewEl) return;
+    previewEl.innerHTML = ''; 
+    
+    window.STATE.offers = window.STATE.offers || [];
+
+    window.STATE.offers.forEach(function(o) {
+        var div = document.createElement('div');
+        div.style.marginBottom = '14px'; // Spacing between multiple banners
+        
+        if (o.type === 'main') {
+            // Uses your custom .pv-offer classes
+            div.innerHTML = 
+                '<div class="pv-offer">' +
+                    '<div class="pv-o-badge">' + (esc(o.badge) || '🔥 LIMITED STOCK') + '</div>' +
+                    '<div class="pv-o-name">' + (esc(o.name) || 'Product Name') + '</div>' +
+                    '<div style="font-size:10px;opacity:.8;margin-bottom:4px;">' + (esc(o.desc) || 'Description...') + '</div>' +
+                    '<div>' +
+                        '<span class="pv-o-price">₹' + (esc(o.price) || '0') + '</span> ' +
+                        '<span style="text-decoration:line-through;opacity:.5;font-size:12px;">₹' + (esc(o.oldPrice) || '0') + '</span> ' +
+                        '<span style="background:#ffd60a;color:#1a1a2e;padding:2px 8px;border-radius:50px;font-size:9px;font-weight:800;">' + (esc(o.discount) || '0% OFF') + '</span>' +
+                    '</div>' +
+                '</div>';
+        } else {
+            // Uses your custom .pv-potw classes
+            div.innerHTML = 
+                '<div class="pv-potw">' +
+                    '<div class="pv-potw-badge">⭐ Pickle of the Week</div>' +
+                    '<div style="font-size:28px;">' + (esc(o.emoji) || '🧄') + '</div>' +
+                    '<div style="font-size:12px;font-weight:800;">' + (esc(o.name) || 'Product Name') + '</div>' +
+                    '<div style="font-size:10px;opacity:.8;">' + (esc(o.weight) || 'Weight | Type') + '</div>' +
+                    '<div style="margin-top:4px;">' +
+                        '<span style="font-size:16px;font-weight:800;color:#ffd60a;">₹' + (esc(o.price) || '0') + '</span> ' +
+                        '<span style="text-decoration:line-through;opacity:.5;font-size:11px;">₹' + (esc(o.oldPrice) || '0') + '</span>' +
+                    '</div>' +
+                '</div>';
+        }
+        
+        previewEl.appendChild(div);
+    });
+}
+
+// ==========================================
+// 4. ADD BUTTON LOGIC
+// ==========================================
+function addOfferBanner() { 
+  window.STATE = window.STATE || {};
+  window.STATE.offers = window.STATE.offers || [];
+
+  var isMainOfferTurn = (window.STATE.offers.length % 2 === 0);
+  
+  if (isMainOfferTurn) {
+    window.STATE.offers.push({ type: 'main', badge: '', name: '', desc: '', price: '', oldPrice: '', discount: '', url: '' });
+  } else {
+    window.STATE.offers.push({ type: 'potw', emoji: '🧄', name: '', weight: '', price: '', oldPrice: '', url: '' });
+  }
+  
+  renderOffers(); 
+  updateOfferPreview(); 
+}
+
+</script>
+
 
 <script>
 /* ═══════════════════════════════════════
@@ -1020,9 +1155,6 @@ function toast(msg, type) {
   setTimeout(function() { t.classList.remove('show'); setTimeout(function() { if (t.parentNode) t.parentNode.removeChild(t); }, 400); }, 3000);
 }
 
-/* ═══════════════════════════════════════
-   HELPER: escape HTML
-═══════════════════════════════════════ */
 function esc(str) {
   return String(str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
@@ -1039,7 +1171,15 @@ renderCats();
 renderBsProducts();
 renderBrands();
 renderReviews();
-updatePreview();
+
+// --- NEW OFFER BANNER INIT ---
+renderOffers(); 
+updateOfferPreview(); 
+
+// Keep this ONLY if your bsProducts still uses the old updatePreview() function. 
+// If you deleted the old updatePreview() entirely, you can delete this line:
+updatePreview(); 
+
 unsaved = false; // reset after init
 document.getElementById('saveStatus').textContent = '✅ All Changes Saved';
 document.getElementById('saveStatus').className   = 's-pill sp-green';
