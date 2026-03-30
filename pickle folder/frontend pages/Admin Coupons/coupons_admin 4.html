@@ -1,0 +1,768 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Coupons Management | PickleHub Admin</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+    <style>
+        :root{--primary:#e85d04;--dark:#1a1a2e;--sidebar:240px;}
+        *{margin:0;padding:0;box-sizing:border-box;}
+        body{font-family:'Poppins',sans-serif;background:#f0f2f5;display:flex;min-height:100vh;}
+
+        /* SIDEBAR */
+        .sidebar{width:var(--sidebar);background:linear-gradient(180deg,#1a1a2e,#0f3460);position:fixed;top:0;left:0;height:100vh;overflow-y:auto;z-index:100;}
+        .sidebar-logo{padding:18px;border-bottom:1px solid rgba(255,255,255,0.08);display:flex;align-items:center;gap:10px;}
+        .s-ico{width:36px;height:36px;background:linear-gradient(135deg,#e85d04,#ffd60a);border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:17px;}
+        .s-name{font-family:'Playfair Display',serif;font-size:15px;font-weight:700;color:#ffd60a;}
+        .s-sub{font-size:9px;color:#f48c06;letter-spacing:1px;display:block;}
+        .nav-sec{padding:12px 14px 3px;font-size:9px;font-weight:700;color:rgba(255,255,255,0.3);letter-spacing:2px;text-transform:uppercase;}
+        .nav-i{display:flex;align-items:center;gap:10px;padding:10px 18px;color:rgba(255,255,255,0.65);text-decoration:none;font-size:13px;font-weight:500;transition:.2s;border-left:3px solid transparent;}
+        .nav-i:hover,.nav-i.active{background:rgba(232,93,4,0.15);color:#ffd60a;border-left-color:#e85d04;}
+        .nav-i i{width:18px;text-align:center;font-size:13px;}
+        .nbadge{background:#e85d04;color:#fff;border-radius:50px;padding:1px 7px;font-size:10px;margin-left:auto;}
+
+        /* MAIN */
+        .main-w{margin-left:var(--sidebar);flex:1;display:flex;flex-direction:column;}
+        .topbar{background:#fff;padding:13px 22px;display:flex;align-items:center;justify-content:space-between;box-shadow:0 2px 8px rgba(0,0,0,0.06);position:sticky;top:0;z-index:99;}
+        .topbar-title{font-size:16px;font-weight:700;color:#1a1a2e;}
+        .content{padding:22px;flex:1;}
+
+        /* STATS */
+        .stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:22px;}
+        .stat-c{background:#fff;border-radius:14px;padding:18px;box-shadow:0 2px 8px rgba(0,0,0,0.05);display:flex;align-items:center;gap:14px;}
+        .stat-ico{width:46px;height:46px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;}
+        .stat-val{font-size:22px;font-weight:800;color:#1a1a2e;}
+        .stat-lbl{font-size:11px;color:#aaa;margin-top:1px;}
+
+        /* COUPON CARDS */
+        .coupon-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px;margin-bottom:24px;}
+        .coupon-card{background:#fff;border-radius:18px;box-shadow:0 4px 14px rgba(0,0,0,0.07);overflow:hidden;transition:.3s;border:1.5px solid transparent;position:relative;}
+        .coupon-card:hover{border-color:#e85d04;transform:translateY(-3px);box-shadow:0 10px 28px rgba(232,93,4,0.1);}
+        .coupon-card.expired{opacity:.55;}
+        .coupon-card.inactive{opacity:.65;}
+
+        /* COUPON TICKET DESIGN */
+        .coupon-ticket{background:linear-gradient(135deg,#1a1a2e,#0f3460);padding:18px 20px;position:relative;overflow:hidden;}
+        .coupon-ticket::before{content:'';position:absolute;left:-12px;top:50%;transform:translateY(-50%);width:24px;height:24px;background:#f0f2f5;border-radius:50%;}
+        .coupon-ticket::after{content:'';position:absolute;right:-12px;top:50%;transform:translateY(-50%);width:24px;height:24px;background:#f0f2f5;border-radius:50%;}
+        .coupon-ticket .deco{position:absolute;font-size:80px;opacity:.05;right:-10px;top:-15px;pointer-events:none;}
+        .coupon-code{font-family:'Playfair Display',serif;font-size:22px;font-weight:700;color:#ffd60a;letter-spacing:3px;display:flex;align-items:center;gap:10px;}
+        .copy-btn{background:rgba(255,213,10,0.15);border:1px solid rgba(255,213,10,0.3);color:#ffd60a;border-radius:6px;padding:3px 10px;font-size:11px;font-weight:700;cursor:pointer;font-family:'Poppins',sans-serif;transition:.2s;}
+        .copy-btn:hover{background:rgba(255,213,10,0.3);}
+        .coupon-discount{font-size:28px;font-weight:800;color:#fff;margin-top:4px;}
+        .coupon-discount span{font-size:13px;font-weight:500;color:rgba(255,255,255,0.6);}
+        .coupon-type-badge{position:absolute;top:12px;right:20px;border-radius:50px;padding:3px 12px;font-size:10px;font-weight:800;}
+        .type-percent{background:rgba(232,93,4,0.25);color:#ffd60a;border:1px solid rgba(232,93,4,0.3);}
+        .type-flat{background:rgba(45,106,79,0.25);color:#52b788;border:1px solid rgba(45,106,79,0.3);}
+        .type-free_del{background:rgba(21,101,192,0.25);color:#90caf9;border:1px solid rgba(21,101,192,0.3);}
+
+        /* COUPON BODY */
+        .coupon-body{padding:14px 18px;}
+        .coupon-name{font-weight:700;font-size:14px;color:#1a1a2e;margin-bottom:3px;}
+        .coupon-desc{font-size:12px;color:#888;margin-bottom:10px;line-height:1.5;}
+        .coupon-meta{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:12px;}
+        .meta-item{background:#f8f9fa;border-radius:8px;padding:7px 10px;}
+        .meta-lbl{font-size:10px;color:#aaa;font-weight:700;text-transform:uppercase;letter-spacing:.3px;}
+        .meta-val{font-size:12px;font-weight:700;color:#1a1a2e;margin-top:1px;}
+
+        /* PROGRESS BAR */
+        .usage-bar-wrap{margin-bottom:10px;}
+        .usage-label{display:flex;justify-content:space-between;font-size:11px;color:#888;margin-bottom:3px;}
+        .usage-bar{height:6px;background:#f0f0f0;border-radius:3px;overflow:hidden;}
+        .usage-fill{height:100%;border-radius:3px;background:linear-gradient(90deg,#e85d04,#ffd60a);transition:.3s;}
+
+        /* STATUS BADGES */
+        .status-pill{padding:4px 12px;border-radius:50px;font-size:11px;font-weight:700;}
+        .s-active{background:#d4edda;color:#155724;}
+        .s-expired{background:#f8d7da;color:#721c24;}
+        .s-inactive{background:#e0e0e0;color:#555;}
+        .s-scheduled{background:#cce5ff;color:#004085;}
+
+        /* ACTIONS */
+        .coupon-actions{display:flex;gap:6px;border-top:1px solid #f5f5f5;padding:10px 18px;}
+        .act-btn{flex:1;border:none;border-radius:8px;padding:8px 0;font-size:11px;font-weight:700;cursor:pointer;font-family:'Poppins',sans-serif;transition:.2s;}
+        .btn-edit{background:#e3f2fd;color:#1565c0;}
+        .btn-edit:hover{background:#1565c0;color:#fff;}
+        .btn-toggle-c{background:#fff3e0;color:#e85d04;}
+        .btn-toggle-c:hover{background:#e85d04;color:#fff;}
+        .btn-del{background:#fdecea;color:#c62828;}
+        .btn-del:hover{background:#c62828;color:#fff;}
+        .btn-stats{background:#f3e5f5;color:#6a0dad;}
+        .btn-stats:hover{background:#6a0dad;color:#fff;}
+
+        /* TABLE */
+        .sec-card{background:#fff;border-radius:16px;box-shadow:0 4px 15px rgba(0,0,0,0.06);overflow:hidden;margin-bottom:22px;}
+        .sec-head{padding:16px 20px;border-bottom:1px solid #f5f5f5;display:flex;align-items:center;justify-content:space-between;}
+        .sec-head h3{font-size:15px;font-weight:700;color:#1a1a2e;margin:0;}
+        .data-tbl{width:100%;font-size:13px;border-collapse:collapse;}
+        .data-tbl th{background:linear-gradient(135deg,#1a1a2e,#0f3460);color:rgba(255,255,255,0.85);font-size:11px;text-transform:uppercase;letter-spacing:.5px;padding:12px 14px;font-weight:700;white-space:nowrap;}
+        .data-tbl td{padding:11px 14px;border-bottom:1px solid #f8f8f8;vertical-align:middle;}
+        .data-tbl tr:hover td{background:#fffaf7;}
+        .data-tbl tr:last-child td{border-bottom:none;}
+
+        /* FILTER BAR */
+        .filter-bar{background:#fff;border-radius:14px;padding:14px 18px;box-shadow:0 2px 8px rgba(0,0,0,0.05);margin-bottom:16px;display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap;}
+        .fl{font-size:11px;font-weight:700;color:#888;margin-bottom:3px;display:block;}
+        .finp{border-radius:10px;border:1.5px solid #e0e0e0;padding:8px 12px;font-size:13px;font-family:'Poppins',sans-serif;outline:none;transition:.2s;}
+        .finp:focus{border-color:#e85d04;}
+        .btn-f{background:linear-gradient(135deg,#e85d04,#f48c06);color:#fff;border:none;border-radius:10px;padding:9px 18px;font-weight:700;font-size:13px;cursor:pointer;font-family:'Poppins',sans-serif;}
+        .btn-add{background:linear-gradient(135deg,#2d6a4f,#52b788);color:#fff;border:none;border-radius:10px;padding:9px 18px;font-weight:700;font-size:13px;cursor:pointer;font-family:'Poppins',sans-serif;white-space:nowrap;}
+        .btn-gen{background:linear-gradient(135deg,#6a0dad,#9c27b0);color:#fff;border:none;border-radius:10px;padding:9px 16px;font-weight:700;font-size:13px;cursor:pointer;font-family:'Poppins',sans-serif;white-space:nowrap;}
+
+        /* MODAL */
+        .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:200;display:none;align-items:center;justify-content:center;padding:16px;}
+        .modal-overlay.show{display:flex;}
+        .modal-box{background:#fff;border-radius:20px;width:100%;max-width:580px;max-height:92vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,0.2);}
+        .modal-head{background:linear-gradient(135deg,#1a1a2e,#0f3460);padding:18px 24px;border-radius:20px 20px 0 0;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:1;}
+        .modal-title{font-size:16px;font-weight:700;color:#ffd60a;}
+        .modal-close{background:rgba(255,255,255,0.1);border:none;color:#fff;width:32px;height:32px;border-radius:50%;font-size:15px;cursor:pointer;}
+        .modal-body{padding:22px;}
+        .lbl{font-size:12px;font-weight:700;color:#555;margin-bottom:4px;display:block;}
+        .inp{width:100%;border-radius:10px;border:1.5px solid #e0e0e0;padding:10px 14px;font-size:13px;font-family:'Poppins',sans-serif;outline:none;transition:.2s;}
+        .inp:focus{border-color:#e85d04;box-shadow:0 0 0 3px rgba(232,93,4,0.08);}
+        .btn-save{background:linear-gradient(135deg,#e85d04,#f48c06);color:#fff;border:none;border-radius:50px;padding:12px 28px;font-weight:800;font-size:14px;cursor:pointer;font-family:'Poppins',sans-serif;transition:.3s;}
+        .btn-save:hover{transform:translateY(-2px);box-shadow:0 8px 20px rgba(232,93,4,0.3);}
+        .btn-cancel-m{background:#f0f2f5;color:#555;border:none;border-radius:50px;padding:12px 22px;font-weight:700;font-size:14px;cursor:pointer;font-family:'Poppins',sans-serif;}
+
+        /* COUPON PREVIEW */
+        .coupon-preview{background:linear-gradient(135deg,#1a1a2e,#0f3460);border-radius:14px;padding:18px;margin-top:14px;display:none;}
+        .coupon-preview.show{display:block;}
+        .preview-code{font-family:'Playfair Display',serif;font-size:20px;color:#ffd60a;letter-spacing:3px;font-weight:700;}
+        .preview-disc{font-size:24px;font-weight:800;color:#fff;margin-top:4px;}
+
+        /* USAGE DETAIL MODAL */
+        .usage-stat{background:#f8f9fa;border-radius:12px;padding:14px;text-align:center;}
+        .usage-stat .num{font-size:26px;font-weight:800;}
+        .usage-stat .lbl{font-size:11px;color:#888;margin-top:2px;}
+
+        /* TOAST */
+        .toast-bar{position:fixed;bottom:24px;right:24px;background:#1a1a2e;color:#fff;border-radius:12px;padding:14px 20px;font-size:13px;font-weight:600;z-index:999;transform:translateY(80px);opacity:0;transition:.3s;display:flex;align-items:center;gap:10px;max-width:340px;}
+        .toast-bar.show{transform:translateY(0);opacity:1;}
+        .toast-bar.ok{border-left:4px solid #52b788;}
+        .toast-bar.err{border-left:4px solid #e85d04;}
+        .toast-bar.info{border-left:4px solid #ffd60a;}
+
+        @media(max-width:768px){.sidebar{display:none;}.main-w{margin-left:0;}.stats-row{grid-template-columns:repeat(2,1fr);}.coupon-grid{grid-template-columns:1fr;}}
+    </style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<nav class="sidebar" aria-label="Admin sidebar">
+    <div class="sidebar-logo">
+        <div class="s-ico">🥒</div>
+        <div><span class="s-name">PickleHub</span><small class="s-sub">Admin Panel</small></div>
+    </div>
+    <div class="nav-sec">Main</div>
+    <a class="nav-i" href="picklehub_dashboard.html"><i class="fa fa-tachometer-alt"></i> Dashboard</a>
+    <div class="nav-sec">Orders</div>
+    <a class="nav-i" href="picklehub_orders_admin.html"><i class="fa fa-shopping-bag"></i> All Orders <span class="nbadge">42</span></a>
+    <div class="nav-sec">Catalogue</div>
+    <a class="nav-i" href="picklehub_products_admin.html"><i class="fa fa-box"></i> Products</a>
+    <a class="nav-i" href="#"><i class="fa fa-tags"></i> Categories</a>
+    <a class="nav-i active" href="#"><i class="fa fa-ticket-alt"></i> Coupons</a>
+    <a class="nav-i" href="#"><i class="fa fa-star"></i> Reviews <span class="nbadge" style="background:#f48c06;">8</span></a>
+    <div class="nav-sec">Reports</div>
+    <a class="nav-i" href="picklehub_reports.html"><i class="fa fa-chart-bar"></i> Sales Reports</a>
+    <div class="nav-sec">Settings</div>
+    <a class="nav-i" href="#"><i class="fa fa-cog"></i> Site Settings</a>
+</nav>
+
+<!-- MAIN -->
+<div class="main-w">
+    <div class="topbar">
+        <div class="topbar-title">🎟️ Coupons Management</div>
+        <div style="display:flex;gap:8px;">
+            <button class="btn-gen" id="genCodeBtn" type="button"><i class="fa fa-magic me-1"></i> Generate Code</button>
+            <button class="btn-add" id="addCouponBtn" type="button"><i class="fa fa-plus me-1"></i> Add Coupon</button>
+        </div>
+    </div>
+
+    <div class="content">
+
+        <!-- STATS -->
+        <div class="stats-row">
+            <div class="stat-c"><div class="stat-ico" style="background:#d4edda;">✅</div><div><div class="stat-val" style="color:#2d6a4f;">8</div><div class="stat-lbl">Active Coupons</div></div></div>
+            <div class="stat-c"><div class="stat-ico" style="background:#fff3cd;">📊</div><div><div class="stat-val" style="color:#e85d04;">247</div><div class="stat-lbl">Total Uses This Month</div></div></div>
+            <div class="stat-c"><div class="stat-ico" style="background:#f8d7da;">⏰</div><div><div class="stat-val" style="color:#c62828;">3</div><div class="stat-lbl">Expired Coupons</div></div></div>
+            <div class="stat-c"><div class="stat-ico" style="background:#e8e0ff;">💰</div><div><div class="stat-val" style="color:#6a0dad;">₹4,820</div><div class="stat-lbl">Discount Given (Month)</div></div></div>
+        </div>
+
+        <!-- FILTER BAR -->
+        <div class="filter-bar">
+            <div><label class="fl" for="searchCoupon">Search</label><input class="finp" type="text" id="searchCoupon" placeholder="Coupon code / name..." style="width:200px;"></div>
+            <div><label class="fl" for="typeFilter">Type</label>
+                <select class="finp" id="typeFilter">
+                    <option value="">All Types</option>
+                    <option value="percent">% Percentage</option>
+                    <option value="flat">₹ Flat Amount</option>
+                    <option value="free_del">🚚 Free Delivery</option>
+                </select>
+            </div>
+            <div><label class="fl" for="statusFilter">Status</label>
+                <select class="finp" id="statusFilter">
+                    <option value="">All</option>
+                    <option value="active">Active</option>
+                    <option value="expired">Expired</option>
+                    <option value="inactive">Inactive</option>
+                    <option value="scheduled">Scheduled</option>
+                </select>
+            </div>
+            <button class="btn-f" id="applyFilter" type="button"><i class="fa fa-filter me-1"></i> Filter</button>
+        </div>
+
+        <!-- COUPON CARDS GRID -->
+        <div class="coupon-grid" id="couponGrid">
+
+            <!-- Coupon 1: Percentage -->
+            <div class="coupon-card" data-type="percent" data-status="active">
+                <div class="coupon-ticket">
+                    <span class="coupon-type-badge type-percent">% Percentage</span>
+                    <div class="deco">🎟️</div>
+                    <div class="coupon-code">
+                        PICKLE20
+                        <button class="copy-btn" type="button" data-code="PICKLE20">📋 Copy</button>
+                    </div>
+                    <div class="coupon-discount">20% OFF <span>on all orders</span></div>
+                </div>
+                <div class="coupon-body">
+                    <div class="coupon-name">Holi Festival Offer 🎨</div>
+                    <div class="coupon-desc">Get 20% off on any order. Valid for all customers. Max discount ₹100.</div>
+                    <div class="coupon-meta">
+                        <div class="meta-item"><div class="meta-lbl">Min Order</div><div class="meta-val">₹299</div></div>
+                        <div class="meta-item"><div class="meta-lbl">Max Discount</div><div class="meta-val">₹100</div></div>
+                        <div class="meta-item"><div class="meta-lbl">Expiry</div><div class="meta-val">31 Mar 2026</div></div>
+                        <div class="meta-item"><div class="meta-lbl">Per User</div><div class="meta-val">1 time</div></div>
+                    </div>
+                    <div class="usage-bar-wrap">
+                        <div class="usage-label"><span>Used: 84 / 200</span><span style="font-weight:700;color:#e85d04;">42%</span></div>
+                        <div class="usage-bar"><div class="usage-fill" style="width:42%;"></div></div>
+                    </div>
+                    <span class="status-pill s-active">✅ Active</span>
+                </div>
+                <div class="coupon-actions">
+                    <button class="act-btn btn-stats" type="button" data-id="1">📊 Stats</button>
+                    <button class="act-btn btn-edit" type="button" data-id="1">✏️ Edit</button>
+                    <button class="act-btn btn-toggle-c" type="button" data-id="1">⏸ Pause</button>
+                    <button class="act-btn btn-del" type="button" data-id="1">🗑 Delete</button>
+                </div>
+            </div>
+
+            <!-- Coupon 2: Flat -->
+            <div class="coupon-card" data-type="flat" data-status="active">
+                <div class="coupon-ticket" style="background:linear-gradient(135deg,#2d6a4f,#52b788);">
+                    <span class="coupon-type-badge type-flat">₹ Flat</span>
+                    <div class="deco">🥒</div>
+                    <div class="coupon-code">
+                        SAVE50
+                        <button class="copy-btn" type="button" data-code="SAVE50">📋 Copy</button>
+                    </div>
+                    <div class="coupon-discount">₹50 OFF <span>flat on any order</span></div>
+                </div>
+                <div class="coupon-body">
+                    <div class="coupon-name">New Customer Welcome 🎉</div>
+                    <div class="coupon-desc">₹50 flat discount for first-time customers. One use per account.</div>
+                    <div class="coupon-meta">
+                        <div class="meta-item"><div class="meta-lbl">Min Order</div><div class="meta-val">₹199</div></div>
+                        <div class="meta-item"><div class="meta-lbl">Max Discount</div><div class="meta-val">₹50</div></div>
+                        <div class="meta-item"><div class="meta-lbl">Expiry</div><div class="meta-val">No Expiry</div></div>
+                        <div class="meta-item"><div class="meta-lbl">Per User</div><div class="meta-val">1 time</div></div>
+                    </div>
+                    <div class="usage-bar-wrap">
+                        <div class="usage-label"><span>Used: 112 / unlimited</span><span style="font-weight:700;color:#2d6a4f;">∞</span></div>
+                        <div class="usage-bar"><div class="usage-fill" style="width:100%;background:linear-gradient(90deg,#2d6a4f,#52b788);"></div></div>
+                    </div>
+                    <span class="status-pill s-active">✅ Active</span>
+                </div>
+                <div class="coupon-actions">
+                    <button class="act-btn btn-stats" type="button" data-id="2">📊 Stats</button>
+                    <button class="act-btn btn-edit" type="button" data-id="2">✏️ Edit</button>
+                    <button class="act-btn btn-toggle-c" type="button" data-id="2">⏸ Pause</button>
+                    <button class="act-btn btn-del" type="button" data-id="2">🗑 Delete</button>
+                </div>
+            </div>
+
+            <!-- Coupon 3: Free Delivery -->
+            <div class="coupon-card" data-type="free_del" data-status="active">
+                <div class="coupon-ticket" style="background:linear-gradient(135deg,#1565c0,#1976d2);">
+                    <span class="coupon-type-badge type-free_del">🚚 Free Delivery</span>
+                    <div class="deco">🚚</div>
+                    <div class="coupon-code">
+                        FREESHIP
+                        <button class="copy-btn" type="button" data-code="FREESHIP">📋 Copy</button>
+                    </div>
+                    <div class="coupon-discount">FREE DELIVERY <span>on any order</span></div>
+                </div>
+                <div class="coupon-body">
+                    <div class="coupon-name">Free Delivery Weekend 🚚</div>
+                    <div class="coupon-desc">Free delivery regardless of order value. Weekend special offer.</div>
+                    <div class="coupon-meta">
+                        <div class="meta-item"><div class="meta-lbl">Min Order</div><div class="meta-val">No minimum</div></div>
+                        <div class="meta-item"><div class="meta-lbl">Delivery Saved</div><div class="meta-val">₹40</div></div>
+                        <div class="meta-item"><div class="meta-lbl">Expiry</div><div class="meta-val">22 Mar 2026</div></div>
+                        <div class="meta-item"><div class="meta-lbl">Per User</div><div class="meta-val">Unlimited</div></div>
+                    </div>
+                    <div class="usage-bar-wrap">
+                        <div class="usage-label"><span>Used: 31 / 500</span><span style="font-weight:700;color:#1565c0;">6%</span></div>
+                        <div class="usage-bar"><div class="usage-fill" style="width:6%;background:linear-gradient(90deg,#1565c0,#42a5f5);"></div></div>
+                    </div>
+                    <span class="status-pill s-active">✅ Active</span>
+                </div>
+                <div class="coupon-actions">
+                    <button class="act-btn btn-stats" type="button" data-id="3">📊 Stats</button>
+                    <button class="act-btn btn-edit" type="button" data-id="3">✏️ Edit</button>
+                    <button class="act-btn btn-toggle-c" type="button" data-id="3">⏸ Pause</button>
+                    <button class="act-btn btn-del" type="button" data-id="3">🗑 Delete</button>
+                </div>
+            </div>
+
+            <!-- Coupon 4: Scheduled -->
+            <div class="coupon-card" data-type="percent" data-status="scheduled">
+                <div class="coupon-ticket" style="background:linear-gradient(135deg,#6a0dad,#9c27b0);">
+                    <span class="coupon-type-badge" style="background:rgba(255,255,255,0.15);color:#fff;border:1px solid rgba(255,255,255,0.2);">📅 Scheduled</span>
+                    <div class="deco">🌸</div>
+                    <div class="coupon-code">
+                        SUMMER30
+                        <button class="copy-btn" type="button" data-code="SUMMER30">📋 Copy</button>
+                    </div>
+                    <div class="coupon-discount">30% OFF <span>Summer Special</span></div>
+                </div>
+                <div class="coupon-body">
+                    <div class="coupon-name">Summer Sale 2026 ☀️</div>
+                    <div class="coupon-desc">30% off on all mango pickles. Starts April 1 automatically.</div>
+                    <div class="coupon-meta">
+                        <div class="meta-item"><div class="meta-lbl">Starts</div><div class="meta-val">1 Apr 2026</div></div>
+                        <div class="meta-item"><div class="meta-lbl">Ends</div><div class="meta-val">30 Apr 2026</div></div>
+                        <div class="meta-item"><div class="meta-lbl">Min Order</div><div class="meta-val">₹499</div></div>
+                        <div class="meta-item"><div class="meta-lbl">Max Uses</div><div class="meta-val">300</div></div>
+                    </div>
+                    <div class="usage-bar-wrap">
+                        <div class="usage-label"><span>Used: 0 / 300</span><span style="font-weight:700;color:#6a0dad;">Scheduled</span></div>
+                        <div class="usage-bar"><div class="usage-fill" style="width:0%;background:#9c27b0;"></div></div>
+                    </div>
+                    <span class="status-pill s-scheduled">📅 Scheduled</span>
+                </div>
+                <div class="coupon-actions">
+                    <button class="act-btn btn-stats" type="button" data-id="4">📊 Stats</button>
+                    <button class="act-btn btn-edit" type="button" data-id="4">✏️ Edit</button>
+                    <button class="act-btn btn-toggle-c" type="button" data-id="4">▶ Activate Now</button>
+                    <button class="act-btn btn-del" type="button" data-id="4">🗑 Delete</button>
+                </div>
+            </div>
+
+            <!-- Coupon 5: Expired -->
+            <div class="coupon-card expired" data-type="percent" data-status="expired">
+                <div class="coupon-ticket" style="background:linear-gradient(135deg,#555,#777);">
+                    <span class="coupon-type-badge" style="background:rgba(255,0,0,0.2);color:#ffaaaa;border:1px solid rgba(255,0,0,0.3);">❌ Expired</span>
+                    <div class="deco">🎃</div>
+                    <div class="coupon-code" style="color:#ccc;">DIWALI25</div>
+                    <div class="coupon-discount" style="color:#ccc;">25% OFF <span>Diwali Special</span></div>
+                </div>
+                <div class="coupon-body">
+                    <div class="coupon-name">Diwali Offer 2025 🪔</div>
+                    <div class="coupon-desc">25% off during Diwali. Expired on 10 Nov 2025.</div>
+                    <div class="coupon-meta">
+                        <div class="meta-item"><div class="meta-lbl">Was Valid Till</div><div class="meta-val">10 Nov 2025</div></div>
+                        <div class="meta-item"><div class="meta-lbl">Total Used</div><div class="meta-val">189 times</div></div>
+                        <div class="meta-item"><div class="meta-lbl">Discount Given</div><div class="meta-val">₹7,240</div></div>
+                        <div class="meta-item"><div class="meta-lbl">Revenue Gen.</div><div class="meta-val">₹28,920</div></div>
+                    </div>
+                    <div class="usage-bar-wrap">
+                        <div class="usage-label"><span>Used: 189 / 200</span><span style="font-weight:700;color:#888;">95%</span></div>
+                        <div class="usage-bar"><div class="usage-fill" style="width:95%;background:#888;"></div></div>
+                    </div>
+                    <span class="status-pill s-expired">❌ Expired</span>
+                </div>
+                <div class="coupon-actions">
+                    <button class="act-btn btn-stats" type="button" data-id="5">📊 Stats</button>
+                    <button class="act-btn btn-edit" type="button" data-id="5" style="background:#e3f2fd;color:#1565c0;">♻️ Reactivate</button>
+                    <button class="act-btn btn-del" type="button" data-id="5">🗑 Delete</button>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- USAGE LOG TABLE -->
+        <div class="sec-card">
+            <div class="sec-head">
+                <h3>📋 Recent Coupon Usage Log</h3>
+                <span style="font-size:12px;color:#aaa;">Last 10 uses across all coupons</span>
+            </div>
+            <div style="overflow-x:auto;">
+                <table class="data-tbl" aria-label="Coupon usage log">
+                    <thead>
+                        <tr>
+                            <th>Coupon Code</th>
+                            <th>Customer</th>
+                            <th>Order ID</th>
+                            <th>Order Amount</th>
+                            <th>Discount Applied</th>
+                            <th>Date &amp; Time</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td><strong style="color:#e85d04;">PICKLE20</strong></td><td>Priya D.</td><td>#PH-2026-00847</td><td>₹967</td><td style="color:#2d6a4f;font-weight:700;">- ₹100</td><td><small>17 Mar 2026, 5:42 PM</small></td></tr>
+                        <tr><td><strong style="color:#2d6a4f;">SAVE50</strong></td><td>Rahul S.</td><td>#PH-2026-00846</td><td>₹810</td><td style="color:#2d6a4f;font-weight:700;">- ₹50</td><td><small>17 Mar 2026, 5:28 PM</small></td></tr>
+                        <tr><td><strong style="color:#1565c0;">FREESHIP</strong></td><td>Sunita K.</td><td>#PH-2026-00845</td><td>₹420</td><td style="color:#2d6a4f;font-weight:700;">- ₹40</td><td><small>17 Mar 2026, 4:11 PM</small></td></tr>
+                        <tr><td><strong style="color:#e85d04;">PICKLE20</strong></td><td>Amit P.</td><td>#PH-2026-00844</td><td>₹599</td><td style="color:#2d6a4f;font-weight:700;">- ₹99</td><td><small>17 Mar 2026, 2:45 PM</small></td></tr>
+                        <tr><td><strong style="color:#2d6a4f;">SAVE50</strong></td><td>Meena J.</td><td>#PH-2026-00843</td><td>₹299</td><td style="color:#2d6a4f;font-weight:700;">- ₹50</td><td><small>17 Mar 2026, 12:20 PM</small></td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<!-- ADD / EDIT COUPON MODAL -->
+<div class="modal-overlay" id="couponModal" role="dialog" aria-modal="true" aria-labelledby="couponModalTitle">
+    <div class="modal-box">
+        <div class="modal-head">
+            <span class="modal-title" id="couponModalTitle">🎟️ Add New Coupon</span>
+            <button class="modal-close" id="closeModal" type="button" aria-label="Close">✕</button>
+        </div>
+        <div class="modal-body">
+            <div class="toast-msg" id="formMsg" role="alert" aria-live="polite" style="display:none;border-radius:10px;padding:10px 14px;font-size:13px;font-weight:600;margin-bottom:14px;"></div>
+            <form id="couponForm" novalidate method="post" action="/admin/coupons/save/">
+                <input type="hidden" id="couponId" name="coupon_id">
+                <div class="row g-3">
+
+                    <!-- CODE + GENERATE -->
+                    <div class="col-12">
+                        <label class="lbl" for="couponCode">Coupon Code *</label>
+                        <div style="display:flex;gap:8px;">
+                            <input class="inp" type="text" id="couponCode" name="code"
+                                placeholder="e.g. PICKLE20" required maxlength="20"
+                                style="text-transform:uppercase;font-weight:700;font-size:15px;letter-spacing:2px;">
+                            <button type="button" class="btn-gen" id="autoGenBtn" style="white-space:nowrap;border-radius:10px;padding:10px 14px;">⚡ Auto</button>
+                        </div>
+                    </div>
+
+                    <!-- NAME -->
+                    <div class="col-12">
+                        <label class="lbl" for="couponName">Coupon Name / Label *</label>
+                        <input class="inp" type="text" id="couponName" name="name"
+                            placeholder="e.g. Holi Festival Offer" required maxlength="80">
+                    </div>
+
+                    <!-- DESCRIPTION -->
+                    <div class="col-12">
+                        <label class="lbl" for="couponDesc">Description (shown to customer)</label>
+                        <textarea class="inp" id="couponDesc" name="description" rows="2"
+                            placeholder="e.g. Get 20% off on all orders above ₹299" maxlength="200" style="resize:vertical;"></textarea>
+                    </div>
+
+                    <!-- DISCOUNT TYPE -->
+                    <div class="col-md-6">
+                        <label class="lbl" for="discType">Discount Type *</label>
+                        <select class="inp" id="discType" name="discount_type" required style="cursor:pointer;">
+                            <option value="">Select type...</option>
+                            <option value="percent">% Percentage Discount</option>
+                            <option value="flat">₹ Flat Amount Discount</option>
+                            <option value="free_del">🚚 Free Delivery</option>
+                        </select>
+                    </div>
+
+                    <!-- DISCOUNT VALUE -->
+                    <div class="col-md-6" id="discValueWrap">
+                        <label class="lbl" for="discValue">Discount Value *</label>
+                        <input class="inp" type="number" id="discValue" name="discount_value"
+                            placeholder="e.g. 20 for 20%" min="1" max="100">
+                    </div>
+
+                    <!-- MAX DISCOUNT (for percent type) -->
+                    <div class="col-md-6" id="maxDiscWrap">
+                        <label class="lbl" for="maxDisc">Max Discount (₹)</label>
+                        <input class="inp" type="number" id="maxDisc" name="max_discount"
+                            placeholder="e.g. 100" min="1">
+                    </div>
+
+                    <!-- MIN ORDER -->
+                    <div class="col-md-6">
+                        <label class="lbl" for="minOrder">Minimum Order Value (₹)</label>
+                        <input class="inp" type="number" id="minOrder" name="min_order_value"
+                            placeholder="e.g. 299 (0 = no minimum)" min="0">
+                    </div>
+
+                    <!-- MAX USES TOTAL -->
+                    <div class="col-md-6">
+                        <label class="lbl" for="maxUses">Max Total Uses</label>
+                        <input class="inp" type="number" id="maxUses" name="max_uses"
+                            placeholder="Leave blank = unlimited" min="1">
+                    </div>
+
+                    <!-- PER USER LIMIT -->
+                    <div class="col-md-6">
+                        <label class="lbl" for="perUser">Uses Per Customer</label>
+                        <select class="inp" id="perUser" name="per_user_limit" style="cursor:pointer;">
+                            <option value="1">1 time per customer</option>
+                            <option value="2">2 times per customer</option>
+                            <option value="3">3 times per customer</option>
+                            <option value="0">Unlimited</option>
+                        </select>
+                    </div>
+
+                    <!-- VALIDITY DATES -->
+                    <div class="col-md-6">
+                        <label class="lbl" for="startDate">Start Date</label>
+                        <input class="inp" type="date" id="startDate" name="start_date">
+                    </div>
+                    <div class="col-md-6">
+                        <label class="lbl" for="endDate">Expiry Date</label>
+                        <input class="inp" type="date" id="endDate" name="end_date">
+                    </div>
+
+                    <!-- APPLIES TO -->
+                    <div class="col-12">
+                        <label class="lbl" for="appliesTo">Applies To</label>
+                        <select class="inp" id="appliesTo" name="applies_to" style="cursor:pointer;">
+                            <option value="all">All Products</option>
+                            <option value="category">Specific Category</option>
+                            <option value="product">Specific Product</option>
+                            <option value="new_user">New Customers Only</option>
+                        </select>
+                    </div>
+
+                    <!-- TOGGLES -->
+                    <div class="col-12">
+                        <div style="display:flex;gap:20px;flex-wrap:wrap;">
+                            <label style="display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer;">
+                                <input type="checkbox" id="isActive" name="is_active" checked style="accent-color:#2d6a4f;width:16px;height:16px;">
+                                <span>✅ Active immediately</span>
+                            </label>
+                            <label style="display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer;">
+                                <input type="checkbox" id="isPublic" name="is_public" checked style="accent-color:#e85d04;width:16px;height:16px;">
+                                <span>🌐 Show on website (public)</span>
+                            </label>
+                            <label style="display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer;">
+                                <input type="checkbox" id="firstOrder" name="first_order_only" style="accent-color:#6a0dad;width:16px;height:16px;">
+                                <span>🆕 First order only</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- LIVE PREVIEW -->
+                    <div class="col-12">
+                        <div class="coupon-preview" id="couponPreview">
+                            <div style="font-size:11px;color:rgba(255,255,255,0.5);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;">Preview</div>
+                            <div class="preview-code" id="previewCode">PICKLE20</div>
+                            <div class="preview-disc" id="previewDisc">20% OFF</div>
+                            <div style="font-size:11px;color:rgba(255,255,255,0.6);margin-top:4px;" id="previewMin">Min order: ₹299</div>
+                        </div>
+                    </div>
+
+                    <!-- BUTTONS -->
+                    <div class="col-12" style="display:flex;gap:10px;justify-content:flex-end;margin-top:6px;">
+                        <button type="button" class="btn-cancel-m" id="cancelModal">Cancel</button>
+                        <button type="submit" class="btn-save">💾 Save Coupon</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast-bar" id="toastBar" role="status" aria-live="polite"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+(function () {
+    "use strict";
+
+    /* ── TOAST ── */
+    function toast(msg, type) {
+        var t = document.getElementById("toastBar");
+        t.textContent = msg;
+        t.className = "toast-bar " + (type || "ok") + " show";
+        setTimeout(function () { t.classList.remove("show"); }, 3200);
+    }
+
+    /* ── MODAL ── */
+    function openModal(title) {
+        document.getElementById("couponModalTitle").textContent = title;
+        document.getElementById("couponModal").classList.add("show");
+        document.getElementById("couponCode").focus();
+        updatePreview();
+    }
+    function closeModal() {
+        document.getElementById("couponModal").classList.remove("show");
+    }
+    document.getElementById("addCouponBtn").addEventListener("click", function () {
+        document.getElementById("couponForm").reset();
+        document.getElementById("couponId").value = "";
+        document.getElementById("couponPreview").classList.remove("show");
+        openModal("🎟️ Add New Coupon");
+    });
+    document.getElementById("closeModal").addEventListener("click", closeModal);
+    document.getElementById("cancelModal").addEventListener("click", closeModal);
+    document.getElementById("couponModal").addEventListener("click", function (e) {
+        if (e.target === this) closeModal();
+    });
+
+    /* ── EDIT BUTTONS ── */
+    document.querySelectorAll(".btn-edit").forEach(function (btn) {
+        btn.addEventListener("click", function () {
+            var card = this.closest(".coupon-card");
+            var code = card ? card.querySelector(".coupon-code").textContent.trim().split("\n")[0].trim() : "";
+            document.getElementById("couponCode").value = code;
+            document.getElementById("couponId").value = this.dataset.id;
+            openModal("✏️ Edit Coupon — " + code);
+        });
+    });
+
+    /* ── TOGGLE ACTIVE / PAUSE ── */
+    document.querySelectorAll(".btn-toggle-c").forEach(function (btn) {
+        btn.addEventListener("click", function () {
+            var isPause = this.textContent.includes("Pause");
+            this.textContent = isPause ? "▶ Activate" : "⏸ Pause";
+            var card = this.closest(".coupon-card");
+            if (card) {
+                card.classList.toggle("inactive", isPause);
+                var pill = card.querySelector(".status-pill");
+                if (pill) {
+                    pill.textContent = isPause ? "⏸ Paused" : "✅ Active";
+                    pill.className = "status-pill " + (isPause ? "s-inactive" : "s-active");
+                }
+            }
+            toast(isPause ? "Coupon paused." : "Coupon activated.", "ok");
+        });
+    });
+
+    /* ── DELETE ── */
+    document.querySelectorAll(".btn-del").forEach(function (btn) {
+        btn.addEventListener("click", function () {
+            var card = this.closest(".coupon-card");
+            card.style.transition = "opacity .3s,transform .3s";
+            card.style.opacity = "0";
+            card.style.transform = "scale(.95)";
+            setTimeout(function () { card.remove(); }, 300);
+            toast("Coupon deleted.", "err");
+        });
+    });
+
+    /* ── STATS BUTTON ── */
+    document.querySelectorAll(".btn-stats").forEach(function (btn) {
+        btn.addEventListener("click", function () {
+            var card = this.closest(".coupon-card");
+            var code = card.querySelector(".coupon-code").textContent.trim().split("\n")[0].trim();
+            toast("📊 Loading stats for " + code + "...", "info");
+        });
+    });
+
+    /* ── COPY COUPON CODE ── */
+    document.querySelectorAll(".copy-btn").forEach(function (btn) {
+        btn.addEventListener("click", function (e) {
+            e.stopPropagation();
+            var code = this.dataset.code;
+            if (navigator.clipboard) {
+                navigator.clipboard.writeText(code).then(function () {
+                    toast("✅ Coupon code "" + code + "" copied!", "ok");
+                });
+            } else {
+                toast("Code: " + code, "info");
+            }
+        });
+    });
+
+    /* ── FILTER ── */
+    document.getElementById("applyFilter").addEventListener("click", function () {
+        var q    = document.getElementById("searchCoupon").value.trim().toLowerCase();
+        var type = document.getElementById("typeFilter").value;
+        var stat = document.getElementById("statusFilter").value;
+        document.querySelectorAll(".coupon-card").forEach(function (c) {
+            var text = c.textContent.toLowerCase();
+            var ok   = (!q || text.includes(q))
+                    && (!type || c.dataset.type === type)
+                    && (!stat || c.dataset.status === stat);
+            c.style.display = ok ? "" : "none";
+        });
+    });
+    document.getElementById("searchCoupon").addEventListener("input", function () {
+        document.getElementById("applyFilter").click();
+    });
+
+    /* ── AUTO GENERATE CODE ── */
+    var words = ["PICKLE","ACHAAR","MANGO","SPICY","NAGPUR","FRESH","SUMMER","HOLI","DIWALI","SAVE","DEAL"];
+    function genCode() {
+        var w = words[Math.floor(Math.random() * words.length)];
+        var n = Math.floor(Math.random() * 50) + 10;
+        return w + n;
+    }
+    document.getElementById("genCodeBtn").addEventListener("click", function () {
+        openModal("🎟️ Add New Coupon");
+        document.getElementById("couponCode").value = genCode();
+        updatePreview();
+    });
+    document.getElementById("autoGenBtn").addEventListener("click", function () {
+        document.getElementById("couponCode").value = genCode();
+        updatePreview();
+    });
+
+    /* ── COUPON CODE UPPERCASE ── */
+    document.getElementById("couponCode").addEventListener("input", function () {
+        this.value = this.value.toUpperCase();
+        updatePreview();
+    });
+
+    /* ── DISCOUNT TYPE CHANGE ── */
+    document.getElementById("discType").addEventListener("change", function () {
+        var isFree = this.value === "free_del";
+        document.getElementById("discValueWrap").style.display = isFree ? "none" : "";
+        document.getElementById("maxDiscWrap").style.display   = (this.value === "percent") ? "" : "none";
+        updatePreview();
+    });
+    document.getElementById("discValue").addEventListener("input", updatePreview);
+    document.getElementById("minOrder").addEventListener("input", updatePreview);
+
+    /* ── LIVE PREVIEW ── */
+    function updatePreview() {
+        var code   = document.getElementById("couponCode").value || "CODE";
+        var type   = document.getElementById("discType").value;
+        var val    = document.getElementById("discValue").value;
+        var minOrd = document.getElementById("minOrder").value;
+        var prev   = document.getElementById("couponPreview");
+        if (!code && !type) { prev.classList.remove("show"); return; }
+        prev.classList.add("show");
+        document.getElementById("previewCode").textContent = code;
+        var discText = "—";
+        if (type === "percent" && val) discText = val + "% OFF";
+        else if (type === "flat" && val) discText = "₹" + val + " OFF";
+        else if (type === "free_del")    discText = "FREE DELIVERY";
+        document.getElementById("previewDisc").textContent = discText;
+        document.getElementById("previewMin").textContent  = minOrd ? "Min order: ₹" + minOrd : "No minimum order";
+    }
+
+    /* ── FORM VALIDATION ── */
+    document.getElementById("couponForm").addEventListener("submit", function (e) {
+        var code = document.getElementById("couponCode").value.trim();
+        var name = document.getElementById("couponName").value.trim();
+        var type = document.getElementById("discType").value;
+        var val  = document.getElementById("discValue").value;
+        var msg  = document.getElementById("formMsg");
+
+        function showErr(t) {
+            e.preventDefault();
+            msg.className = "";
+            msg.style.cssText = "display:block;background:#f8d7da;color:#721c24;border:1px solid #f5c6cb;border-radius:10px;padding:10px 14px;font-size:13px;font-weight:600;margin-bottom:14px;";
+            msg.textContent = t;
+        }
+
+        if (!code)  { showErr("Please enter a coupon code."); return; }
+        if (!name)  { showErr("Please enter a coupon name."); return; }
+        if (!type)  { showErr("Please select a discount type."); return; }
+        if (type !== "free_del" && !val) { showErr("Please enter a discount value."); return; }
+        /* Valid — Django handles POST */
+    });
+
+    /* ── SET TODAY AS DEFAULT START DATE ── */
+    var today = new Date().toISOString().split("T")[0];
+    document.getElementById("startDate").value = today;
+
+}());
+</script>
+</body>
+</html>

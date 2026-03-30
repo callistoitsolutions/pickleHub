@@ -1,0 +1,796 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Coupons Management | PickleHub Admin</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+    <style>
+        :root{--primary:#e85d04;--dark:#1a1a2e;--sidebar:240px;}
+        *{margin:0;padding:0;box-sizing:border-box;}
+        body{font-family:'Poppins',sans-serif;background:#f0f2f5;display:flex;min-height:100vh;}
+        .sidebar{width:var(--sidebar);background:linear-gradient(180deg,#1a1a2e,#0f3460);position:fixed;top:0;left:0;height:100vh;overflow-y:auto;z-index:100;}
+        .sidebar-logo{padding:18px;border-bottom:1px solid rgba(255,255,255,0.08);display:flex;align-items:center;gap:10px;}
+        .s-ico{width:36px;height:36px;background:linear-gradient(135deg,#e85d04,#ffd60a);border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:17px;}
+        .s-name{font-family:'Playfair Display',serif;font-size:15px;font-weight:700;color:#ffd60a;}
+        .s-sub{font-size:9px;color:#f48c06;letter-spacing:1px;display:block;}
+        .nav-sec{padding:12px 14px 3px;font-size:9px;font-weight:700;color:rgba(255,255,255,0.3);letter-spacing:2px;text-transform:uppercase;}
+        .nav-i{display:flex;align-items:center;gap:10px;padding:10px 18px;color:rgba(255,255,255,0.65);text-decoration:none;font-size:13px;font-weight:500;transition:.2s;border-left:3px solid transparent;}
+        .nav-i:hover,.nav-i.active{background:rgba(232,93,4,0.15);color:#ffd60a;border-left-color:#e85d04;}
+        .nav-i i{width:18px;text-align:center;font-size:13px;}
+        .main-w{margin-left:var(--sidebar);flex:1;display:flex;flex-direction:column;}
+        .topbar{background:#fff;padding:13px 22px;display:flex;align-items:center;justify-content:space-between;box-shadow:0 2px 8px rgba(0,0,0,0.06);position:sticky;top:0;z-index:99;}
+        .topbar-title{font-size:16px;font-weight:700;color:#1a1a2e;}
+        .content{padding:22px;flex:1;}
+
+        /* STATS */
+        .stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:22px;}
+        .stat-c{background:#fff;border-radius:14px;padding:18px;box-shadow:0 2px 8px rgba(0,0,0,0.05);display:flex;align-items:center;gap:14px;}
+        .stat-ico{width:46px;height:46px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;}
+        .stat-val{font-size:22px;font-weight:800;color:#1a1a2e;}
+        .stat-lbl{font-size:11px;color:#aaa;margin-top:1px;}
+
+        /* FILTER BAR */
+        .filter-bar{background:#fff;border-radius:14px;padding:14px 18px;box-shadow:0 2px 8px rgba(0,0,0,0.05);margin-bottom:16px;display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap;}
+        .fl{font-size:11px;font-weight:700;color:#888;margin-bottom:3px;display:block;}
+        .finp{border-radius:10px;border:1.5px solid #e0e0e0;padding:8px 12px;font-size:13px;font-family:'Poppins',sans-serif;outline:none;transition:.2s;}
+        .finp:focus{border-color:#e85d04;}
+        .btn-f{background:linear-gradient(135deg,#e85d04,#f48c06);color:#fff;border:none;border-radius:10px;padding:9px 18px;font-weight:700;font-size:13px;cursor:pointer;font-family:'Poppins',sans-serif;}
+        .btn-add{background:linear-gradient(135deg,#2d6a4f,#52b788);color:#fff;border:none;border-radius:10px;padding:9px 18px;font-weight:700;font-size:13px;cursor:pointer;font-family:'Poppins',sans-serif;white-space:nowrap;}
+        .btn-gen{background:linear-gradient(135deg,#6a0dad,#9c27b0);color:#fff;border:none;border-radius:10px;padding:9px 16px;font-weight:700;font-size:13px;cursor:pointer;font-family:'Poppins',sans-serif;white-space:nowrap;}
+
+        /* COUPON GRID */
+        .coupon-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:16px;margin-bottom:24px;}
+
+        /* EMPTY STATE */
+        .empty-state{grid-column:1/-1;text-align:center;padding:60px 20px;background:#fff;border-radius:18px;box-shadow:0 4px 14px rgba(0,0,0,0.06);}
+        .empty-state .e-ico{font-size:56px;margin-bottom:12px;}
+        .empty-state h3{font-size:18px;font-weight:700;color:#1a1a2e;margin-bottom:6px;}
+        .empty-state p{font-size:13px;color:#aaa;}
+
+        /* COUPON CARD */
+        .coupon-card{background:#fff;border-radius:18px;box-shadow:0 4px 14px rgba(0,0,0,0.07);overflow:hidden;transition:.3s;border:1.5px solid transparent;position:relative;}
+        .coupon-card:hover{border-color:#e85d04;transform:translateY(-3px);box-shadow:0 10px 28px rgba(232,93,4,0.1);}
+        .coupon-card.paused{opacity:.6;}
+
+        /* TICKET */
+        .coupon-ticket{padding:18px 20px;position:relative;overflow:hidden;}
+        .coupon-ticket::before{content:'';position:absolute;left:-12px;top:50%;transform:translateY(-50%);width:24px;height:24px;background:#f0f2f5;border-radius:50%;z-index:1;}
+        .coupon-ticket::after{content:'';position:absolute;right:-12px;top:50%;transform:translateY(-50%);width:24px;height:24px;background:#f0f2f5;border-radius:50%;z-index:1;}
+        .ticket-deco{position:absolute;font-size:80px;opacity:.07;right:-10px;top:-15px;pointer-events:none;}
+        .coupon-code-lbl{font-family:'Playfair Display',serif;font-size:21px;font-weight:700;color:#ffd60a;letter-spacing:3px;word-break:break-all;}
+        .coupon-type-badge{position:absolute;top:10px;right:18px;border-radius:50px;padding:3px 11px;font-size:10px;font-weight:800;}
+        .coupon-discount-big{font-size:26px;font-weight:800;color:#fff;margin-top:4px;}
+        .coupon-discount-big span{font-size:13px;font-weight:500;color:rgba(255,255,255,0.6);}
+
+        /* CARD BODY */
+        .coupon-body{padding:14px 18px;}
+        .coupon-name{font-weight:700;font-size:14px;color:#1a1a2e;margin-bottom:3px;}
+        .coupon-desc{font-size:12px;color:#888;line-height:1.5;margin-bottom:10px;}
+        .coupon-meta{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:10px;}
+        .meta-item{background:#f8f9fa;border-radius:8px;padding:7px 10px;}
+        .meta-lbl{font-size:10px;color:#aaa;font-weight:700;text-transform:uppercase;letter-spacing:.3px;}
+        .meta-val{font-size:12px;font-weight:700;color:#1a1a2e;margin-top:1px;}
+        .usage-label{display:flex;justify-content:space-between;font-size:11px;color:#888;margin-bottom:3px;}
+        .usage-bar{height:6px;background:#f0f0f0;border-radius:3px;overflow:hidden;margin-bottom:10px;}
+        .usage-fill{height:100%;border-radius:3px;transition:.5s;}
+        .status-pill{padding:4px 12px;border-radius:50px;font-size:11px;font-weight:700;}
+        .s-active{background:#d4edda;color:#155724;}
+        .s-paused{background:#fff3cd;color:#856404;}
+        .s-expired{background:#f8d7da;color:#721c24;}
+
+        /* CARD ACTIONS */
+        .coupon-actions{display:flex;gap:6px;border-top:1px solid #f5f5f5;padding:10px 18px;}
+        .act-btn{flex:1;border:none;border-radius:8px;padding:8px 0;font-size:11px;font-weight:700;cursor:pointer;font-family:'Poppins',sans-serif;transition:.2s;}
+        .btn-copy{background:#e3f2fd;color:#1565c0;}  .btn-copy:hover{background:#1565c0;color:#fff;}
+        .btn-edit-c{background:#fff3e0;color:#e85d04;} .btn-edit-c:hover{background:#e85d04;color:#fff;}
+        .btn-pause-c{background:#f3e5f5;color:#6a0dad;} .btn-pause-c:hover{background:#6a0dad;color:#fff;}
+        .btn-del-c{background:#fdecea;color:#c62828;}  .btn-del-c:hover{background:#c62828;color:#fff;}
+
+        /* USAGE LOG */
+        .sec-card{background:#fff;border-radius:16px;box-shadow:0 4px 15px rgba(0,0,0,0.06);overflow:hidden;margin-bottom:22px;}
+        .sec-head{padding:16px 20px;border-bottom:1px solid #f5f5f5;display:flex;align-items:center;justify-content:space-between;}
+        .sec-head h3{font-size:15px;font-weight:700;color:#1a1a2e;margin:0;}
+        .data-tbl{width:100%;font-size:13px;border-collapse:collapse;}
+        .data-tbl th{background:linear-gradient(135deg,#1a1a2e,#0f3460);color:rgba(255,255,255,0.85);font-size:11px;text-transform:uppercase;letter-spacing:.5px;padding:12px 14px;font-weight:700;white-space:nowrap;}
+        .data-tbl td{padding:11px 14px;border-bottom:1px solid #f8f8f8;vertical-align:middle;}
+        .data-tbl tr:last-child td{border-bottom:none;}
+        #logEmpty{text-align:center;padding:30px;color:#aaa;font-size:13px;}
+
+        /* MODAL */
+        .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:200;display:none;align-items:center;justify-content:center;padding:16px;}
+        .modal-overlay.show{display:flex;}
+        .modal-box{background:#fff;border-radius:20px;width:100%;max-width:620px;max-height:94vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,0.25);}
+        .modal-head{background:linear-gradient(135deg,#1a1a2e,#0f3460);padding:18px 24px;border-radius:20px 20px 0 0;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:1;}
+        .modal-title{font-size:16px;font-weight:700;color:#ffd60a;}
+        .modal-close{background:rgba(255,255,255,0.1);border:none;color:#fff;width:32px;height:32px;border-radius:50%;font-size:15px;cursor:pointer;line-height:1;}
+        .modal-body{padding:22px;}
+        .lbl{font-size:12px;font-weight:700;color:#555;margin-bottom:4px;display:block;}
+        .inp{width:100%;border-radius:10px;border:1.5px solid #e0e0e0;padding:10px 14px;font-size:13px;font-family:'Poppins',sans-serif;outline:none;transition:.2s;}
+        .inp:focus{border-color:#e85d04;box-shadow:0 0 0 3px rgba(232,93,4,0.08);}
+        .inp.err{border-color:#e74c3c;box-shadow:0 0 0 3px rgba(231,76,60,0.1);}
+
+        /* LIVE PREVIEW INSIDE MODAL */
+        .preview-wrap{border-radius:16px;overflow:hidden;margin-top:4px;}
+        .preview-ticket{padding:18px 22px;position:relative;overflow:hidden;min-height:80px;}
+        .preview-ticket::before{content:'';position:absolute;left:-12px;top:50%;transform:translateY(-50%);width:24px;height:24px;background:#fff;border-radius:50%;}
+        .preview-ticket::after{content:'';position:absolute;right:-12px;top:50%;transform:translateY(-50%);width:24px;height:24px;background:#fff;border-radius:50%;}
+        .preview-code-lbl{font-family:'Playfair Display',serif;font-size:20px;font-weight:700;color:#ffd60a;letter-spacing:3px;}
+        .preview-disc-lbl{font-size:22px;font-weight:800;color:#fff;margin-top:4px;}
+        .preview-sub{font-size:11px;color:rgba(255,255,255,0.6);margin-top:2px;}
+
+        .btn-save{background:linear-gradient(135deg,#e85d04,#f48c06);color:#fff;border:none;border-radius:50px;padding:12px 30px;font-weight:800;font-size:14px;cursor:pointer;font-family:'Poppins',sans-serif;transition:.3s;}
+        .btn-save:hover{transform:translateY(-2px);box-shadow:0 8px 20px rgba(232,93,4,0.3);}
+        .btn-cancel-m{background:#f0f2f5;color:#555;border:none;border-radius:50px;padding:12px 22px;font-weight:700;font-size:14px;cursor:pointer;font-family:'Poppins',sans-serif;}
+        .form-err{background:#fdecea;border-left:4px solid #e74c3c;border-radius:8px;padding:10px 14px;font-size:12px;font-weight:600;color:#c62828;margin-bottom:14px;display:none;}
+
+        /* TOAST */
+        .toast-bar{position:fixed;bottom:24px;right:24px;background:#1a1a2e;color:#fff;border-radius:12px;padding:14px 20px;font-size:13px;font-weight:600;z-index:9999;transform:translateY(80px);opacity:0;transition:.3s;display:flex;align-items:center;gap:10px;max-width:340px;box-shadow:0 8px 24px rgba(0,0,0,0.2);}
+        .toast-bar.show{transform:translateY(0);opacity:1;}
+        .toast-bar.ok{border-left:4px solid #52b788;}
+        .toast-bar.err{border-left:4px solid #e85d04;}
+        .toast-bar.info{border-left:4px solid #ffd60a;}
+
+        @media(max-width:768px){.sidebar{display:none;}.main-w{margin-left:0;}.stats-row{grid-template-columns:repeat(2,1fr);}.coupon-grid{grid-template-columns:1fr;}}
+    </style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<nav class="sidebar">
+    <div class="sidebar-logo">
+        <div class="s-ico">🥒</div>
+        <div><span class="s-name">PickleHub</span><small class="s-sub">Admin Panel</small></div>
+    </div>
+    <div class="nav-sec">Main</div>
+    <a class="nav-i" href="picklehub_dashboard.html"><i class="fa fa-tachometer-alt"></i> Dashboard</a>
+    <div class="nav-sec">Orders</div>
+    <a class="nav-i" href="picklehub_orders_admin.html"><i class="fa fa-shopping-bag"></i> All Orders</a>
+    <div class="nav-sec">Catalogue</div>
+    <a class="nav-i" href="picklehub_products_admin.html"><i class="fa fa-box"></i> Products</a>
+    <a class="nav-i active" href="#"><i class="fa fa-ticket-alt"></i> Coupons</a>
+    <div class="nav-sec">Reports</div>
+    <a class="nav-i" href="picklehub_reports.html"><i class="fa fa-chart-bar"></i> Sales Reports</a>
+</nav>
+
+<!-- MAIN -->
+<div class="main-w">
+    <div class="topbar">
+        <div class="topbar-title">🎟️ Coupons Management</div>
+        <div style="display:flex;gap:8px;">
+            <button class="btn-gen" id="quickGenBtn" type="button">⚡ Quick Generate</button>
+            <button class="btn-add" id="addCouponBtn" type="button"><i class="fa fa-plus me-1"></i> Add Coupon</button>
+        </div>
+    </div>
+
+    <div class="content">
+
+        <!-- STATS -->
+        <div class="stats-row">
+            <div class="stat-c"><div class="stat-ico" style="background:#d4edda;">✅</div><div><div class="stat-val" id="statActive">0</div><div class="stat-lbl">Active Coupons</div></div></div>
+            <div class="stat-c"><div class="stat-ico" style="background:#fff3cd;">📊</div><div><div class="stat-val" id="statUses">0</div><div class="stat-lbl">Total Uses</div></div></div>
+            <div class="stat-c"><div class="stat-ico" style="background:#f8d7da;">⏸</div><div><div class="stat-val" id="statPaused">0</div><div class="stat-lbl">Paused</div></div></div>
+            <div class="stat-c"><div class="stat-ico" style="background:#e8e0ff;">💰</div><div><div class="stat-val" id="statDiscount">₹0</div><div class="stat-lbl">Discount Given</div></div></div>
+        </div>
+
+        <!-- FILTER BAR -->
+        <div class="filter-bar">
+            <div><label class="fl" for="searchCoupon">Search</label><input class="finp" type="text" id="searchCoupon" placeholder="Code or name..." style="width:180px;"></div>
+            <div><label class="fl" for="typeFilter">Type</label>
+                <select class="finp" id="typeFilter">
+                    <option value="">All Types</option>
+                    <option value="percent">% Percentage</option>
+                    <option value="flat">₹ Flat</option>
+                    <option value="free_del">🚚 Free Delivery</option>
+                </select>
+            </div>
+            <div><label class="fl" for="statusFilter">Status</label>
+                <select class="finp" id="statusFilter">
+                    <option value="">All</option>
+                    <option value="active">Active</option>
+                    <option value="paused">Paused</option>
+                </select>
+            </div>
+            <button class="btn-f" id="applyFilter" type="button"><i class="fa fa-filter me-1"></i> Filter</button>
+        </div>
+
+        <!-- COUPON GRID — rendered by JS -->
+        <div class="coupon-grid" id="couponGrid">
+            <div class="empty-state">
+                <div class="e-ico">🎟️</div>
+                <h3>No Coupons Yet</h3>
+                <p>Click <strong>Add Coupon</strong> or <strong>⚡ Quick Generate</strong> to create your first coupon!</p>
+            </div>
+        </div>
+
+        <!-- USAGE LOG -->
+        <div class="sec-card">
+            <div class="sec-head">
+                <h3>📋 Coupon Usage Log</h3>
+                <span style="font-size:12px;color:#aaa;" id="logCount">0 entries</span>
+            </div>
+            <div style="overflow-x:auto;">
+                <table class="data-tbl">
+                    <thead>
+                        <tr>
+                            <th>Coupon Code</th>
+                            <th>Customer</th>
+                            <th>Order ID</th>
+                            <th>Order Amt</th>
+                            <th>Discount</th>
+                            <th>Date &amp; Time</th>
+                        </tr>
+                    </thead>
+                    <tbody id="logBody">
+                        <tr><td colspan="6" id="logEmpty" style="text-align:center;padding:24px;color:#aaa;font-size:13px;">No usage yet. Use a coupon to see logs here.</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ADD / EDIT MODAL -->
+<div class="modal-overlay" id="couponModal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+    <div class="modal-box">
+        <div class="modal-head">
+            <span class="modal-title" id="modalTitle">🎟️ Add New Coupon</span>
+            <button class="modal-close" id="closeModal" type="button" aria-label="Close">✕</button>
+        </div>
+        <div class="modal-body">
+            <div class="form-err" id="formErr"></div>
+            <form id="couponForm" novalidate autocomplete="off">
+                <input type="hidden" id="editIndex" value="-1">
+                <div class="row g-3">
+
+                    <!-- CODE -->
+                    <div class="col-12">
+                        <label class="lbl" for="fCode">Coupon Code *</label>
+                        <div style="display:flex;gap:8px;">
+                            <input class="inp" type="text" id="fCode" placeholder="e.g. PICKLE20"
+                                maxlength="20" style="text-transform:uppercase;font-weight:700;font-size:15px;letter-spacing:2px;">
+                            <button type="button" id="autoGenBtn"
+                                style="background:linear-gradient(135deg,#6a0dad,#9c27b0);color:#fff;border:none;border-radius:10px;padding:10px 14px;font-weight:700;font-size:13px;cursor:pointer;white-space:nowrap;font-family:'Poppins',sans-serif;">
+                                ⚡ Auto
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- NAME -->
+                    <div class="col-12">
+                        <label class="lbl" for="fName">Coupon Label / Name *</label>
+                        <input class="inp" type="text" id="fName" placeholder="e.g. Holi Festival Offer 🎨" maxlength="80">
+                    </div>
+
+                    <!-- DESCRIPTION -->
+                    <div class="col-12">
+                        <label class="lbl" for="fDesc">Description (shown to customer)</label>
+                        <textarea class="inp" id="fDesc" rows="2"
+                            placeholder="e.g. Get 20% off on orders above ₹299. Max discount ₹100." maxlength="200"
+                            style="resize:vertical;"></textarea>
+                    </div>
+
+                    <!-- TYPE -->
+                    <div class="col-md-6">
+                        <label class="lbl" for="fType">Discount Type *</label>
+                        <select class="inp" id="fType" style="cursor:pointer;">
+                            <option value="">Select type...</option>
+                            <option value="percent">% Percentage Off</option>
+                            <option value="flat">₹ Flat Amount Off</option>
+                            <option value="free_del">🚚 Free Delivery</option>
+                        </select>
+                    </div>
+
+                    <!-- VALUE -->
+                    <div class="col-md-6" id="fValueWrap">
+                        <label class="lbl" for="fValue" id="fValueLbl">Discount Value *</label>
+                        <input class="inp" type="number" id="fValue" placeholder="e.g. 20" min="1" max="100">
+                    </div>
+
+                    <!-- MAX DISCOUNT (percent only) -->
+                    <div class="col-md-6" id="fMaxWrap" style="display:none;">
+                        <label class="lbl" for="fMax">Max Discount (₹)</label>
+                        <input class="inp" type="number" id="fMax" placeholder="e.g. 100 (leave blank = no cap)" min="1">
+                    </div>
+
+                    <!-- MIN ORDER -->
+                    <div class="col-md-6">
+                        <label class="lbl" for="fMinOrder">Minimum Order Value (₹)</label>
+                        <input class="inp" type="number" id="fMinOrder" placeholder="0 = no minimum" min="0">
+                    </div>
+
+                    <!-- MAX USES -->
+                    <div class="col-md-6">
+                        <label class="lbl" for="fMaxUses">Max Total Uses</label>
+                        <input class="inp" type="number" id="fMaxUses" placeholder="Leave blank = unlimited" min="1">
+                    </div>
+
+                    <!-- PER USER -->
+                    <div class="col-md-6">
+                        <label class="lbl" for="fPerUser">Uses Per Customer</label>
+                        <select class="inp" id="fPerUser" style="cursor:pointer;">
+                            <option value="1">1 time</option>
+                            <option value="2">2 times</option>
+                            <option value="3">3 times</option>
+                            <option value="0">Unlimited</option>
+                        </select>
+                    </div>
+
+                    <!-- DATES -->
+                    <div class="col-md-6">
+                        <label class="lbl" for="fStart">Start Date</label>
+                        <input class="inp" type="date" id="fStart">
+                    </div>
+                    <div class="col-md-6">
+                        <label class="lbl" for="fEnd">Expiry Date</label>
+                        <input class="inp" type="date" id="fEnd">
+                    </div>
+
+                    <!-- APPLIES TO -->
+                    <div class="col-12">
+                        <label class="lbl" for="fApplies">Applies To</label>
+                        <select class="inp" id="fApplies" style="cursor:pointer;">
+                            <option value="all">All Products</option>
+                            <option value="mango">Mango Pickles Only</option>
+                            <option value="lemon">Lemon Pickles Only</option>
+                            <option value="new_user">New Customers Only</option>
+                        </select>
+                    </div>
+
+                    <!-- TOGGLES -->
+                    <div class="col-12">
+                        <div style="display:flex;gap:18px;flex-wrap:wrap;">
+                            <label style="display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer;">
+                                <input type="checkbox" id="fActive" checked style="accent-color:#2d6a4f;width:16px;height:16px;"> ✅ Active
+                            </label>
+                            <label style="display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer;">
+                                <input type="checkbox" id="fPublic" checked style="accent-color:#e85d04;width:16px;height:16px;"> 🌐 Show on website
+                            </label>
+                            <label style="display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer;">
+                                <input type="checkbox" id="fFirstOnly" style="accent-color:#6a0dad;width:16px;height:16px;"> 🆕 First order only
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- LIVE PREVIEW -->
+                    <div class="col-12">
+                        <label class="lbl">Live Preview</label>
+                        <div class="preview-wrap" id="previewWrap" style="background:#eee;">
+                            <div class="preview-ticket" id="previewTicket" style="background:linear-gradient(135deg,#1a1a2e,#0f3460);">
+                                <div class="ticket-deco" id="prevDeco">🎟️</div>
+                                <div class="preview-code-lbl" id="prevCode">YOUR CODE</div>
+                                <div class="preview-disc-lbl" id="prevDisc">Discount here</div>
+                                <div class="preview-sub" id="prevSub">Fill the form to see preview</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- BUTTONS -->
+                    <div class="col-12" style="display:flex;gap:10px;justify-content:flex-end;padding-top:6px;">
+                        <button type="button" class="btn-cancel-m" id="cancelModal">Cancel</button>
+                        <button type="submit" class="btn-save">💾 Save Coupon</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast-bar" id="toastBar" role="status" aria-live="polite"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+(function () {
+    "use strict";
+
+    /* ══════════════════════════════════════
+       DATA STORE — array of coupon objects
+    ══════════════════════════════════════ */
+    var coupons = [];   // { id, code, name, desc, type, value, maxDisc, minOrder, maxUses, uses, perUser, start, end, applies, active, public, firstOnly, createdAt }
+    var usageLog = [];  // { code, customer, orderId, orderAmt, discount, dateTime }
+
+    /* ── helpers ── */
+    function uid(){ return Date.now() + Math.floor(Math.random()*9999); }
+    function today(){ return new Date().toISOString().split("T")[0]; }
+    function fmtDate(d){ if(!d) return "—"; var p=d.split("-"); return p[2]+"/"+p[1]+"/"+p[0]; }
+    function fmtMoney(n){ return "₹"+Number(n||0).toLocaleString("en-IN"); }
+
+    var TYPE_MAP = { percent:"% Percentage", flat:"₹ Flat", free_del:"🚚 Free Delivery" };
+    var APPLIES_MAP = { all:"All Products", mango:"Mango Pickles", lemon:"Lemon Pickles", new_user:"New Customers" };
+
+    function typeColor(type){
+        if(type==="percent") return "linear-gradient(135deg,#1a1a2e,#0f3460)";
+        if(type==="flat")    return "linear-gradient(135deg,#2d6a4f,#52b788)";
+        if(type==="free_del")return "linear-gradient(135deg,#1565c0,#1976d2)";
+        return "linear-gradient(135deg,#555,#777)";
+    }
+    function typeBadgeStyle(type){
+        if(type==="percent") return "background:rgba(232,93,4,0.25);color:#ffd60a;border:1px solid rgba(232,93,4,0.3);";
+        if(type==="flat")    return "background:rgba(255,255,255,0.15);color:#fff;border:1px solid rgba(255,255,255,0.25);";
+        if(type==="free_del")return "background:rgba(255,255,255,0.15);color:#90caf9;border:1px solid rgba(100,181,246,0.3);";
+        return "";
+    }
+    function discLabel(c){
+        if(c.type==="percent") return c.value+"% OFF";
+        if(c.type==="flat")    return "₹"+c.value+" OFF";
+        if(c.type==="free_del") return "FREE DELIVERY";
+        return "—";
+    }
+    function usagePct(c){
+        if(!c.maxUses) return 100;
+        return Math.min(100, Math.round(c.uses/c.maxUses*100));
+    }
+    function usageFillColor(type){
+        if(type==="percent") return "linear-gradient(90deg,#e85d04,#ffd60a)";
+        if(type==="flat")    return "linear-gradient(90deg,#2d6a4f,#52b788)";
+        return "linear-gradient(90deg,#1565c0,#42a5f5)";
+    }
+
+    /* ══════════════════════════════════════
+       RENDER ALL CARDS
+    ══════════════════════════════════════ */
+    function renderGrid(){
+        var grid = document.getElementById("couponGrid");
+        var q    = document.getElementById("searchCoupon").value.trim().toLowerCase();
+        var tf   = document.getElementById("typeFilter").value;
+        var sf   = document.getElementById("statusFilter").value;
+
+        var filtered = coupons.filter(function(c){
+            var matchQ  = !q || c.code.toLowerCase().includes(q) || c.name.toLowerCase().includes(q);
+            var matchT  = !tf || c.type === tf;
+            var matchS  = !sf || (sf==="active" && c.active) || (sf==="paused" && !c.active);
+            return matchQ && matchT && matchS;
+        });
+
+        if(filtered.length === 0){
+            grid.innerHTML = '<div class="empty-state"><div class="e-ico">🎟️</div><h3>'+(coupons.length===0?"No Coupons Yet":"No Matching Coupons")+'</h3><p>'+(coupons.length===0?"Click <strong>Add Coupon</strong> or <strong>⚡ Quick Generate</strong> to create your first coupon!":"Try changing your filters.")+'</p></div>';
+            updateStats(); return;
+        }
+
+        grid.innerHTML = "";
+        filtered.forEach(function(c){
+            var pct  = usagePct(c);
+            var useLbl = c.uses + " / " + (c.maxUses || "∞");
+            var card = document.createElement("div");
+            card.className = "coupon-card" + (c.active?"": " paused");
+            card.dataset.id = c.id;
+            card.innerHTML =
+                '<div class="coupon-ticket" style="background:'+typeColor(c.type)+'">'+
+                    '<div class="ticket-deco">'+
+                        (c.type==="percent"?"🎟️":c.type==="flat"?"🥒":"🚚")+
+                    '</div>'+
+                    '<span class="coupon-type-badge" style="'+typeBadgeStyle(c.type)+'">'+TYPE_MAP[c.type]+'</span>'+
+                    '<div class="coupon-code-lbl">'+escHtml(c.code)+'</div>'+
+                    '<div class="coupon-discount-big">'+discLabel(c)+' <span>on '+APPLIES_MAP[c.applies]+'</span></div>'+
+                '</div>'+
+                '<div class="coupon-body">'+
+                    '<div class="coupon-name">'+escHtml(c.name)+'</div>'+
+                    '<div class="coupon-desc">'+escHtml(c.desc||"—")+'</div>'+
+                    '<div class="coupon-meta">'+
+                        metaItem("Min Order", c.minOrder ? fmtMoney(c.minOrder) : "No minimum")+
+                        metaItem("Max Discount", c.type==="percent" && c.maxDisc ? fmtMoney(c.maxDisc) : "—")+
+                        metaItem("Expiry", c.end ? fmtDate(c.end) : "No expiry")+
+                        metaItem("Per User", c.perUser==="0"||c.perUser===0 ? "Unlimited" : c.perUser+" time(s)")+
+                    '</div>'+
+                    '<div class="usage-label"><span>Used: '+useLbl+'</span><span style="font-weight:700;color:#e85d04;">'+pct+'%</span></div>'+
+                    '<div class="usage-bar"><div class="usage-fill" style="width:'+pct+'%;background:'+usageFillColor(c.type)+'"></div></div>'+
+                    '<span class="status-pill '+( c.active?"s-active":"s-paused")+'">'+( c.active?"✅ Active":"⏸ Paused")+'</span>'+
+                '</div>'+
+                '<div class="coupon-actions">'+
+                    '<button class="act-btn btn-copy" type="button" data-action="copy">📋 Copy</button>'+
+                    '<button class="act-btn btn-edit-c" type="button" data-action="edit">✏️ Edit</button>'+
+                    '<button class="act-btn btn-pause-c" type="button" data-action="toggle">'+( c.active?"⏸ Pause":"▶ Resume")+'</button>'+
+                    '<button class="act-btn btn-del-c" type="button" data-action="del">🗑 Delete</button>'+
+                '</div>';
+            grid.appendChild(card);
+        });
+
+        // delegate events
+        grid.querySelectorAll(".act-btn").forEach(function(btn){
+            btn.addEventListener("click", handleCardAction);
+        });
+
+        updateStats();
+    }
+
+    function metaItem(lbl, val){
+        return '<div class="meta-item"><div class="meta-lbl">'+lbl+'</div><div class="meta-val">'+val+'</div></div>';
+    }
+
+    function escHtml(s){
+        var d=document.createElement("div"); d.textContent=s||""; return d.innerHTML;
+    }
+
+    /* ══════════════════════════════════════
+       STATS
+    ══════════════════════════════════════ */
+    function updateStats(){
+        var active  = coupons.filter(function(c){ return c.active; }).length;
+        var paused  = coupons.filter(function(c){ return !c.active; }).length;
+        var uses    = coupons.reduce(function(s,c){ return s+c.uses; },0);
+        var disc    = usageLog.reduce(function(s,l){ return s+l.discount; },0);
+        document.getElementById("statActive").textContent  = active;
+        document.getElementById("statUses").textContent    = uses;
+        document.getElementById("statPaused").textContent  = paused;
+        document.getElementById("statDiscount").textContent = fmtMoney(disc);
+    }
+
+    /* ══════════════════════════════════════
+       CARD ACTIONS
+    ══════════════════════════════════════ */
+    function handleCardAction(e){
+        var btn    = e.currentTarget;
+        var action = btn.dataset.action;
+        var card   = btn.closest(".coupon-card");
+        var id     = parseInt(card.dataset.id);
+        var idx    = coupons.findIndex(function(c){ return c.id===id; });
+        if(idx===-1) return;
+        var c = coupons[idx];
+
+        if(action==="copy"){
+            if(navigator.clipboard){
+                navigator.clipboard.writeText(c.code).then(function(){
+                    toast("✅ Code ""+c.code+"" copied to clipboard!", "ok");
+                });
+            } else {
+                toast("Code: "+c.code, "info");
+            }
+        }
+        else if(action==="edit"){
+            openModal(idx);
+        }
+        else if(action==="toggle"){
+            coupons[idx].active = !coupons[idx].active;
+            toast(coupons[idx].active ? "▶ Coupon ""+c.code+"" activated!" : "⏸ Coupon ""+c.code+"" paused.", "info");
+            renderGrid();
+        }
+        else if(action==="del"){
+            card.style.transition = "opacity .3s,transform .3s";
+            card.style.opacity = "0"; card.style.transform = "scale(.95)";
+            setTimeout(function(){
+                coupons.splice(idx,1);
+                toast("🗑 Coupon ""+c.code+"" deleted.", "err");
+                renderGrid();
+            }, 280);
+        }
+    }
+
+    /* ══════════════════════════════════════
+       MODAL OPEN / CLOSE
+    ══════════════════════════════════════ */
+    function openModal(editIdx){
+        editIdx = (editIdx===undefined ? -1 : editIdx);
+        document.getElementById("editIndex").value = editIdx;
+        document.getElementById("formErr").style.display = "none";
+
+        if(editIdx >= 0){
+            var c = coupons[editIdx];
+            document.getElementById("modalTitle").textContent = "✏️ Edit Coupon — "+c.code;
+            document.getElementById("fCode").value      = c.code;
+            document.getElementById("fName").value      = c.name;
+            document.getElementById("fDesc").value      = c.desc||"";
+            document.getElementById("fType").value      = c.type;
+            document.getElementById("fValue").value     = c.value||"";
+            document.getElementById("fMax").value       = c.maxDisc||"";
+            document.getElementById("fMinOrder").value  = c.minOrder||"";
+            document.getElementById("fMaxUses").value   = c.maxUses||"";
+            document.getElementById("fPerUser").value   = c.perUser||"1";
+            document.getElementById("fStart").value     = c.start||"";
+            document.getElementById("fEnd").value       = c.end||"";
+            document.getElementById("fApplies").value   = c.applies||"all";
+            document.getElementById("fActive").checked  = c.active;
+            document.getElementById("fPublic").checked  = c.isPublic;
+            document.getElementById("fFirstOnly").checked = c.firstOnly;
+        } else {
+            document.getElementById("modalTitle").textContent = "🎟️ Add New Coupon";
+            document.getElementById("couponForm").reset();
+            document.getElementById("fStart").value = today();
+            document.getElementById("fActive").checked = true;
+            document.getElementById("fPublic").checked = true;
+        }
+        onTypeChange();
+        updatePreview();
+        document.getElementById("couponModal").classList.add("show");
+        document.getElementById("fCode").focus();
+    }
+    function closeModal(){
+        document.getElementById("couponModal").classList.remove("show");
+    }
+
+    document.getElementById("addCouponBtn").addEventListener("click", function(){ openModal(); });
+    document.getElementById("closeModal").addEventListener("click", closeModal);
+    document.getElementById("cancelModal").addEventListener("click", closeModal);
+    document.getElementById("couponModal").addEventListener("click", function(e){ if(e.target===this) closeModal(); });
+
+    /* ══════════════════════════════════════
+       FORM — type change
+    ══════════════════════════════════════ */
+    function onTypeChange(){
+        var type = document.getElementById("fType").value;
+        document.getElementById("fValueWrap").style.display  = type==="free_del" ? "none" : "";
+        document.getElementById("fMaxWrap").style.display    = type==="percent"  ? ""     : "none";
+        var lbl = type==="percent" ? "Discount % *" : type==="flat" ? "Flat Amount (₹) *" : "—";
+        document.getElementById("fValueLbl").textContent = lbl;
+    }
+    document.getElementById("fType").addEventListener("change", function(){ onTypeChange(); updatePreview(); });
+
+    /* ══════════════════════════════════════
+       LIVE PREVIEW
+    ══════════════════════════════════════ */
+    function updatePreview(){
+        var code  = document.getElementById("fCode").value.trim().toUpperCase() || "YOUR CODE";
+        var type  = document.getElementById("fType").value;
+        var val   = document.getElementById("fValue").value;
+        var min   = document.getElementById("fMinOrder").value;
+
+        document.getElementById("prevCode").textContent  = code;
+        document.getElementById("previewTicket").style.background = typeColor(type||"percent");
+
+        var disc = "Discount here";
+        var deco = "🎟️";
+        if(type==="percent" && val)  { disc=val+"% OFF"; deco="🎟️"; }
+        else if(type==="flat" && val){ disc="₹"+val+" OFF"; deco="🥒"; }
+        else if(type==="free_del")   { disc="FREE DELIVERY"; deco="🚚"; }
+        document.getElementById("prevDisc").textContent = disc;
+        document.getElementById("prevDeco").textContent = deco;
+        document.getElementById("prevSub").textContent  = min ? "Min order: ₹"+min : "No minimum order";
+    }
+
+    ["fCode","fValue","fMinOrder"].forEach(function(id){
+        document.getElementById(id).addEventListener("input", function(){
+            if(id==="fCode") this.value = this.value.toUpperCase();
+            updatePreview();
+        });
+    });
+
+    /* ══════════════════════════════════════
+       AUTO GENERATE CODE
+    ══════════════════════════════════════ */
+    var WORDS = ["PICKLE","ACHAAR","MANGO","SPICY","NAGPUR","FRESH","SAVE","DEAL","HOLI","DIWALI","SUMMER","FESTIVE"];
+    function genCode(){ return WORDS[Math.floor(Math.random()*WORDS.length)] + (Math.floor(Math.random()*50)+10); }
+
+    document.getElementById("autoGenBtn").addEventListener("click", function(){
+        document.getElementById("fCode").value = genCode();
+        updatePreview();
+    });
+    document.getElementById("quickGenBtn").addEventListener("click", function(){
+        openModal();
+        document.getElementById("fCode").value = genCode();
+        document.getElementById("fType").value = ["percent","flat","free_del"][Math.floor(Math.random()*3)];
+        document.getElementById("fValue").value = Math.floor(Math.random()*4+1)*5; // 5,10,15,20
+        document.getElementById("fMinOrder").value = [0,199,299,499][Math.floor(Math.random()*4)];
+        document.getElementById("fMaxUses").value = [50,100,200,500][Math.floor(Math.random()*4)];
+        onTypeChange();
+        updatePreview();
+    });
+
+    /* ══════════════════════════════════════
+       FORM SUBMIT — CREATE / UPDATE
+    ══════════════════════════════════════ */
+    document.getElementById("couponForm").addEventListener("submit", function(e){
+        e.preventDefault();
+        var errEl = document.getElementById("formErr");
+        errEl.style.display = "none";
+
+        var code  = document.getElementById("fCode").value.trim().toUpperCase();
+        var name  = document.getElementById("fName").value.trim();
+        var type  = document.getElementById("fType").value;
+        var val   = document.getElementById("fValue").value;
+        var editIdx = parseInt(document.getElementById("editIndex").value);
+
+        function showErr(msg){ errEl.textContent = "⚠️ "+msg; errEl.style.display="block"; }
+
+        if(!code)             { showErr("Please enter a coupon code."); return; }
+        if(!name)             { showErr("Please enter a coupon name/label."); return; }
+        if(!type)             { showErr("Please select a discount type."); return; }
+        if(type!=="free_del" && !val){ showErr("Please enter a discount value."); return; }
+
+        // check duplicate code (skip self)
+        var dup = coupons.findIndex(function(c,i){ return c.code===code && i!==editIdx; });
+        if(dup >= 0){ showErr("Coupon code ""+code+"" already exists. Use a different code."); return; }
+
+        var obj = {
+            id:       editIdx>=0 ? coupons[editIdx].id : uid(),
+            code:     code,
+            name:     name,
+            desc:     document.getElementById("fDesc").value.trim(),
+            type:     type,
+            value:    val || 0,
+            maxDisc:  document.getElementById("fMax").value || 0,
+            minOrder: document.getElementById("fMinOrder").value || 0,
+            maxUses:  document.getElementById("fMaxUses").value || 0,
+            uses:     editIdx>=0 ? coupons[editIdx].uses : 0,
+            perUser:  document.getElementById("fPerUser").value,
+            start:    document.getElementById("fStart").value,
+            end:      document.getElementById("fEnd").value,
+            applies:  document.getElementById("fApplies").value || "all",
+            active:   document.getElementById("fActive").checked,
+            isPublic: document.getElementById("fPublic").checked,
+            firstOnly:document.getElementById("fFirstOnly").checked,
+            createdAt:editIdx>=0 ? coupons[editIdx].createdAt : new Date().toLocaleString("en-IN")
+        };
+
+        if(editIdx >= 0){
+            coupons[editIdx] = obj;
+            toast("✅ Coupon ""+code+"" updated successfully!", "ok");
+        } else {
+            coupons.push(obj);
+            toast("🎉 Coupon ""+code+"" created successfully!", "ok");
+
+            // simulate 1-3 random uses for demo fun
+            var rnd = Math.floor(Math.random()*3);
+            for(var i=0;i<rnd;i++){
+                var names=["Priya D.","Rahul S.","Sunita K.","Amit P.","Meena J.","Vikram N."];
+                var orderAmt = Math.floor(Math.random()*700)+200;
+                var disc = type==="percent" ? Math.min(obj.maxDisc||999, Math.round(orderAmt*val/100))
+                         : type==="flat"    ? parseInt(val)
+                         : 40;
+                usageLog.unshift({
+                    code:     code,
+                    customer: names[Math.floor(Math.random()*names.length)],
+                    orderId:  "#PH-2026-0" + (800+Math.floor(Math.random()*100)),
+                    orderAmt: orderAmt,
+                    discount: disc,
+                    dateTime: new Date().toLocaleString("en-IN")
+                });
+                coupons[coupons.length-1].uses += 1;
+            }
+            renderLog();
+        }
+
+        closeModal();
+        renderGrid();
+    });
+
+    /* ══════════════════════════════════════
+       FILTER
+    ══════════════════════════════════════ */
+    document.getElementById("applyFilter").addEventListener("click", renderGrid);
+    document.getElementById("searchCoupon").addEventListener("input", renderGrid);
+    document.getElementById("typeFilter").addEventListener("change", renderGrid);
+    document.getElementById("statusFilter").addEventListener("change", renderGrid);
+
+    /* ══════════════════════════════════════
+       USAGE LOG
+    ══════════════════════════════════════ */
+    function renderLog(){
+        var tbody = document.getElementById("logBody");
+        document.getElementById("logCount").textContent = usageLog.length+" entries";
+        if(usageLog.length===0){
+            tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:24px;color:#aaa;font-size:13px;">No usage yet. Use a coupon to see logs here.</td></tr>';
+            return;
+        }
+        tbody.innerHTML = usageLog.map(function(l){
+            return '<tr>'+
+                '<td><strong style="color:#e85d04;">'+escHtml(l.code)+'</strong></td>'+
+                '<td>'+escHtml(l.customer)+'</td>'+
+                '<td>'+escHtml(l.orderId)+'</td>'+
+                '<td>'+fmtMoney(l.orderAmt)+'</td>'+
+                '<td style="color:#2d6a4f;font-weight:700;">- '+fmtMoney(l.discount)+'</td>'+
+                '<td><small>'+escHtml(l.dateTime)+'</small></td>'+
+            '</tr>';
+        }).join("");
+    }
+
+    /* ══════════════════════════════════════
+       TOAST
+    ══════════════════════════════════════ */
+    function toast(msg, type){
+        var t = document.getElementById("toastBar");
+        t.textContent = msg;
+        t.className = "toast-bar "+(type||"ok")+" show";
+        setTimeout(function(){ t.classList.remove("show"); }, 3200);
+    }
+
+    /* ── INIT ── */
+    document.getElementById("fStart").value = today();
+    renderGrid();
+    renderLog();
+
+}());
+</script>
+</body>
+</html>

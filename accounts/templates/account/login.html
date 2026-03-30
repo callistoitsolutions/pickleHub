@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login | PickleHub Nagpur</title>
+    <meta name="description" content="Sign in or register on PickleHub Nagpur to track orders and get exclusive deals.">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+    <style>
+        :root{--primary:#e85d04;--dark:#1a1a2e;}
+        *{margin:0;padding:0;box-sizing:border-box;}
+        body{font-family:'Poppins',sans-serif;background:linear-gradient(135deg,#1a1a2e 0%,#0f3460 50%,#1a1a2e 100%);min-height:100vh;display:flex;flex-direction:column;}
+
+        /* NAV */
+        .topnav{background:rgba(0,0,0,0.3);backdrop-filter:blur(10px);padding:12px 0;border-bottom:1px solid rgba(255,255,255,0.08);}
+        .logo-box{width:42px;height:42px;background:linear-gradient(135deg,#e85d04,#ffd60a);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;}
+        .brand-h{font-family:'Playfair Display',serif;font-size:19px;font-weight:700;color:#ffd60a;margin:0;}
+        .brand-s{font-size:10px;color:#f48c06;letter-spacing:2px;display:block;}
+        .back-link{color:rgba(255,255,255,0.7);text-decoration:none;font-size:13px;font-weight:500;padding:7px 14px;border-radius:8px;border:1px solid rgba(255,255,255,0.15);transition:.2s;}
+        .back-link:hover{background:rgba(255,255,255,0.08);color:#ffd60a;}
+
+        /* LAYOUT */
+        .auth-wrap{flex:1;display:flex;align-items:center;justify-content:center;padding:36px 15px;}
+        .auth-box{width:100%;max-width:900px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:24px;overflow:hidden;backdrop-filter:blur(20px);}
+
+        /* LEFT PANEL */
+        .left-col{background:linear-gradient(135deg,#e85d04,#f48c06,#ffd60a);padding:50px 36px;position:relative;overflow:hidden;display:flex;flex-direction:column;justify-content:center;}
+        .left-col::before{content:'🥒';position:absolute;font-size:180px;opacity:0.07;bottom:-30px;right:-30px;pointer-events:none;}
+        .left-col h2{font-family:'Playfair Display',serif;font-size:28px;font-weight:700;color:#1a1a2e;margin-bottom:10px;}
+        .left-col p{font-size:13px;color:rgba(26,26,46,0.75);line-height:1.75;}
+        .feat{display:flex;align-items:center;gap:10px;margin-top:13px;font-size:13px;color:#1a1a2e;font-weight:600;}
+        .feat .fi{width:28px;height:28px;background:rgba(26,26,46,0.12);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0;}
+
+        /* RIGHT PANEL */
+        .right-col{background:#fff;padding:40px 36px;}
+
+        /* TABS */
+        .tabs{display:flex;background:#f5f5f5;border-radius:12px;padding:4px;margin-bottom:26px;}
+        .tab-btn{flex:1;padding:10px;border:none;background:transparent;font-weight:700;font-size:14px;color:#888;cursor:pointer;border-radius:9px;transition:.2s;}
+        .tab-btn.on{background:linear-gradient(135deg,#e85d04,#f48c06);color:#fff;box-shadow:0 4px 12px rgba(232,93,4,0.25);}
+
+        /* FORM ELEMENTS */
+        .lbl{font-size:12px;font-weight:700;color:#555;margin-bottom:5px;display:block;}
+        .inp{width:100%;border-radius:12px;border:1.5px solid #e0e0e0;padding:11px 15px;font-size:14px;font-family:'Poppins',sans-serif;transition:.25s;outline:none;background:#fff;}
+        .inp:focus{border-color:#e85d04;box-shadow:0 0 0 3px rgba(232,93,4,0.09);}
+        .inp-wrap{position:relative;}
+        .inp-wrap .ico{position:absolute;left:14px;top:50%;transform:translateY(-50%);color:#bbb;font-size:13px;pointer-events:none;}
+        .inp-wrap .inp{padding-left:38px;}
+        .inp-wrap .eye-btn{position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;color:#bbb;cursor:pointer;font-size:13px;padding:4px;}
+        .btn-main{background:linear-gradient(135deg,#e85d04,#f48c06);color:#fff;border:none;border-radius:50px;padding:13px;width:100%;font-weight:800;font-size:15px;cursor:pointer;transition:.3s;font-family:'Poppins',sans-serif;box-shadow:0 4px 15px rgba(232,93,4,0.25);}
+        .btn-main:hover{transform:translateY(-2px);box-shadow:0 8px 22px rgba(232,93,4,0.35);}
+        .btn-main:active{transform:translateY(0);}
+        .btn-wa{background:#25D366;color:#fff;border:none;border-radius:50px;padding:12px;width:100%;font-weight:700;font-size:14px;cursor:pointer;font-family:'Poppins',sans-serif;transition:.3s;}
+        .btn-wa:hover{background:#1ebe5d;}
+        .divider{display:flex;align-items:center;gap:10px;margin:16px 0;color:#ccc;font-size:11px;}
+        .divider::before,.divider::after{content:'';flex:1;height:1px;background:#e8e8e8;}
+        .link-btn{background:none;border:none;color:#e85d04;font-weight:700;font-size:12px;cursor:pointer;padding:0;font-family:'Poppins',sans-serif;text-decoration:underline;}
+        .txt-link{color:#e85d04;font-weight:700;font-size:12px;cursor:pointer;text-decoration:none;}
+        .txt-link:hover{text-decoration:underline;color:#c44e00;}
+        .check-lbl{font-size:12px;color:#777;}
+        input[type=checkbox]:checked{accent-color:#e85d04;}
+
+        /* STRENGTH BAR */
+        .str-bar{height:4px;background:#eee;border-radius:2px;margin-top:5px;overflow:hidden;}
+        .str-fill{height:100%;border-radius:2px;width:0;transition:.3s;}
+        .str-txt{font-size:10px;color:#aaa;margin-top:3px;}
+
+        /* OTP BOXES */
+        .otp-row{display:flex;gap:8px;justify-content:center;margin:16px 0;}
+        .otp-inp{width:48px;height:52px;border:2px solid #e0e0e0;border-radius:12px;text-align:center;font-size:22px;font-weight:800;outline:none;font-family:'Poppins',sans-serif;transition:.25s;}
+        .otp-inp:focus{border-color:#e85d04;box-shadow:0 0 0 3px rgba(232,93,4,0.1);}
+
+        /* TOAST MESSAGE (replaces alert) */
+        .toast-msg{display:none;border-radius:10px;padding:10px 16px;font-size:13px;font-weight:600;margin-bottom:14px;}
+        .toast-msg.success{background:#d4edda;color:#155724;border:1px solid #c3e6cb;}
+        .toast-msg.error{background:#f8d7da;color:#721c24;border:1px solid #f5c6cb;}
+        .toast-msg.info{background:#cce5ff;color:#004085;border:1px solid #b8daff;}
+
+        footer{background:rgba(0,0,0,0.25);padding:14px;text-align:center;font-size:12px;color:rgba(255,255,255,0.35);border-top:1px solid rgba(255,255,255,0.05);}
+        footer a{color:#ffd60a;text-decoration:none;}
+        footer a:hover{text-decoration:underline;}
+
+        @media(max-width:767px){.left-col{display:none;}.right-col{padding:28px 20px;}}
+    </style>
+</head>
+<body>
+
+<!-- NAVBAR -->
+<header>
+    <nav class="topnav" aria-label="Main navigation">
+        <div class="container d-flex align-items-center justify-content-between">
+            <a href="index.html" style="display:flex;align-items:center;gap:10px;text-decoration:none;" aria-label="PickleHub Home">
+                <div class="logo-box" aria-hidden="true">🥒</div>
+                <div><h1 class="brand-h">PickleHub</h1><span class="brand-s">NAGPUR</span></div>
+            </a>
+            <a href="{% url "index" %}" class="back-link" aria-label="Back to shop"><i class="fa fa-arrow-left me-1" aria-hidden="true"></i> Back to Shop</a>
+        </div>
+    </nav>
+</header>
+
+<div class="auth-wrap">
+    <div class="auth-box">
+        <div class="row g-0">
+
+            <!-- LEFT BRANDING -->
+            <div class="col-md-5 left-col" aria-hidden="true">
+                <h2>Welcome to PickleHub! 🥒</h2>
+                <p>Nagpur's exclusive pickle store. Sign in to track orders, save favourites &amp; get special offers.</p>
+                <div class="feat"><span class="fi">🚚</span> Track your deliveries live</div>
+                <div class="feat"><span class="fi">❤️</span> Save your favourite pickles</div>
+                <div class="feat"><span class="fi">🏷️</span> Exclusive member discounts</div>
+                <div class="feat"><span class="fi">📋</span> Full order history</div>
+                <div class="feat"><span class="fi">🔒</span> Secure &amp; private account</div>
+            </div>
+
+            <!-- RIGHT FORMS -->
+            <div class="col-md-7 right-col">
+
+                <!-- TABS -->
+                <div class="tabs" role="tablist" aria-label="Login or Register">
+                    <button class="tab-btn on" id="tabLogin" onclick="switchTab('login')" role="tab" aria-selected="true" aria-controls="formLogin">🔑 Login</button>
+                    <button class="tab-btn" id="tabReg" onclick="switchTab('register')" role="tab" aria-selected="false" aria-controls="formRegister">✨ Register</button>
+                </div>
+
+                <!-- SHARED TOAST -->
+                <div class="toast-msg" id="toastMsg" role="alert" aria-live="polite"></div>
+
+                <!-- ── LOGIN FORM ── -->
+                <div id="formLogin" role="tabpanel" aria-labelledby="tabLogin">
+                    <h2 style="font-size:19px;font-weight:700;color:#1a1a2e;margin-bottom:4px;">Sign In to Your Account</h2>
+                    <p style="font-size:13px;color:#aaa;margin-bottom:20px;">Enter your mobile number or email to continue</p>
+
+                    <form id="loginFrm" novalidate method="post" action="/login/">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label class="lbl" for="loginId">Mobile Number / Email</label>
+                            <div class="inp-wrap">
+                                <i class="fa fa-user ico" aria-hidden="true"></i>
+                                <input class="inp" type="text" id="loginId" name="username"
+                                    placeholder="9876543210 or email@gmail.com"
+                                    required autocomplete="username" maxlength="100">
+                            </div>
+                        </div>
+                        <div class="mb-2">
+                            <div class="d-flex justify-content-between align-items-center mb-1">
+                                <label class="lbl mb-0" for="loginPwd">Password</label>
+                                <button type="button" class="link-btn" id="forgotBtn" aria-label="Forgot password">Forgot Password?</button>
+                            </div>
+                            <div class="inp-wrap">
+                                <i class="fa fa-lock ico" aria-hidden="true"></i>
+                                <input class="inp" type="password" id="loginPwd" name="password"
+                                    placeholder="Enter your password"
+                                    required autocomplete="current-password" style="padding-right:42px;">
+                                <button type="button" class="eye-btn" id="eyeLogin" aria-label="Toggle password visibility">
+                                    <i class="fa fa-eye" aria-hidden="true"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="d-flex align-items-center mb-3">
+                            <input type="checkbox" id="remMe" name="remember" style="margin-right:7px;accent-color:#e85d04;">
+                            <label for="remMe" class="check-lbl">Remember me for 30 days</label>
+                        </div>
+                        <button type="submit" class="btn-main" id="loginSubmitBtn">
+                            <i class="fa fa-sign-in-alt me-2" aria-hidden="true"></i> Sign In
+                        </button>
+                    </form>
+
+                    <div class="divider">or continue with</div>
+
+                    <button type="button" class="btn-wa" id="waLoginBtn" aria-label="Login with WhatsApp OTP">
+                        <i class="fab fa-whatsapp me-2" aria-hidden="true"></i> Login with WhatsApp OTP
+                    </button>
+
+                    <p style="font-size:12px;color:#aaa;text-align:center;margin-top:16px;">
+                        Don't have an account?
+                        <a href="#" class="txt-link" onclick="switchTab('register');return false;">Create one free →</a>
+                    </p>
+                </div>
+
+                <!-- ── REGISTER FORM ── -->
+                <div id="formRegister" style="display:none;" role="tabpanel" aria-labelledby="tabReg">
+                    <h2 style="font-size:19px;font-weight:700;color:#1a1a2e;margin-bottom:4px;">Create Your Account</h2>
+                    <p style="font-size:13px;color:#aaa;margin-bottom:20px;">Join PickleHub — free forever, instant access</p>
+
+                    <form id="regFrm" novalidate method="post" action="/register/">
+                        {% csrf_token %}
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="lbl" for="regName">Full Name *</label>
+                                <div class="inp-wrap"><i class="fa fa-user ico" aria-hidden="true"></i>
+                                <input class="inp" type="text" id="regName" name="full_name"
+                                    placeholder="Priya Deshmukh" required autocomplete="name" maxlength="80"></div>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="lbl" for="regPhone">Mobile Number *</label>
+                                <div class="inp-wrap"><i class="fa fa-phone ico" aria-hidden="true"></i>
+                                <input class="inp" type="tel" id="regPhone" name="phone"
+                                    placeholder="10-digit number" required
+                                    maxlength="10" pattern="[6-9][0-9]{9}" autocomplete="tel"></div>
+                            </div>
+                            <div class="col-12">
+                                <label class="lbl" for="regEmail">Email Address (optional)</label>
+                                <div class="inp-wrap"><i class="fa fa-envelope ico" aria-hidden="true"></i>
+                                <input class="inp" type="email" id="regEmail" name="email"
+                                    placeholder="yourname@gmail.com" autocomplete="email" maxlength="100"></div>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="lbl" for="regPwd">Password *</label>
+                                <div class="inp-wrap" style="position:relative;">
+                                    <i class="fa fa-lock ico" aria-hidden="true"></i>
+                                    <input class="inp" type="password" id="regPwd" name="password1"
+                                        placeholder="Min 8 characters" required
+                                        autocomplete="new-password" style="padding-right:42px;">
+                                    <button type="button" class="eye-btn" id="eyeReg" aria-label="Toggle password visibility">
+                                        <i class="fa fa-eye" aria-hidden="true"></i>
+                                    </button>
+                                </div>
+                                <div class="str-bar"><div class="str-fill" id="strFill"></div></div>
+                                <div class="str-txt" id="strTxt">Enter a password</div>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="lbl" for="regPwd2">Confirm Password *</label>
+                                <div class="inp-wrap"><i class="fa fa-lock ico" aria-hidden="true"></i>
+                                <input class="inp" type="password" id="regPwd2" name="password2"
+                                    placeholder="Repeat password" required autocomplete="new-password"></div>
+                            </div>
+                            <div class="col-12">
+                                <label class="lbl" for="regCity">City</label>
+                                <div class="inp-wrap"><i class="fa fa-map-marker-alt ico" aria-hidden="true"></i>
+                                <input class="inp" type="text" id="regCity" name="city"
+                                    value="Nagpur" autocomplete="address-level2" maxlength="50"></div>
+                            </div>
+                            <div class="col-12">
+                                <div class="mb-2">
+                                    <input type="checkbox" id="agreeTerms" name="agree_terms" required style="margin-right:7px;accent-color:#e85d04;">
+                                    <label for="agreeTerms" class="check-lbl">
+                                        I agree to the
+                                        <a href="terms-conditions.html" target="_blank" style="color:#e85d04;font-weight:700;text-decoration:none;">Terms &amp; Conditions</a>
+                                        and
+                                        <a href="privacy-policy.html" target="_blank" style="color:#e85d04;font-weight:700;text-decoration:none;">Privacy Policy</a>
+                                    </label>
+                                </div>
+                                <div>
+                                    <input type="checkbox" id="waUpdates" name="whatsapp_updates" checked style="margin-right:7px;accent-color:#25D366;">
+                                    <label for="waUpdates" class="check-lbl">
+                                        <i class="fab fa-whatsapp" style="color:#25D366;" aria-hidden="true"></i>
+                                        Receive order updates on WhatsApp
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                        <button type="submit" class="btn-main mt-3" id="regSubmitBtn">
+                            <i class="fa fa-user-plus me-2" aria-hidden="true"></i> Create Account
+                        </button>
+                    </form>
+
+                    <p style="font-size:12px;color:#aaa;text-align:center;margin-top:14px;">
+                        Already have an account?
+                        <a href="#" class="txt-link" onclick="switchTab('login');return false;">Sign In →</a>
+                    </p>
+                </div>
+
+                <!-- ── OTP VERIFICATION ── -->
+                <div id="formOtp" style="display:none;" role="region" aria-label="OTP Verification">
+                    <div style="text-align:center;">
+                        <div style="font-size:48px;margin-bottom:12px;" aria-hidden="true">📱</div>
+                        <h2 style="font-size:18px;font-weight:700;color:#1a1a2e;margin-bottom:6px;">Verify Your Mobile</h2>
+                        <p style="font-size:13px;color:#aaa;margin-bottom:18px;">
+                            We sent a 6-digit OTP to
+                            <strong id="otpPhone" style="color:#e85d04;"></strong>
+                            via WhatsApp
+                        </p>
+                        <div class="otp-row" role="group" aria-label="Enter OTP">
+                            <input class="otp-inp" type="text" inputmode="numeric" maxlength="1" id="o1" aria-label="OTP digit 1">
+                            <input class="otp-inp" type="text" inputmode="numeric" maxlength="1" id="o2" aria-label="OTP digit 2">
+                            <input class="otp-inp" type="text" inputmode="numeric" maxlength="1" id="o3" aria-label="OTP digit 3">
+                            <input class="otp-inp" type="text" inputmode="numeric" maxlength="1" id="o4" aria-label="OTP digit 4">
+                            <input class="otp-inp" type="text" inputmode="numeric" maxlength="1" id="o5" aria-label="OTP digit 5">
+                            <input class="otp-inp" type="text" inputmode="numeric" maxlength="1" id="o6" aria-label="OTP digit 6">
+                        </div>
+                        <button type="button" class="btn-main" id="verifyOtpBtn" style="max-width:240px;margin:0 auto 14px;">
+                            <i class="fa fa-check me-2" aria-hidden="true"></i> Verify OTP
+                        </button>
+                        <p style="font-size:12px;color:#aaa;">
+                            Didn't receive?
+                            <button type="button" class="link-btn" id="resendBtn" disabled>Resend OTP</button>
+                            <span id="timer" style="font-size:11px;color:#bbb;"> (30s)</span>
+                        </p>
+                        <button type="button" class="link-btn mt-2" id="backFromOtp" style="display:block;margin:10px auto 0;">← Back</button>
+                    </div>
+                </div>
+
+                <!-- ── FORGOT PASSWORD ── -->
+                <div id="formForgot" style="display:none;" role="region" aria-label="Forgot Password">
+                    <button type="button" class="link-btn mb-3" id="backFromForgot" style="font-size:13px;">
+                        <i class="fa fa-arrow-left me-1" aria-hidden="true"></i> Back to Login
+                    </button>
+                    <h2 style="font-size:18px;font-weight:700;color:#1a1a2e;margin-bottom:6px;">Reset Password</h2>
+                    <p style="font-size:13px;color:#aaa;margin-bottom:18px;">Enter your registered mobile number. We will send a reset OTP.</p>
+                    <form id="forgotFrm" novalidate>
+                        <div class="mb-3">
+                            <label class="lbl" for="forgotPhone">Registered Mobile Number</label>
+                            <div class="inp-wrap"><i class="fa fa-phone ico" aria-hidden="true"></i>
+                            <input class="inp" type="tel" id="forgotPhone" name="forgot_phone"
+                                placeholder="10-digit mobile number" maxlength="10" pattern="[6-9][0-9]{9}" required></div>
+                        </div>
+                        <button type="submit" class="btn-wa" style="border-radius:50px;">
+                            <i class="fab fa-whatsapp me-2" aria-hidden="true"></i> Send Reset OTP via WhatsApp
+                        </button>
+                    </form>
+                </div>
+
+            </div><!-- /right-col -->
+        </div>
+    </div>
+</div>
+
+<footer>
+    <div class="container">
+        &copy; 2026 <a href="picklehub_homepage.html">PickleHub Nagpur</a>
+        &nbsp;|&nbsp; <a href="privacy-policy.html">Privacy Policy</a>
+        &nbsp;|&nbsp; <a href="terms-conditions.html">Terms &amp; Conditions</a>
+    </div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+(function () {
+    "use strict";
+
+    /* ── HELPER: show inline message (replaces alert) ── */
+    function showMsg(type, text) {
+        var el = document.getElementById("toastMsg");
+        el.className = "toast-msg " + type;
+        el.textContent = text;
+        el.style.display = "block";
+        if (type === "success") {
+            setTimeout(function () { el.style.display = "none"; }, 4000);
+        }
+    }
+
+    /* ── SECTION SWITCHER ── */
+    var sections = ["formLogin", "formRegister", "formOtp", "formForgot"];
+    function showOnly(id) {
+        sections.forEach(function (s) {
+            document.getElementById(s).style.display = (s === id) ? "block" : "none";
+        });
+        document.getElementById("toastMsg").style.display = "none";
+    }
+
+    /* ── TAB SWITCH ── */
+    window.switchTab = function (tab) {
+        document.getElementById("tabLogin").className = "tab-btn" + (tab === "login" ? " on" : "");
+        document.getElementById("tabReg").className   = "tab-btn" + (tab === "register" ? " on" : "");
+        document.getElementById("tabLogin").setAttribute("aria-selected", tab === "login");
+        document.getElementById("tabReg").setAttribute("aria-selected", tab === "register");
+        showOnly(tab === "login" ? "formLogin" : "formRegister");
+    };
+
+    /* ── PASSWORD TOGGLE ── */
+    function bindEye(btnId, inpId) {
+        var btn = document.getElementById(btnId);
+        var inp = document.getElementById(inpId);
+        if (!btn || !inp) return;
+        btn.addEventListener("click", function () {
+            var isPass = inp.type === "password";
+            inp.type = isPass ? "text" : "password";
+            btn.querySelector("i").className = isPass ? "fa fa-eye-slash" : "fa fa-eye";
+        });
+    }
+    bindEye("eyeLogin", "loginPwd");
+    bindEye("eyeReg",   "regPwd");
+
+    /* ── PASSWORD STRENGTH ── */
+    var regPwdInp = document.getElementById("regPwd");
+    if (regPwdInp) {
+        regPwdInp.addEventListener("input", function () {
+            var v = this.value;
+            var score = 0;
+            if (v.length >= 8) score++;
+            if (/[A-Z]/.test(v)) score++;
+            if (/[0-9]/.test(v)) score++;
+            if (/[^A-Za-z0-9]/.test(v)) score++;
+            var colors = ["#ccc", "#c62828", "#f48c06", "#ffd60a", "#2d6a4f"];
+            var labels = ["Enter a password", "Weak", "Fair", "Good", "Strong"];
+            var fill = document.getElementById("strFill");
+            var txt  = document.getElementById("strTxt");
+            fill.style.width    = (score * 25) + "%";
+            fill.style.background = colors[score];
+            txt.textContent     = labels[score];
+            txt.style.color     = colors[score];
+        });
+    }
+
+    /* ── OTP BOXES ── */
+    var otpIds = ["o1","o2","o3","o4","o5","o6"];
+    otpIds.forEach(function (id, idx) {
+        var box = document.getElementById(id);
+        if (!box) return;
+        box.addEventListener("input", function () {
+            this.value = this.value.replace(/[^0-9]/g, "");
+            if (this.value.length === 1 && idx < otpIds.length - 1) {
+                document.getElementById(otpIds[idx + 1]).focus();
+            }
+        });
+        box.addEventListener("keydown", function (e) {
+            if (e.key === "Backspace" && this.value === "" && idx > 0) {
+                document.getElementById(otpIds[idx - 1]).focus();
+            }
+        });
+    });
+
+    /* ── RESEND TIMER ── */
+    var timerInterval = null;
+    function startTimer(sec) {
+        var resendBtn = document.getElementById("resendBtn");
+        var timerEl   = document.getElementById("timer");
+        resendBtn.disabled = true;
+        clearInterval(timerInterval);
+        timerInterval = setInterval(function () {
+            sec--;
+            timerEl.textContent = " (" + sec + "s)";
+            if (sec <= 0) {
+                clearInterval(timerInterval);
+                timerEl.textContent = "";
+                resendBtn.disabled = false;
+            }
+        }, 1000);
+    }
+
+    function openOtp(phone, backTo) {
+        document.getElementById("otpPhone").textContent = phone;
+        showOnly("formOtp");
+        document.getElementById("o1").focus();
+        startTimer(30);
+        document.getElementById("backFromOtp").dataset.backTo = backTo || "formLogin";
+    }
+
+    /* ── VERIFY OTP BUTTON ── */
+    document.getElementById("verifyOtpBtn").addEventListener("click", function () {
+        var otp = otpIds.map(function (id) { return document.getElementById(id).value; }).join("");
+        if (otp.length < 6) {
+            showMsg("error", "Please enter all 6 OTP digits.");
+            return;
+        }
+        showMsg("success", "OTP verified! Signing you in...");
+        /* Django will handle redirect via form POST — no JS redirect needed */
+    });
+
+    /* ── RESEND OTP ── */
+    document.getElementById("resendBtn").addEventListener("click", function () {
+        showMsg("info", "OTP resent to your WhatsApp number.");
+        startTimer(30);
+    });
+
+    /* ── BACK BUTTON FROM OTP ── */
+    document.getElementById("backFromOtp").addEventListener("click", function () {
+        var target = this.dataset.backTo || "formLogin";
+        showOnly(target);
+    });
+
+    /* ── WHATSAPP LOGIN ── */
+    document.getElementById("waLoginBtn").addEventListener("click", function () {
+        var id = document.getElementById("loginId").value.trim();
+        if (!id) { showMsg("error", "Please enter your mobile number first."); return; }
+        if (!/^[6-9][0-9]{9}$/.test(id) && id.indexOf("@") === -1) {
+            showMsg("error", "Enter a valid 10-digit mobile number.");
+            return;
+        }
+        openOtp(id, "formLogin");
+    });
+
+    /* ── FORGOT PASSWORD LINK ── */
+    document.getElementById("forgotBtn").addEventListener("click", function () {
+        showOnly("formForgot");
+    });
+    document.getElementById("backFromForgot").addEventListener("click", function () {
+        showOnly("formLogin");
+    });
+
+    /* ── FORGOT FORM SUBMIT ── */
+    document.getElementById("forgotFrm").addEventListener("submit", function (e) {
+        e.preventDefault();
+        var ph = document.getElementById("forgotPhone").value.trim();
+        if (!/^[6-9][0-9]{9}$/.test(ph)) {
+            showMsg("error", "Enter a valid 10-digit mobile number.");
+            return;
+        }
+        openOtp(ph, "formForgot");
+    });
+
+    /* ── LOGIN FORM SUBMIT ── */
+    document.getElementById("loginFrm").addEventListener("submit", function (e) {
+        var id  = document.getElementById("loginId").value.trim();
+        var pwd = document.getElementById("loginPwd").value;
+        if (!id) { e.preventDefault(); showMsg("error", "Please enter your mobile number or email."); return; }
+        if (pwd.length < 4) { e.preventDefault(); showMsg("error", "Please enter your password."); return; }
+        /* Valid — let Django handle the POST */
+    });
+
+    /* ── REGISTER FORM SUBMIT ── */
+    document.getElementById("regFrm").addEventListener("submit", function (e) {
+        e.preventDefault();
+        var name   = document.getElementById("regName").value.trim();
+        var phone  = document.getElementById("regPhone").value.trim();
+        var pwd    = document.getElementById("regPwd").value;
+        var pwd2   = document.getElementById("regPwd2").value;
+        var terms  = document.getElementById("agreeTerms").checked;
+
+        if (!name)  { showMsg("error", "Please enter your full name."); return; }
+        if (!/^[6-9][0-9]{9}$/.test(phone)) { showMsg("error", "Enter a valid 10-digit mobile number."); return; }
+        if (pwd.length < 8) { showMsg("error", "Password must be at least 8 characters."); return; }
+        if (pwd !== pwd2)   { showMsg("error", "Passwords do not match. Please re-enter."); return; }
+        if (!terms) { showMsg("error", "Please accept the Terms and Conditions to continue."); return; }
+
+        /* Show OTP step — actual registration completes after OTP */
+        openOtp(phone, "formRegister");
+    });
+
+}());
+</script>
+</body>
+</html>

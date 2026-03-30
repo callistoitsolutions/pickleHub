@@ -1,0 +1,709 @@
+{% extends 'core/base.html' %}
+
+{% block title %}PickleHub Nagpur | Home - Exclusive Pickle Brands{% endblock %}
+
+{% block content %}
+
+<!DOCTYPE html>
+<!--
+  core/index.html
+  PickleHub – Public Home Page
+
+  Django context variable: {{ hero }}  →  HeroSection model instance
+  All hero content is rendered from the DB via the model instance.
+
+  Usage in views.py:
+      hero = HeroSection.get_or_create_default()
+      return render(request, 'core/index.html', {'hero': hero})
+-->
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <title>PickleHub – Nagpur's #1 Pickle Store</title>
+
+  <!-- Bootstrap 5 -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&family=Playfair+Display:wght@700;800&display=swap" rel="stylesheet">
+
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0;}
+    body{font-family:'Poppins',sans-serif;background:#f8f9fa;color:#1a1a2e;}
+
+    /* ════ HERO SECTION ════ */
+    .hero-section{
+      background: linear-gradient(135deg, #1a1a2e 0%, #0f3460 40%, #16213e 100%);
+      padding: 80px 0 60px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* Subtle background pattern */
+    .hero-section::before{
+      content: '';
+      position: absolute;
+      inset: 0;
+      background-image:
+        radial-gradient(circle at 20% 50%, rgba(232,93,4,.08) 0%, transparent 50%),
+        radial-gradient(circle at 80% 20%, rgba(255,214,10,.05) 0%, transparent 40%);
+      pointer-events: none;
+    }
+
+    .hero-badge{
+      display: inline-block;
+      background: linear-gradient(135deg, #e85d04, #ffd60a);
+      color: #1a1a2e;
+      font-weight: 800;
+      font-size: 13px;
+      padding: 6px 18px;
+      border-radius: 50px;
+      margin-bottom: 20px;
+      letter-spacing: 0.5px;
+    }
+
+    .hero-title{
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(32px, 5vw, 52px);
+      font-weight: 800;
+      color: #fff;
+      line-height: 1.15;
+      margin-bottom: 20px;
+    }
+
+    .hero-title span{
+      color: #ffd60a;
+      position: relative;
+    }
+
+    .hero-subtitle{
+      font-size: 15px;
+      color: rgba(255,255,255,0.72);
+      line-height: 1.75;
+      margin-bottom: 32px;
+      max-width: 520px;
+    }
+
+    .hero-subtitle strong{
+      color: #ffd60a;
+    }
+
+    /* ── BUTTONS ── */
+    .hero-btns{
+      display: flex;
+      gap: 14px;
+      flex-wrap: wrap;
+      margin-bottom: 40px;
+    }
+
+    .btn-hero-primary{
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: linear-gradient(135deg, #e85d04, #f48c06);
+      color: #fff;
+      font-weight: 700;
+      font-size: 14px;
+      padding: 14px 28px;
+      border-radius: 50px;
+      text-decoration: none;
+      transition: all .25s;
+      box-shadow: 0 4px 20px rgba(232,93,4,.35);
+    }
+    .btn-hero-primary:hover{
+      transform: translateY(-2px);
+      box-shadow: 0 8px 28px rgba(232,93,4,.5);
+      color: #fff;
+    }
+
+    .btn-hero-secondary{
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      border: 2px solid #ffd60a;
+      color: #ffd60a;
+      font-weight: 700;
+      font-size: 14px;
+      padding: 13px 26px;
+      border-radius: 50px;
+      text-decoration: none;
+      transition: all .25s;
+    }
+    .btn-hero-secondary:hover{
+      background: #ffd60a;
+      color: #1a1a2e;
+    }
+
+    /* ── STATS ── */
+    .hero-stats{
+      display: flex;
+      gap: 32px;
+      flex-wrap: wrap;
+    }
+
+    .hero-stat .number{
+      display: block;
+      font-size: 26px;
+      font-weight: 800;
+      color: #ffd60a;
+      line-height: 1;
+    }
+    .hero-stat .label{
+      font-size: 11px;
+      color: rgba(255,255,255,.5);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-top: 4px;
+    }
+
+    /* ── RIGHT JAR DISPLAY ── */
+    .hero-jar-display{
+      position: relative;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+    }
+
+    .floating-jar{
+      font-size: clamp(80px, 15vw, 140px);
+      display: block;
+      animation: float 3s ease-in-out infinite;
+      filter: drop-shadow(0 20px 40px rgba(0,0,0,.4));
+    }
+
+    @keyframes float{
+      0%, 100%{ transform: translateY(0px); }
+      50%{      transform: translateY(-15px); }
+    }
+
+    /* Floating badges on jar */
+    .badge-float{
+      position: absolute;
+      background: rgba(255,255,255,.12);
+      backdrop-filter: blur(8px);
+      border: 1px solid rgba(255,255,255,.2);
+      color: #fff;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 6px 14px;
+      border-radius: 50px;
+      white-space: nowrap;
+    }
+
+    .badge-float.b1{ top: 15%;  left: 5%;   animation: badgeFloat 4s ease-in-out infinite; }
+    .badge-float.b2{ top: 45%;  right: 0%;  animation: badgeFloat 4s ease-in-out infinite 1.3s; }
+    .badge-float.b3{ bottom: 20%; left: 10%; animation: badgeFloat 4s ease-in-out infinite 2.6s; }
+
+    @keyframes badgeFloat{
+      0%,100%{ transform: translateY(0); }
+      50%{     transform: translateY(-6px); }
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .hero-section{ padding: 50px 0 40px; }
+      .hero-jar-display{ margin-top: 32px; }
+      .hero-stats{ gap: 20px; }
+    }
+  </style>
+</head>
+<body>
+
+
+
+
+{% if hero.is_visible %}
+<section class="hero-section" aria-label="Hero Banner">
+  <div class="container">
+    <div class="row align-items-center">
+
+      <!-- ── LEFT: TEXT CONTENT ── -->
+      <div class="col-lg-6 col-md-7">
+
+        {# Badge #}
+        <div class="hero-badge">{{ hero.badge_text }}</div>
+
+        {# Title: Line1 + Highlighted span + Line2 #}
+        <h2 class="hero-title">
+          {{ hero.title_line1 }}
+          <span>{{ hero.title_highlight }}</span><br>
+          {{ hero.title_line2 }}
+        </h2>
+
+        {# Subtitle #}
+        <p class="hero-subtitle">
+          {{ hero.subtitle|safe }}
+        </p>
+
+        {# Buttons #}
+        <div class="hero-btns">
+          <a href="{{ hero.btn_primary_url }}"
+             class="btn-hero-primary"
+             aria-label="{{ hero.btn_primary_text }}">
+            <i class="fa fa-shopping-bag"></i>
+            {{ hero.btn_primary_text }}
+          </a>
+          <a href="https://wa.me/{{ hero.whatsapp_number }}?text=Hi, I want to order pickles"
+             class="btn-hero-secondary"
+             aria-label="{{ hero.btn_secondary_text }}"
+             target="_blank" rel="noopener">
+            <i class="fab fa-whatsapp"></i>
+            {{ hero.btn_secondary_text }}
+          </a>
+        </div>
+
+        {# Dynamic Stats from JSONField #}
+        {% if hero.stats_json %}
+        <div class="hero-stats">
+          {% for stat in hero.stats_json %}
+          <div class="hero-stat">
+            <span class="number">{{ stat.num }}</span>
+            <span class="label">{{ stat.lbl }}</span>
+          </div>
+          {% endfor %}
+        </div>
+        {% endif %}
+
+      </div><!-- /col-left -->
+
+      <!-- ── RIGHT: JAR DISPLAY ── -->
+      <div class="col-lg-6 col-md-5">
+        <div class="hero-jar-display">
+
+          {# Big floating jar emoji #}
+          <span class="floating-jar" aria-hidden="true">{{ hero.jar_emoji }}</span>
+
+          {# Dynamic floating badges from JSONField #}
+          {% for badge in hero.float_badges_json %}
+          <div class="badge-float b{{ forloop.counter }}">{{ badge }}</div>
+          {% endfor %}
+
+        </div>
+      </div><!-- /col-right -->
+
+    </div><!-- /row -->
+  </div><!-- /container -->
+</section>
+{% endif %}
+
+
+
+
+
+<section class="features-strip" aria-label="Key Features">
+    <div class="container">
+        <div class="row g-3">
+            <div class="col-6 col-md-3">
+                <div class="feature-item">
+                    <div class="icon-wrap" aria-hidden="true">🚚</div>
+                    <div>
+                        <h6>Free Delivery</h6>
+                        <p>Orders above ₹499</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="feature-item">
+                    <div class="icon-wrap" aria-hidden="true">🌿</div>
+                    <div>
+                        <h6>100% Natural</h6>
+                        <p>No preservatives</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="feature-item">
+                    <div class="icon-wrap" aria-hidden="true">🔄</div>
+                    <div>
+                        <h6>Easy Returns</h6>
+                        <p>7-day return policy</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="feature-item">
+                    <div class="icon-wrap" aria-hidden="true">🔒</div>
+                    <div>
+                        <h6>Secure Payment</h6>
+                        <p>UPI / Razorpay / COD</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="py-5" aria-labelledby="categories-heading">
+    <div class="container">
+        <div class="text-center mb-4">
+            <h2 class="section-title" id="categories-heading">Shop by <span>Category</span></h2>
+            <p class="text-muted mt-2">Browse our wide range of authentic pickle varieties</p>
+            <div class="section-divider mx-auto"></div>
+        </div>
+        <div class="row g-3">
+            <div class="col-6 col-md-4 col-lg-2">
+                <a href="/category/mango/" class="category-card" aria-label="Mango Pickles">
+                    <div class="cat-icon" style="background: linear-gradient(135deg, #fff3e0, #ffcc80);" aria-hidden="true">🥭</div>
+                    <div class="cat-name">Mango Pickle</div>
+                    <div class="cat-count">32 products</div>
+                </a>
+            </div>
+            <div class="col-6 col-md-4 col-lg-2">
+                <a href="/category/garlic/" class="category-card" aria-label="Garlic Pickles">
+                    <div class="cat-icon" style="background: linear-gradient(135deg, #fce4ec, #f8bbd9);" aria-hidden="true">🧄</div>
+                    <div class="cat-name">Garlic Pickle</div>
+                    <div class="cat-count">18 products</div>
+                </a>
+            </div>
+            <div class="col-6 col-md-4 col-lg-2">
+                <a href="/category/lemon/" class="category-card" aria-label="Lemon Pickles">
+                    <div class="cat-icon" style="background: linear-gradient(135deg, #f9fbe7, #f0f4c3);" aria-hidden="true">🍋</div>
+                    <div class="cat-name">Lemon Pickle</div>
+                    <div class="cat-count">24 products</div>
+                </a>
+            </div>
+            <div class="col-6 col-md-4 col-lg-2">
+                <a href="/category/chilli/" class="category-card" aria-label="Chilli Pickles">
+                    <div class="cat-icon" style="background: linear-gradient(135deg, #fce4ec, #ffcdd2);" aria-hidden="true">🌶️</div>
+                    <div class="cat-name">Chilli Pickle</div>
+                    <div class="cat-count">15 products</div>
+                </a>
+            </div>
+            <div class="col-6 col-md-4 col-lg-2">
+                <a href="/category/mixed/" class="category-card" aria-label="Mixed Pickles">
+                    <div class="cat-icon" style="background: linear-gradient(135deg, #e8f5e9, #c8e6c9);" aria-hidden="true">🫙</div>
+                    <div class="cat-name">Mixed Pickle</div>
+                    <div class="cat-count">20 products</div>
+                </a>
+            </div>
+            <div class="col-6 col-md-4 col-lg-2">
+                <a href="/category/regional/" class="category-card" aria-label="Regional Specialties">
+                    <div class="cat-icon" style="background: linear-gradient(135deg, #e3f2fd, #bbdefb);" aria-hidden="true">🗺️</div>
+                    <div class="cat-name">Regional Specials</div>
+                    <div class="cat-count">40 products</div>
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="py-3" aria-label="Special Offers">
+    <div class="container">
+        <div class="row g-4">
+            <div class="col-md-8">
+                <div class="offer-banner">
+                    <div class="offer-badge">🔥 LIMITED STOCK</div>
+                    <h3 style="font-size:24px; font-weight:800;">Andhra Avakaya<br>Mango Pickle</h3>
+                    <p style="font-size:13px; opacity:0.8; margin:8px 0;">Traditional spicy recipe with mustard oil &amp; red chillies</p>
+                    <div style="display:flex; align-items:center; gap:12px; flex-wrap:wrap;">
+                        <span style="font-size:32px; font-weight:800; color:#ffd60a;">₹299</span>
+                        <span style="text-decoration:line-through; opacity:0.5; font-size:18px;">₹450</span>
+                        <span style="background:#ffd60a; color:#1a1a2e; padding:4px 12px; border-radius:50px; font-weight:700; font-size:13px;">33% OFF</span>
+                    </div>
+                    <a href="/product/andhra-avakaya-mango-pickle/" class="btn-hero-primary d-inline-flex mt-3" style="font-size:14px; padding:10px 24px;">
+                        Buy Now <i class="fa fa-arrow-right ms-2"></i>
+                    </a>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="potw-card h-100">
+                    <div class="potw-badge">⭐ Pickle of the Week</div>
+                    <div style="font-size:50px; margin-bottom:10px;" aria-hidden="true">🧄</div>
+                    <h4 style="font-weight:800;">Rajasthani Garlic Pickle</h4>
+                    <p style="font-size:12px; opacity:0.8;">500g | Traditional Recipe</p>
+                    <div class="d-flex align-items-center gap-2">
+                        <span class="potw-price">₹199</span>
+                        <span class="potw-old-price">₹350</span>
+                    </div>
+                    <div class="countdown" aria-label="Deal countdown timer">
+                        <div class="countdown-item"><span class="num" id="hours">08</span><span class="lbl">Hours</span></div>
+                        <div class="countdown-item"><span class="num" id="mins">42</span><span class="lbl">Mins</span></div>
+                        <div class="countdown-item"><span class="num" id="secs">30</span><span class="lbl">Secs</span></div>
+                    </div>
+                    <a href="/product/rajasthani-garlic-pickle/" class="btn-add-cart d-flex mt-3" style="text-decoration:none;">
+                        <i class="fa fa-cart-plus"></i> Add to Cart
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="py-5 bg-light" aria-labelledby="featured-heading">
+    <div class="container">
+        <div class="text-center mb-4">
+            <h2 class="section-title" id="featured-heading">🔥 Best Selling <span>Pickles</span></h2>
+            <p class="text-muted">Most loved by our Nagpur customers</p>
+            <div class="section-divider mx-auto"></div>
+        </div>
+
+        <div class="d-flex justify-content-center flex-wrap gap-2 mb-4" role="tablist" aria-label="Product filter">
+            <button class="btn btn-sm btn-warning fw-bold px-4 rounded-pill active" role="tab" aria-selected="true">All</button>
+            <button class="btn btn-sm btn-outline-warning fw-bold px-4 rounded-pill" role="tab" aria-selected="false">Mango</button>
+            <button class="btn btn-sm btn-outline-warning fw-bold px-4 rounded-pill" role="tab" aria-selected="false">Garlic</button>
+            <button class="btn btn-sm btn-outline-warning fw-bold px-4 rounded-pill" role="tab" aria-selected="false">Andhra</button>
+            <button class="btn btn-sm btn-outline-warning fw-bold px-4 rounded-pill" role="tab" aria-selected="false">Under ₹200</button>
+        </div>
+
+        <div class="row g-4" role="list">
+            <div class="col-6 col-md-4 col-lg-3" role="listitem">
+                <article class="product-card">
+                    <div class="product-img">
+                        <span aria-hidden="true">🥭</span>
+                        <span class="product-badge">Bestseller</span>
+                        <button class="product-wishlist" aria-label="Add Rajasthani Mango Pickle to wishlist"><i class="fa fa-heart"></i></button>
+                    </div>
+                    <div class="product-body">
+                        <div class="product-brand">Rajasthani Brand</div>
+                        <h3 class="product-name">Rajasthani Mango Pickle</h3>
+                        <div class="product-weight">500g | Mustard Oil</div>
+                        <div class="d-flex align-items-center gap-1 mt-1">
+                            <div class="product-stars" aria-label="Rating: 4.8 out of 5">★★★★★</div>
+                            <span class="product-reviews">(128)</span>
+                        </div>
+                        <div class="d-flex align-items-center gap-2 mt-2">
+                            <span class="product-price" aria-label="Price: 320 rupees">₹320</span>
+                            <span class="product-price-old" aria-label="Original price: 450 rupees">₹450</span>
+                            <span class="product-discount">29% off</span>
+                        </div>
+                        <button class="btn-add-cart" aria-label="Add Rajasthani Mango Pickle to cart">
+                            <i class="fa fa-cart-plus" aria-hidden="true"></i> Add to Cart
+                        </button>
+                        <a href="https://wa.me/919876543210?text=I want Rajasthani Mango Pickle 500g" class="btn-whatsapp" aria-label="Order Rajasthani Mango Pickle on WhatsApp">
+                            <i class="fab fa-whatsapp" aria-hidden="true"></i> Order on WhatsApp
+                        </a>
+                    </div>
+                </article>
+            </div>
+            <div class="col-6 col-md-4 col-lg-3" role="listitem">
+                <article class="product-card">
+                    <div class="product-img">
+                        <span aria-hidden="true">🧄</span>
+                        <span class="product-badge" style="background:linear-gradient(135deg,#2d6a4f,#52b788);">New</span>
+                        <button class="product-wishlist" aria-label="Add Andhra Garlic Pickle to wishlist"><i class="fa fa-heart"></i></button>
+                    </div>
+                    <div class="product-body">
+                        <div class="product-brand">Andhra Heritage</div>
+                        <h3 class="product-name">Andhra Spicy Garlic Pickle</h3>
+                        <div class="product-weight">250g | Sesame Oil</div>
+                        <div class="d-flex align-items-center gap-1 mt-1">
+                            <div class="product-stars" aria-label="Rating: 4.7 out of 5">★★★★★</div>
+                            <span class="product-reviews">(94)</span>
+                        </div>
+                        <div class="d-flex align-items-center gap-2 mt-2">
+                            <span class="product-price" aria-label="Price: 199 rupees">₹199</span>
+                            <span class="product-price-old" aria-label="Original price: 280 rupees">₹280</span>
+                            <span class="product-discount">29% off</span>
+                        </div>
+                        <button class="btn-add-cart" aria-label="Add Andhra Garlic Pickle to cart">
+                            <i class="fa fa-cart-plus" aria-hidden="true"></i> Add to Cart
+                        </button>
+                        <a href="https://wa.me/919876543210?text=I want Andhra Garlic Pickle 250g" class="btn-whatsapp" aria-label="Order Andhra Garlic Pickle on WhatsApp">
+                            <i class="fab fa-whatsapp" aria-hidden="true"></i> Order on WhatsApp
+                        </a>
+                    </div>
+                </article>
+            </div>
+            <div class="col-6 col-md-4 col-lg-3" role="listitem">
+                <article class="product-card">
+                    <div class="product-img">
+                        <span aria-hidden="true">🍋</span>
+                        <span class="product-badge" style="background:linear-gradient(135deg,#0f3460,#533483);">Premium</span>
+                        <button class="product-wishlist" aria-label="Add Punjabi Lemon Pickle to wishlist"><i class="fa fa-heart"></i></button>
+                    </div>
+                    <div class="product-body">
+                        <div class="product-brand">Punjabi Tadka</div>
+                        <h3 class="product-name">Punjabi Sweet Lemon Pickle</h3>
+                        <div class="product-weight">500g | Sun-dried</div>
+                        <div class="d-flex align-items-center gap-1 mt-1">
+                            <div class="product-stars" aria-label="Rating: 4.6 out of 5">★★★★☆</div>
+                            <span class="product-reviews">(67)</span>
+                        </div>
+                        <div class="d-flex align-items-center gap-2 mt-2">
+                            <span class="product-price" aria-label="Price: 280 rupees">₹280</span>
+                            <span class="product-price-old" aria-label="Original price: 380 rupees">₹380</span>
+                            <span class="product-discount">26% off</span>
+                        </div>
+                        <button class="btn-add-cart" aria-label="Add Punjabi Lemon Pickle to cart">
+                            <i class="fa fa-cart-plus" aria-hidden="true"></i> Add to Cart
+                        </button>
+                        <a href="https://wa.me/919876543210?text=I want Punjabi Lemon Pickle 500g" class="btn-whatsapp" aria-label="Order Punjabi Lemon Pickle on WhatsApp">
+                            <i class="fab fa-whatsapp" aria-hidden="true"></i> Order on WhatsApp
+                        </a>
+                    </div>
+                </article>
+            </div>
+            <div class="col-6 col-md-4 col-lg-3" role="listitem">
+                <article class="product-card">
+                    <div class="product-img">
+                        <span aria-hidden="true">🌶️</span>
+                        <span class="product-badge" style="background:linear-gradient(135deg,#9d0208,#e85d04);">Hot 🔥</span>
+                        <button class="product-wishlist" aria-label="Add Gujarati Mixed Pickle to wishlist"><i class="fa fa-heart"></i></button>
+                    </div>
+                    <div class="product-body">
+                        <div class="product-brand">Gujarat Flavours</div>
+                        <h3 class="product-name">Gujarati Mixed Achaar</h3>
+                        <div class="product-weight">400g | Sesame Oil</div>
+                        <div class="d-flex align-items-center gap-1 mt-1">
+                            <div class="product-stars" aria-label="Rating: 4.9 out of 5">★★★★★</div>
+                            <span class="product-reviews">(203)</span>
+                        </div>
+                        <div class="d-flex align-items-center gap-2 mt-2">
+                            <span class="product-price" aria-label="Price: 249 rupees">₹249</span>
+                            <span class="product-price-old" aria-label="Original price: 320 rupees">₹320</span>
+                            <span class="product-discount">22% off</span>
+                        </div>
+                        <button class="btn-add-cart" aria-label="Add Gujarati Mixed Achaar to cart">
+                            <i class="fa fa-cart-plus" aria-hidden="true"></i> Add to Cart
+                        </button>
+                        <a href="https://wa.me/919876543210?text=I want Gujarati Mixed Achaar 400g" class="btn-whatsapp" aria-label="Order Gujarati Mixed Achaar on WhatsApp">
+                            <i class="fab fa-whatsapp" aria-hidden="true"></i> Order on WhatsApp
+                        </a>
+                    </div>
+                </article>
+            </div>
+        </div>
+
+        <div class="text-center mt-4">
+            <a href="/products/" class="btn btn-warning btn-lg rounded-pill fw-bold px-5" aria-label="View all pickle products">
+                View All Products <i class="fa fa-arrow-right ms-2"></i>
+            </a>
+        </div>
+    </div>
+</section>
+
+<section class="py-5" aria-labelledby="brands-heading">
+    <div class="container">
+        <div class="text-center mb-4">
+            <h2 class="section-title" id="brands-heading">Our <span>Pickle Brands</span></h2>
+            <p class="text-muted">Handpicked exclusive brands from across India</p>
+            <div class="section-divider mx-auto"></div>
+        </div>
+        <div class="d-flex flex-wrap justify-content-center gap-3" role="list">
+            <a href="/brand/rajasthani-pickles/" class="brand-chip" role="listitem" aria-label="Rajasthani Pickles brand">🏜️ Rajasthani Pickles</a>
+            <a href="/brand/andhra-heritage/" class="brand-chip" role="listitem" aria-label="Andhra Heritage brand">🌶️ Andhra Heritage</a>
+            <a href="/brand/punjabi-tadka/" class="brand-chip" role="listitem" aria-label="Punjabi Tadka brand">🌾 Punjabi Tadka</a>
+            <a href="/brand/gujarat-flavours/" class="brand-chip" role="listitem" aria-label="Gujarat Flavours brand">🫙 Gujarat Flavours</a>
+            <a href="/brand/kerala-spice/" class="brand-chip" role="listitem" aria-label="Kerala Spice brand">🌴 Kerala Spice</a>
+            <a href="/brand/nagpur-specials/" class="brand-chip" role="listitem" aria-label="Nagpur Specials brand">🍊 Nagpur Specials</a>
+            <a href="/brand/bengal-achar/" class="brand-chip" role="listitem" aria-label="Bengal Achar brand">🐟 Bengal Achar</a>
+            <a href="/brand/kashmiri-delight/" class="brand-chip" role="listitem" aria-label="Kashmiri Delight brand">❄️ Kashmiri Delight</a>
+        </div>
+    </div>
+</section>
+
+<section class="py-5" style="background:#fff3e0;" aria-labelledby="reviews-heading">
+    <div class="container">
+        <div class="text-center mb-4">
+            <h2 class="section-title" id="reviews-heading">What Our <span>Customers Say</span></h2>
+            <p class="text-muted">Trusted by 5000+ pickle lovers in Nagpur</p>
+            <div class="section-divider mx-auto"></div>
+        </div>
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="testimonial-card">
+                    <div class="d-flex align-items-center gap-3 mb-3">
+                        <div class="reviewer-avatar" style="background:#fff3e0;" aria-hidden="true">👩</div>
+                        <div>
+                            <div style="font-weight:700; font-size:14px;">Priya Deshmukh</div>
+                            <div style="font-size:12px; color:#888;">Nagpur, Maharashtra</div>
+                            <div style="color:#ffd60a; font-size:13px;" aria-label="Rating: 5 stars">★★★★★</div>
+                        </div>
+                    </div>
+                    <p style="font-size:13px; color:#555; font-style:italic;">"Best mango pickle I've ever had! The Rajasthani recipe is authentic and the delivery was super fast. Ordered at 10am and received by 6pm!"</p>
+                    <div style="font-size:12px; color:#e85d04; margin-top:8px;">Verified Purchase ✓</div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="testimonial-card">
+                    <div class="d-flex align-items-center gap-3 mb-3">
+                        <div class="reviewer-avatar" style="background:#e8f5e9;" aria-hidden="true">👨</div>
+                        <div>
+                            <div style="font-weight:700; font-size:14px;">Rahul Sharma</div>
+                            <div style="font-size:12px; color:#888;">Civil Lines, Nagpur</div>
+                            <div style="color:#ffd60a; font-size:13px;" aria-label="Rating: 5 stars">★★★★★</div>
+                        </div>
+                    </div>
+                    <p style="font-size:13px; color:#555; font-style:italic;">"The Andhra garlic pickle is mind-blowing! Can't find this quality anywhere in local stores. PickleHub is my go-to for exclusive varieties."</p>
+                    <div style="font-size:12px; color:#e85d04; margin-top:8px;">Verified Purchase ✓</div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="testimonial-card">
+                    <div class="d-flex align-items-center gap-3 mb-3">
+                        <div class="reviewer-avatar" style="background:#fce4ec;" aria-hidden="true">👩</div>
+                        <div>
+                            <div style="font-weight:700; font-size:14px;">Sunita Patel</div>
+                            <div style="font-size:12px; color:#888;">Sitabuldi, Nagpur</div>
+                            <div style="color:#ffd60a; font-size:13px;" aria-label="Rating: 4 stars">★★★★☆</div>
+                        </div>
+                    </div>
+                    <p style="font-size:13px; color:#555; font-style:italic;">"Ordered Gujarati mixed achaar — the taste is exactly like what my grandma used to make! Ordered via WhatsApp and it was so easy. Highly recommend!"</p>
+                    <div style="font-size:12px; color:#e85d04; margin-top:8px;">Verified Purchase ✓</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="newsletter-section py-5" aria-labelledby="newsletter-heading">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-md-6 text-white mb-3 mb-md-0">
+                <h2 class="fw-800" id="newsletter-heading" style="font-size:28px; font-weight:800;">
+                    🎁 Get 15% OFF Your First Order!
+                </h2>
+                <p style="opacity:0.85; margin-top:8px;">Subscribe to receive exclusive deals, new pickle arrivals &amp; Nagpur-only offers straight to your inbox.</p>
+            </div>
+            <div class="col-md-6">
+                <form action="/newsletter/subscribe/" method="POST" aria-label="Newsletter subscription form">
+                    <label for="newsletterEmail" class="visually-hidden">Email address for newsletter</label>
+                    <div class="newsletter-input-wrap mx-auto">
+                        <input type="email" id="newsletterEmail" name="email" placeholder="Enter your email address..." required aria-required="true">
+                        <button type="submit" aria-label="Subscribe to newsletter">Subscribe 🎉</button>
+                    </div>
+                    <p style="font-size:11px; color:rgba(255,255,255,0.5); margin-top:8px; text-align:center;">
+                        No spam. Unsubscribe anytime. 🔒 Privacy protected.
+                    </p>
+                </form>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Countdown Timer for Pickle of the Week
+    function updateCountdown() {
+        var h = parseInt(document.getElementById('hours').textContent);
+        var m = parseInt(document.getElementById('mins').textContent);
+        var s = parseInt(document.getElementById('secs').textContent);
+        s--;
+        if (s < 0) { s = 59; m--; }
+        if (m < 0) { m = 59; h--; }
+        if (h < 0) { h = 23; m = 59; s = 59; }
+        document.getElementById('hours').textContent = String(h).padStart(2,'0');
+        document.getElementById('mins').textContent = String(m).padStart(2,'0');
+        document.getElementById('secs').textContent = String(s).padStart(2,'0');
+    }
+    setInterval(updateCountdown, 1000);
+
+    // Filter tab functionality (Homepage specific)
+    document.querySelectorAll('[role="tab"]').forEach(function(tab) {
+        tab.addEventListener('click', function() {
+            document.querySelectorAll('[role="tab"]').forEach(function(t) {
+                t.classList.remove('btn-warning', 'active');
+                t.classList.add('btn-outline-warning');
+                t.setAttribute('aria-selected', 'false');
+            });
+            this.classList.remove('btn-outline-warning');
+            this.classList.add('btn-warning', 'active');
+            this.setAttribute('aria-selected', 'true');
+        });
+    });
+</script>
+{% endblock %}

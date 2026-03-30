@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reports & Analytics | PickleHub Admin</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root{--primary:#e85d04;--dark:#1a1a2e;--sidebar:240px;}
+        *{margin:0;padding:0;box-sizing:border-box;}
+        body{font-family:'Poppins',sans-serif;background:#f0f2f5;display:flex;min-height:100vh;}
+        .sidebar{width:var(--sidebar);background:linear-gradient(180deg,#1a1a2e,#0f3460);position:fixed;top:0;left:0;height:100vh;overflow-y:auto;z-index:100;}
+        .sidebar-logo{padding:20px 18px;border-bottom:1px solid rgba(255,255,255,0.08);display:flex;align-items:center;gap:10px;}
+        .sidebar-logo .ico{width:38px;height:38px;background:linear-gradient(135deg,#e85d04,#ffd60a);border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:18px;}
+        .sidebar-logo span{font-family:'Playfair Display',serif;font-size:16px;font-weight:700;color:#ffd60a;}
+        .sidebar-logo small{font-size:9px;color:#f48c06;letter-spacing:1px;display:block;}
+        .nav-section{padding:14px 14px 4px;font-size:9px;font-weight:700;color:rgba(255,255,255,0.3);letter-spacing:2px;text-transform:uppercase;}
+        .nav-item{display:flex;align-items:center;gap:10px;padding:10px 18px;color:rgba(255,255,255,0.65);text-decoration:none;font-size:13px;font-weight:500;transition:.2s;border-left:3px solid transparent;}
+        .nav-item:hover,.nav-item.active{background:rgba(232,93,4,0.15);color:#ffd60a;border-left-color:#e85d04;}
+        .nav-item i{width:18px;text-align:center;font-size:14px;}
+        .nav-badge{background:#e85d04;color:#fff;border-radius:50px;padding:1px 7px;font-size:10px;margin-left:auto;}
+        .main-wrap{margin-left:var(--sidebar);flex:1;}
+        .topbar{background:#fff;padding:14px 24px;display:flex;align-items:center;justify-content:space-between;box-shadow:0 2px 10px rgba(0,0,0,0.06);position:sticky;top:0;z-index:99;}
+        .topbar-title{font-size:17px;font-weight:700;color:#1a1a2e;}
+        .content{padding:24px;}
+
+        /* TABS */
+        .report-tabs{display:flex;gap:4px;background:#fff;border-radius:14px;padding:6px;box-shadow:0 2px 10px rgba(0,0,0,0.06);margin-bottom:24px;flex-wrap:wrap;}
+        .rtab{padding:10px 20px;border-radius:10px;border:none;background:transparent;font-weight:600;font-size:13px;color:#888;cursor:pointer;transition:.2s;white-space:nowrap;}
+        .rtab:hover{background:#fff3e0;color:#e85d04;}
+        .rtab.active{background:linear-gradient(135deg,#e85d04,#f48c06);color:#fff;}
+
+        /* FILTER BAR */
+        .filter-bar{background:#fff;border-radius:14px;padding:16px 20px;box-shadow:0 2px 10px rgba(0,0,0,0.06);margin-bottom:20px;display:flex;gap:12px;align-items:flex-end;flex-wrap:wrap;}
+        .filter-bar .form-label{font-size:11px;font-weight:700;color:#888;margin-bottom:4px;}
+        .filter-bar .form-control,.filter-bar .form-select{border-radius:10px;border:1.5px solid #e0e0e0;padding:8px 12px;font-size:13px;outline:none;}
+        .filter-bar .form-control:focus,.filter-bar .form-select:focus{border-color:#e85d04;}
+        .btn-filter{background:linear-gradient(135deg,#e85d04,#f48c06);color:#fff;border:none;border-radius:10px;padding:9px 20px;font-weight:700;font-size:13px;cursor:pointer;transition:.3s;white-space:nowrap;}
+        .btn-export{background:linear-gradient(135deg,#2d6a4f,#52b788);color:#fff;border:none;border-radius:10px;padding:9px 16px;font-weight:700;font-size:13px;cursor:pointer;white-space:nowrap;}
+
+        /* KPI STRIP */
+        .kpi-strip{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:14px;margin-bottom:20px;}
+        .kpi{background:#fff;border-radius:14px;padding:16px;box-shadow:0 2px 10px rgba(0,0,0,0.06);text-align:center;}
+        .kpi-val{font-size:22px;font-weight:800;}
+        .kpi-lbl{font-size:11px;color:#888;margin-top:3px;}
+        .kpi-change{font-size:10px;font-weight:600;margin-top:4px;}
+        .up{color:#2d6a4f;} .down{color:#c62828;}
+
+        /* TABLE */
+        .data-table{width:100%;font-size:13px;border-collapse:collapse;}
+        .data-table th{background:linear-gradient(135deg,#1a1a2e,#0f3460);color:rgba(255,255,255,0.85);font-size:11px;text-transform:uppercase;letter-spacing:.5px;padding:12px 14px;font-weight:700;}
+        .data-table td{padding:12px 14px;border-bottom:1px solid #f5f5f5;vertical-align:middle;}
+        .data-table tr:hover td{background:#fffaf7;}
+        .data-table tr:last-child td{border-bottom:none;}
+        .pill{padding:3px 10px;border-radius:50px;font-size:11px;font-weight:700;}
+        .sec-card{background:#fff;border-radius:16px;box-shadow:0 4px 15px rgba(0,0,0,0.06);overflow:hidden;margin-bottom:20px;}
+        .sec-head{padding:16px 20px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #f5f5f5;}
+        .sec-head h3{font-size:15px;font-weight:700;color:#1a1a2e;margin:0;}
+        .sec-body{padding:20px;}
+        .chart-wrap{position:relative;height:260px;}
+
+        /* REPORT SECTION PANELS */
+        .report-panel{display:none;}
+        .report-panel.active{display:block;}
+    </style>
+</head>
+<body>
+<!-- SIDEBAR -->
+<nav class="sidebar" aria-label="Admin Sidebar">
+    <div class="sidebar-logo"><div class="ico">🥒</div><div><span>PickleHub</span><small>Admin Panel</small></div></div>
+    <div class="nav-section">Main</div>
+    <a class="nav-item" href="picklehub_dashboard.html"><i class="fa fa-tachometer-alt"></i> Dashboard</a>
+    <div class="nav-section">Orders</div>
+    <a class="nav-item" href="picklehub_orders_report.html"><i class="fa fa-shopping-bag"></i> All Orders <span class="nav-badge">12</span></a>
+    <a class="nav-item" href="#"><i class="fa fa-clock"></i> Payment Review <span class="nav-badge" style="background:#1565c0;">5</span></a>
+    <div class="nav-section">Reports</div>
+    <a class="nav-item active" href="#"><i class="fa fa-chart-bar"></i> Sales Reports</a>
+    <a class="nav-item" href="#" onclick="switchTab('products')"><i class="fa fa-chart-pie"></i> Product Reports</a>
+    <a class="nav-item" href="#" onclick="switchTab('payments')"><i class="fa fa-rupee-sign"></i> Payment Reports</a>
+    <a class="nav-item" href="#" onclick="switchTab('customers')"><i class="fa fa-users"></i> Customer Reports</a>
+    <a class="nav-item" href="#" onclick="switchTab('inventory')"><i class="fa fa-boxes"></i> Inventory Reports</a>
+    <div class="nav-section">Settings</div>
+    <a class="nav-item" href="#"><i class="fa fa-cog"></i> Site Settings</a>
+    <a class="nav-item" href="#"><i class="fa fa-sign-out-alt"></i> Logout</a>
+</nav>
+
+<div class="main-wrap">
+    <div class="topbar">
+        <div class="topbar-title" id="reportTitle">📊 Sales Reports</div>
+        <div style="display:flex;gap:10px;align-items:center;">
+            <button class="btn-export" onclick="exportCSV()" aria-label="Export to CSV"><i class="fa fa-download me-1"></i> Export CSV</button>
+            <button class="btn-export" style="background:linear-gradient(135deg,#c62828,#e53935);" onclick="exportPDF()" aria-label="Export to PDF"><i class="fa fa-file-pdf me-1"></i> Export PDF</button>
+        </div>
+    </div>
+    <div class="content">
+
+        <!-- REPORT TYPE TABS -->
+        <div class="report-tabs" role="tablist" aria-label="Report types">
+            <button class="rtab active" onclick="switchTab('sales')" role="tab" aria-selected="true">📈 Sales</button>
+            <button class="rtab" onclick="switchTab('products')" role="tab">📦 Products</button>
+            <button class="rtab" onclick="switchTab('payments')" role="tab">💳 Payments</button>
+            <button class="rtab" onclick="switchTab('customers')" role="tab">👥 Customers</button>
+            <button class="rtab" onclick="switchTab('inventory')" role="tab">🏭 Inventory</button>
+            <button class="rtab" onclick="switchTab('coupons')" role="tab">🏷️ Coupons</button>
+            <button class="rtab" onclick="switchTab('delivery')" role="tab">🚚 Delivery</button>
+        </div>
+
+        <!-- FILTER BAR (shared) -->
+        <div class="filter-bar" aria-label="Report filters">
+            <div><div class="form-label">From Date</div><input type="date" class="form-control" id="fromDate" value="2026-03-01" aria-label="From date"></div>
+            <div><div class="form-label">To Date</div><input type="date" class="form-control" id="toDate" value="2026-03-17" aria-label="To date"></div>
+            <div><div class="form-label">Period</div>
+                <select class="form-select" id="period" onchange="setPeriod(this.value)" aria-label="Select period">
+                    <option value="today">Today</option>
+                    <option value="week">This Week</option>
+                    <option value="month" selected>This Month</option>
+                    <option value="quarter">This Quarter</option>
+                    <option value="year">This Year</option>
+                    <option value="custom">Custom Range</option>
+                </select>
+            </div>
+            <div><div class="form-label">Category</div>
+                <select class="form-select" aria-label="Select category">
+                    <option>All Categories</option>
+                    <option>Mango Pickle</option>
+                    <option>Garlic Pickle</option>
+                    <option>Lemon Pickle</option>
+                    <option>Mixed Achaar</option>
+                </select>
+            </div>
+            <button class="btn-filter" onclick="applyFilter()" aria-label="Apply filters"><i class="fa fa-filter me-1"></i> Apply</button>
+        </div>
+
+        <!-- ============================== -->
+        <!-- PANEL 1: SALES REPORT -->
+        <!-- ============================== -->
+        <div class="report-panel active" id="panel-sales">
+            <!-- KPI Strip -->
+            <div class="kpi-strip" aria-label="Sales KPIs">
+                <div class="kpi"><div class="kpi-val" style="color:#e85d04;">₹3,84,290</div><div class="kpi-lbl">Total Revenue</div><div class="kpi-change up">↑ 32%</div></div>
+                <div class="kpi"><div class="kpi-val" style="color:#2d6a4f;">842</div><div class="kpi-lbl">Total Orders</div><div class="kpi-change up">↑ 28%</div></div>
+                <div class="kpi"><div class="kpi-val" style="color:#1565c0;">₹456</div><div class="kpi-lbl">Avg Order Value</div><div class="kpi-change up">↑ ₹34</div></div>
+                <div class="kpi"><div class="kpi-val" style="color:#6a0dad;">1,284</div><div class="kpi-lbl">Customers</div><div class="kpi-change up">↑ 23</div></div>
+                <div class="kpi"><div class="kpi-val" style="color:#856404;">₹94,210</div><div class="kpi-lbl">Discount Given</div><div class="kpi-change down">↑ 8%</div></div>
+                <div class="kpi"><div class="kpi-val" style="color:#c62828;">14</div><div class="kpi-lbl">Cancelled Orders</div><div class="kpi-change down">↓ 2%</div></div>
+            </div>
+
+            <!-- Charts Row -->
+            <div class="row g-4 mb-4">
+                <div class="col-md-8">
+                    <div class="sec-card">
+                        <div class="sec-head"><h3>📈 Daily Revenue Trend</h3></div>
+                        <div class="sec-body"><div class="chart-wrap"><canvas id="salesTrendChart"></canvas></div></div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="sec-card">
+                        <div class="sec-head"><h3>🗓️ Revenue by Day of Week</h3></div>
+                        <div class="sec-body"><div class="chart-wrap"><canvas id="dowChart"></canvas></div></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sales Table -->
+            <div class="sec-card">
+                <div class="sec-head">
+                    <h3>📋 Daily Sales Breakdown</h3>
+                    <span style="font-size:12px;color:#888;">March 1–17, 2026</span>
+                </div>
+                <div style="overflow-x:auto;">
+                    <table class="data-table" aria-label="Daily sales breakdown">
+                        <thead><tr><th>Date</th><th>Orders</th><th>Revenue</th><th>Avg Order</th><th>Discount</th><th>COD</th><th>UPI</th><th>Bank</th><th>Cancelled</th></tr></thead>
+                        <tbody>
+                            <tr><td><strong>17 Mar 2026</strong></td><td>37</td><td><strong style="color:#e85d04;">₹48,320</strong></td><td>₹1,306</td><td>₹9,840</td><td>19</td><td>13</td><td>5</td><td>1</td></tr>
+                            <tr><td>16 Mar 2026</td><td>42</td><td>₹49,800</td><td>₹1,186</td><td>₹10,200</td><td>22</td><td>14</td><td>6</td><td>2</td></tr>
+                            <tr><td>15 Mar 2026</td><td>31</td><td>₹38,400</td><td>₹1,239</td><td>₹7,800</td><td>17</td><td>10</td><td>4</td><td>0</td></tr>
+                            <tr><td>14 Mar 2026</td><td>45</td><td>₹55,600</td><td>₹1,236</td><td>₹11,400</td><td>24</td><td>15</td><td>6</td><td>3</td></tr>
+                            <tr><td>13 Mar 2026</td><td>22</td><td>₹28,900</td><td>₹1,314</td><td>₹5,800</td><td>12</td><td>7</td><td>3</td><td>1</td></tr>
+                            <tr><td>12 Mar 2026</td><td>34</td><td>₹41,200</td><td>₹1,212</td><td>₹8,600</td><td>18</td><td>11</td><td>5</td><td>2</td></tr>
+                            <tr><td>11 Mar 2026</td><td>28</td><td>₹32,400</td><td>₹1,157</td><td>₹6,400</td><td>15</td><td>9</td><td>4</td><td>1</td></tr>
+                            <tr style="background:#f8f9fa;font-weight:700;"><td>Total (7 days)</td><td>239</td><td>₹2,94,620</td><td>₹1,233</td><td>₹60,040</td><td>127</td><td>79</td><td>33</td><td>10</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- ============================== -->
+        <!-- PANEL 2: PRODUCT REPORT -->
+        <!-- ============================== -->
+        <div class="report-panel" id="panel-products">
+            <div class="kpi-strip">
+                <div class="kpi"><div class="kpi-val" style="color:#e85d04;">38</div><div class="kpi-lbl">Total Products</div></div>
+                <div class="kpi"><div class="kpi-val" style="color:#2d6a4f;">2,847</div><div class="kpi-lbl">Units Sold</div><div class="kpi-change up">↑ 22%</div></div>
+                <div class="kpi"><div class="kpi-val" style="color:#1565c0;">4.7★</div><div class="kpi-lbl">Avg Rating</div></div>
+                <div class="kpi"><div class="kpi-val" style="color:#856404;">7</div><div class="kpi-lbl">Low Stock</div><div class="kpi-change down">⚠ Restock</div></div>
+            </div>
+            <div class="row g-4 mb-4">
+                <div class="col-md-6">
+                    <div class="sec-card">
+                        <div class="sec-head"><h3>🥧 Sales by Category</h3></div>
+                        <div class="sec-body"><div class="chart-wrap"><canvas id="catChart"></canvas></div></div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="sec-card">
+                        <div class="sec-head"><h3>📊 Top Products by Revenue</h3></div>
+                        <div class="sec-body"><div class="chart-wrap"><canvas id="topProdChart"></canvas></div></div>
+                    </div>
+                </div>
+            </div>
+            <div class="sec-card">
+                <div class="sec-head"><h3>📦 Product-wise Sales Report</h3></div>
+                <div style="overflow-x:auto;">
+                    <table class="data-table" aria-label="Product sales">
+                        <thead><tr><th>#</th><th>Product</th><th>Category</th><th>Units Sold</th><th>Revenue</th><th>Avg Rating</th><th>Stock Left</th><th>Status</th></tr></thead>
+                        <tbody>
+                            <tr><td>1</td><td>🥭 Rajasthani Mango Pickle (500g)</td><td>Mango</td><td>203</td><td>₹64,960</td><td>★ 4.8</td><td>12</td><td><span class="pill" style="background:#d4edda;color:#155724;">In Stock</span></td></tr>
+                            <tr><td>2</td><td>🧄 Andhra Garlic Pickle (250g)</td><td>Garlic</td><td>178</td><td>₹35,422</td><td>★ 4.7</td><td>5</td><td><span class="pill" style="background:#fff3cd;color:#856404;">Low Stock</span></td></tr>
+                            <tr><td>3</td><td>🍋 Punjabi Lemon Pickle (500g)</td><td>Lemon</td><td>154</td><td>₹43,120</td><td>★ 4.6</td><td>18</td><td><span class="pill" style="background:#d4edda;color:#155724;">In Stock</span></td></tr>
+                            <tr><td>4</td><td>🌶️ Gujarati Mixed Achaar (400g)</td><td>Mixed</td><td>132</td><td>₹32,868</td><td>★ 4.5</td><td>2</td><td><span class="pill" style="background:#f8d7da;color:#721c24;">Critical</span></td></tr>
+                            <tr><td>5</td><td>🫙 Kerala Coconut Pickle (250g)</td><td>Coconut</td><td>98</td><td>₹21,560</td><td>★ 4.9</td><td>24</td><td><span class="pill" style="background:#d4edda;color:#155724;">In Stock</span></td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- ============================== -->
+        <!-- PANEL 3: PAYMENT REPORT -->
+        <!-- ============================== -->
+        <div class="report-panel" id="panel-payments">
+            <div class="kpi-strip">
+                <div class="kpi"><div class="kpi-val" style="color:#e85d04;">₹3,84,290</div><div class="kpi-lbl">Total Collected</div></div>
+                <div class="kpi"><div class="kpi-val" style="color:#2d6a4f;">₹1,99,830</div><div class="kpi-lbl">COD (52%)</div></div>
+                <div class="kpi"><div class="kpi-val" style="color:#1565c0;">₹1,34,502</div><div class="kpi-lbl">UPI (35%)</div></div>
+                <div class="kpi"><div class="kpi-val" style="color:#6a0dad;">₹49,958</div><div class="kpi-lbl">Bank (13%)</div></div>
+                <div class="kpi"><div class="kpi-val" style="color:#856404;">5</div><div class="kpi-lbl">Pending Verify</div><div class="kpi-change down">⚠ Review now</div></div>
+            </div>
+            <div class="row g-4 mb-4">
+                <div class="col-md-5">
+                    <div class="sec-card">
+                        <div class="sec-head"><h3>💳 Payment Method Split</h3></div>
+                        <div class="sec-body"><div class="chart-wrap" style="height:220px;"><canvas id="payMethodChart"></canvas></div></div>
+                    </div>
+                </div>
+                <div class="col-md-7">
+                    <div class="sec-card">
+                        <div class="sec-head"><h3>📈 Daily Collection Trend</h3></div>
+                        <div class="sec-body"><div class="chart-wrap"><canvas id="payTrendChart"></canvas></div></div>
+                    </div>
+                </div>
+            </div>
+            <div class="sec-card">
+                <div class="sec-head">
+                    <h3>🔍 Pending Payment Verification</h3>
+                    <span style="background:#e8e0ff;color:#4a0e8f;padding:3px 10px;border-radius:50px;font-size:11px;font-weight:700;">5 pending</span>
+                </div>
+                <div style="overflow-x:auto;">
+                    <table class="data-table" aria-label="Pending payment verifications">
+                        <thead><tr><th>Order ID</th><th>Customer</th><th>Amount</th><th>Method</th><th>Screenshot</th><th>Submitted</th><th>Action</th></tr></thead>
+                        <tbody>
+                            <tr><td>#PH-2026-00847</td><td>Priya Deshmukh<br><small style="color:#aaa;">+91-98765-XXXXX</small></td><td><strong style="color:#e85d04;">₹967</strong></td><td>📱 UPI</td><td><button style="background:#1565c0;color:#fff;border:none;border-radius:8px;padding:4px 10px;font-size:11px;cursor:pointer;">📸 View</button></td><td><small>2 mins ago</small></td><td><button class="btn-verify" onclick="this.innerHTML='✅ Done';this.disabled=true;">✅ Verify</button></td></tr>
+                            <tr><td>#PH-2026-00842</td><td>Vishal Rao</td><td><strong style="color:#e85d04;">₹1,299</strong></td><td>🏦 Bank</td><td><button style="background:#1565c0;color:#fff;border:none;border-radius:8px;padding:4px 10px;font-size:11px;cursor:pointer;">📸 View</button></td><td><small>45 mins ago</small></td><td><button class="btn-verify" onclick="this.innerHTML='✅ Done';this.disabled=true;">✅ Verify</button></td></tr>
+                            <tr><td>#PH-2026-00839</td><td>Anjali Wagh</td><td><strong style="color:#e85d04;">₹450</strong></td><td>📱 UPI</td><td><button style="background:#1565c0;color:#fff;border:none;border-radius:8px;padding:4px 10px;font-size:11px;cursor:pointer;">📸 View</button></td><td><small>1 hr ago</small></td><td><button class="btn-verify" onclick="this.innerHTML='✅ Done';this.disabled=true;">✅ Verify</button></td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- ============================== -->
+        <!-- PANEL 4: CUSTOMER REPORT -->
+        <!-- ============================== -->
+        <div class="report-panel" id="panel-customers">
+            <div class="kpi-strip">
+                <div class="kpi"><div class="kpi-val" style="color:#e85d04;">1,284</div><div class="kpi-lbl">Total Customers</div><div class="kpi-change up">↑ 23 new</div></div>
+                <div class="kpi"><div class="kpi-val" style="color:#2d6a4f;">342</div><div class="kpi-lbl">Repeat Customers</div><div class="kpi-change up">27%</div></div>
+                <div class="kpi"><div class="kpi-val" style="color:#1565c0;">₹456</div><div class="kpi-lbl">Avg Lifetime Value</div></div>
+                <div class="kpi"><div class="kpi-val" style="color:#6a0dad;">78%</div><div class="kpi-lbl">From Nagpur</div></div>
+            </div>
+            <div class="row g-4 mb-4">
+                <div class="col-md-6">
+                    <div class="sec-card">
+                        <div class="sec-head"><h3>📍 Customers by Area (Nagpur)</h3></div>
+                        <div class="sec-body"><div class="chart-wrap"><canvas id="areaChart"></canvas></div></div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="sec-card">
+                        <div class="sec-head"><h3>🔁 New vs Repeat Customers</h3></div>
+                        <div class="sec-body"><div class="chart-wrap"><canvas id="retentionChart"></canvas></div></div>
+                    </div>
+                </div>
+            </div>
+            <div class="sec-card">
+                <div class="sec-head"><h3>👥 Top Customers by Order Value</h3></div>
+                <div style="overflow-x:auto;">
+                    <table class="data-table" aria-label="Top customers">
+                        <thead><tr><th>#</th><th>Customer</th><th>Phone</th><th>Orders</th><th>Total Spent</th><th>Last Order</th><th>Preferred Payment</th></tr></thead>
+                        <tbody>
+                            <tr><td>1</td><td>Priya Deshmukh</td><td>+91-98765-XXXXX</td><td>12</td><td>₹8,420</td><td>17 Mar 2026</td><td>📱 UPI</td></tr>
+                            <tr><td>2</td><td>Rahul Sharma</td><td>+91-99887-XXXXX</td><td>9</td><td>₹6,890</td><td>16 Mar 2026</td><td>💵 COD</td></tr>
+                            <tr><td>3</td><td>Sunita Khare</td><td>+91-97654-XXXXX</td><td>8</td><td>₹5,760</td><td>15 Mar 2026</td><td>🏦 Bank</td></tr>
+                            <tr><td>4</td><td>Amit Patel</td><td>+91-98901-XXXXX</td><td>7</td><td>₹4,980</td><td>14 Mar 2026</td><td>📱 UPI</td></tr>
+                            <tr><td>5</td><td>Meera Joshi</td><td>+91-91234-XXXXX</td><td>6</td><td>₹4,320</td><td>13 Mar 2026</td><td>💵 COD</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- ============================== -->
+        <!-- PANEL 5: INVENTORY REPORT -->
+        <!-- ============================== -->
+        <div class="report-panel" id="panel-inventory">
+            <div class="kpi-strip">
+                <div class="kpi"><div class="kpi-val" style="color:#e85d04;">38</div><div class="kpi-lbl">Total SKUs</div></div>
+                <div class="kpi"><div class="kpi-val" style="color:#2d6a4f;">1,847</div><div class="kpi-lbl">Total Units in Stock</div></div>
+                <div class="kpi"><div class="kpi-val" style="color:#856404;">7</div><div class="kpi-lbl">Low Stock Items</div><div class="kpi-change down">⚠ Restock</div></div>
+                <div class="kpi"><div class="kpi-val" style="color:#c62828;">2</div><div class="kpi-lbl">Out of Stock</div></div>
+            </div>
+            <div class="sec-card">
+                <div class="sec-head"><h3>📦 Inventory Status Report</h3><button class="btn-export" aria-label="Export inventory">Export</button></div>
+                <div style="overflow-x:auto;">
+                    <table class="data-table" aria-label="Inventory status">
+                        <thead><tr><th>Product</th><th>Weight</th><th>SKU</th><th>Stock Qty</th><th>Sold (Month)</th><th>Reorder Level</th><th>Status</th></tr></thead>
+                        <tbody>
+                            <tr><td>🥭 Rajasthani Mango Pickle</td><td>500g</td><td>PH-RAJAS-500G</td><td>12</td><td>203</td><td>20</td><td><span class="pill" style="background:#fff3cd;color:#856404;">Low Stock</span></td></tr>
+                            <tr><td>🥭 Rajasthani Mango Pickle</td><td>1 Kg</td><td>PH-RAJAS-1KG</td><td>3</td><td>89</td><td>10</td><td><span class="pill" style="background:#f8d7da;color:#721c24;">Critical</span></td></tr>
+                            <tr><td>🧄 Andhra Garlic Pickle</td><td>250g</td><td>PH-ANDHR-250G</td><td>5</td><td>178</td><td>15</td><td><span class="pill" style="background:#f8d7da;color:#721c24;">Critical</span></td></tr>
+                            <tr><td>🍋 Punjabi Lemon Pickle</td><td>500g</td><td>PH-PUNJ-500G</td><td>18</td><td>154</td><td>15</td><td><span class="pill" style="background:#d4edda;color:#155724;">In Stock</span></td></tr>
+                            <tr><td>🌶️ Gujarati Mixed Achaar</td><td>400g</td><td>PH-GUJA-400G</td><td>0</td><td>132</td><td>10</td><td><span class="pill" style="background:#f8d7da;color:#721c24;">Out of Stock</span></td></tr>
+                            <tr><td>🫙 Kerala Coconut Pickle</td><td>250g</td><td>PH-KERAL-250G</td><td>24</td><td>98</td><td>10</td><td><span class="pill" style="background:#d4edda;color:#155724;">In Stock</span></td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- ============================== -->
+        <!-- PANEL 6: COUPON REPORT -->
+        <!-- ============================== -->
+        <div class="report-panel" id="panel-coupons">
+            <div class="kpi-strip">
+                <div class="kpi"><div class="kpi-val" style="color:#e85d04;">8</div><div class="kpi-lbl">Active Coupons</div></div>
+                <div class="kpi"><div class="kpi-val" style="color:#2d6a4f;">247</div><div class="kpi-lbl">Times Used</div><div class="kpi-change up">↑ 18%</div></div>
+                <div class="kpi"><div class="kpi-val" style="color:#1565c0;">₹47,620</div><div class="kpi-lbl">Discount Granted</div></div>
+                <div class="kpi"><div class="kpi-val" style="color:#856404;">PICKLE20</div><div class="kpi-lbl">Most Used Coupon</div></div>
+            </div>
+            <div class="sec-card">
+                <div class="sec-head"><h3>🏷️ Coupon Usage Report</h3></div>
+                <div style="overflow-x:auto;">
+                    <table class="data-table" aria-label="Coupon usage">
+                        <thead><tr><th>Coupon Code</th><th>Type</th><th>Discount</th><th>Times Used</th><th>Revenue Impact</th><th>Discount Given</th><th>Valid Until</th><th>Status</th></tr></thead>
+                        <tbody>
+                            <tr><td><strong>PICKLE20</strong></td><td>20% Off</td><td>20%</td><td>124</td><td>₹56,400</td><td>₹11,280</td><td>31 Mar 2026</td><td><span class="pill" style="background:#d4edda;color:#155724;">Active</span></td></tr>
+                            <tr><td><strong>FIRSTORDER</strong></td><td>₹100 Flat</td><td>₹100</td><td>87</td><td>₹39,150</td><td>₹8,700</td><td>30 Apr 2026</td><td><span class="pill" style="background:#d4edda;color:#155724;">Active</span></td></tr>
+                            <tr><td><strong>HOLI2026</strong></td><td>15% Off</td><td>15%</td><td>36</td><td>₹18,720</td><td>₹2,808</td><td>20 Mar 2026</td><td><span class="pill" style="background:#fff3cd;color:#856404;">Expiring</span></td></tr>
+                            <tr><td><strong>BULK50</strong></td><td>₹50 Flat</td><td>₹50</td><td>0</td><td>₹0</td><td>₹0</td><td>30 Jun 2026</td><td><span class="pill" style="background:#d4edda;color:#155724;">Active</span></td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- ============================== -->
+        <!-- PANEL 7: DELIVERY REPORT -->
+        <!-- ============================== -->
+        <div class="report-panel" id="panel-delivery">
+            <div class="kpi-strip">
+                <div class="kpi"><div class="kpi-val" style="color:#e85d04;">842</div><div class="kpi-lbl">Total Dispatched</div></div>
+                <div class="kpi"><div class="kpi-val" style="color:#2d6a4f;">796</div><div class="kpi-lbl">Delivered (94.5%)</div></div>
+                <div class="kpi"><div class="kpi-val" style="color:#1565c0;">18.4 hrs</div><div class="kpi-lbl">Avg Delivery Time</div></div>
+                <div class="kpi"><div class="kpi-val" style="color:#c62828;">14</div><div class="kpi-lbl">Failed / Returned</div></div>
+            </div>
+            <div class="row g-4 mb-4">
+                <div class="col-md-6">
+                    <div class="sec-card">
+                        <div class="sec-head"><h3>📍 Deliveries by Nagpur Area</h3></div>
+                        <div class="sec-body"><div class="chart-wrap"><canvas id="delivAreaChart"></canvas></div></div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="sec-card">
+                        <div class="sec-head"><h3>⏱️ Delivery Time Distribution</h3></div>
+                        <div class="sec-body"><div class="chart-wrap"><canvas id="delivTimeChart"></canvas></div></div>
+                    </div>
+                </div>
+            </div>
+            <div class="sec-card">
+                <div class="sec-head"><h3>🗺️ Pin Code Delivery Report</h3></div>
+                <div style="overflow-x:auto;">
+                    <table class="data-table" aria-label="Pin code delivery report">
+                        <thead><tr><th>PIN Code</th><th>Area</th><th>Orders</th><th>Delivered</th><th>Failed</th><th>Avg Time</th><th>Success Rate</th></tr></thead>
+                        <tbody>
+                            <tr><td>440001</td><td>Nagpur Central</td><td>234</td><td>228</td><td>6</td><td>14.2 hrs</td><td><strong style="color:#2d6a4f;">97.4%</strong></td></tr>
+                            <tr><td>440010</td><td>Dharampeth</td><td>187</td><td>181</td><td>6</td><td>16.8 hrs</td><td><strong style="color:#2d6a4f;">96.8%</strong></td></tr>
+                            <tr><td>440022</td><td>Sadar</td><td>156</td><td>152</td><td>4</td><td>15.4 hrs</td><td><strong style="color:#2d6a4f;">97.4%</strong></td></tr>
+                            <tr><td>440015</td><td>Sitabuldi</td><td>143</td><td>136</td><td>7</td><td>19.6 hrs</td><td><strong style="color:#856404;">95.1%</strong></td></tr>
+                            <tr><td>440017</td><td>Wardha Road</td><td>122</td><td>99</td><td>23</td><td>26.4 hrs</td><td><strong style="color:#c62828;">81.1%</strong></td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    var charts = {};
+    function switchTab(tab) {
+        document.querySelectorAll('.report-panel').forEach(p => p.classList.remove('active'));
+        document.querySelectorAll('.rtab').forEach(b => b.classList.remove('active'));
+        document.getElementById('panel-'+tab).classList.add('active');
+        var tabs = ['sales','products','payments','customers','inventory','coupons','delivery'];
+        tabs.forEach((t,i) => { if(t===tab) document.querySelectorAll('.rtab')[i].classList.add('active'); });
+        var titles = {sales:'📈 Sales Reports',products:'📦 Product Reports',payments:'💳 Payment Reports',customers:'👥 Customer Reports',inventory:'🏭 Inventory Reports',coupons:'🏷️ Coupon Reports',delivery:'🚚 Delivery Reports'};
+        document.getElementById('reportTitle').textContent = titles[tab]||'Reports';
+        if(tab==='products') initProductCharts();
+        if(tab==='payments') initPaymentCharts();
+        if(tab==='customers') initCustomerCharts();
+        if(tab==='delivery') initDeliveryCharts();
+    }
+    function setPeriod(v){ /* date range logic */ }
+    function applyFilter(){ alert('Filter applied! Data refreshed for selected period.'); }
+    function exportCSV(){ alert('Exporting CSV... (In Django: use csv.writer in view)'); }
+    function exportPDF(){ alert('Exporting PDF... (In Django: use reportlab or weasyprint)'); }
+
+    // Sales trend chart
+    (function(){
+        var ctx = document.getElementById('salesTrendChart');
+        if(!ctx) return;
+        new Chart(ctx.getContext('2d'),{
+            type:'line',
+            data:{
+                labels:['1','2','3','4','5','6','7','8','9','10','11','12','13','14','15','16','17'],
+                datasets:[{label:'Revenue (₹)',data:[18200,22400,19800,31200,25600,34400,28800,38200,42600,35400,32400,41200,28900,55600,38400,49800,48320],borderColor:'#e85d04',backgroundColor:'rgba(232,93,4,0.08)',fill:true,tension:0.4,pointRadius:3,borderWidth:2}]
+            },
+            options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{ticks:{callback:v=>'₹'+v.toLocaleString('en-IN'),font:{size:10}},grid:{color:'#f0f0f0'}},x:{ticks:{font:{size:10}},grid:{display:false}}}}
+        });
+    })();
+    (function(){
+        var ctx = document.getElementById('dowChart');
+        if(!ctx) return;
+        new Chart(ctx.getContext('2d'),{
+            type:'radar',
+            data:{labels:['Mon','Tue','Wed','Thu','Fri','Sat','Sun'],datasets:[{data:[32,28,38,45,52,68,42],backgroundColor:'rgba(232,93,4,0.15)',borderColor:'#e85d04',pointBackgroundColor:'#e85d04'}]},
+            options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{r:{ticks:{font:{size:9}}}}}
+        });
+    })();
+    function initProductCharts(){
+        var c1=document.getElementById('catChart'); var c2=document.getElementById('topProdChart');
+        if(!c1||c1.dataset.init) return; c1.dataset.init='1'; c2.dataset.init='1';
+        new Chart(c1.getContext('2d'),{type:'pie',data:{labels:['Mango','Garlic','Lemon','Mixed','Coconut','Other'],datasets:[{data:[35,22,18,12,8,5],backgroundColor:['#e85d04','#1565c0','#ffd60a','#2d6a4f','#6a0dad','#aaa'],borderWidth:0}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'right',labels:{font:{size:10},boxWidth:10}}}}});
+        new Chart(c2.getContext('2d'),{type:'bar',data:{labels:['Mango 500g','Garlic 250g','Lemon 500g','Mixed 400g','Coconut 250g'],datasets:[{label:'Revenue',data:[64960,35422,43120,32868,21560],backgroundColor:['#e85d04','#1565c0','#ffd60a','#2d6a4f','#6a0dad'],borderRadius:8}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{ticks:{callback:v=>'₹'+v.toLocaleString('en-IN'),font:{size:9}}},x:{ticks:{font:{size:9}}}}}});
+    }
+    function initPaymentCharts(){
+        var c1=document.getElementById('payMethodChart'); var c2=document.getElementById('payTrendChart');
+        if(!c1||c1.dataset.init) return; c1.dataset.init='1'; c2.dataset.init='1';
+        new Chart(c1.getContext('2d'),{type:'doughnut',data:{labels:['COD (52%)','UPI (35%)','Bank (13%)'],datasets:[{data:[52,35,13],backgroundColor:['#e85d04','#1565c0','#2d6a4f'],borderWidth:0}]},options:{responsive:true,maintainAspectRatio:false,cutout:'60%',plugins:{legend:{position:'bottom',labels:{font:{size:10},boxWidth:10}}}}});
+        new Chart(c2.getContext('2d'),{type:'bar',data:{labels:['11','12','13','14','15','16','17'],datasets:[{label:'COD',data:[16800,21424,15028,28912,19968,25896,25126],backgroundColor:'#e85d04',borderRadius:4},{label:'UPI',data:[11340,14420,10115,19460,13440,17430,16912],backgroundColor:'#1565c0',borderRadius:4},{label:'Bank',data:[4260,5356,3757,7228,4992,6474,6282],backgroundColor:'#2d6a4f',borderRadius:4}]},options:{responsive:true,maintainAspectRatio:false,scales:{x:{stacked:true,ticks:{font:{size:10}}},y:{stacked:true,ticks:{callback:v=>'₹'+v.toLocaleString('en-IN'),font:{size:10}}}},plugins:{legend:{labels:{font:{size:10},boxWidth:10}}}}});
+    }
+    function initCustomerCharts(){
+        var c1=document.getElementById('areaChart'); var c2=document.getElementById('retentionChart');
+        if(!c1||c1.dataset.init) return; c1.dataset.init='1'; c2.dataset.init='1';
+        new Chart(c1.getContext('2d'),{type:'bar',data:{labels:['Central','Dharampeth','Sadar','Sitabuldi','Wardha Rd','Manish Nagar','Laxmi Nagar'],datasets:[{data:[234,187,156,143,122,98,84],backgroundColor:'rgba(232,93,4,0.8)',borderRadius:8}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{ticks:{font:{size:9}}},x:{ticks:{font:{size:9}}}}}});
+        new Chart(c2.getContext('2d'),{type:'doughnut',data:{labels:['New (73%)','Repeat (27%)'],datasets:[{data:[73,27],backgroundColor:['#1565c0','#e85d04'],borderWidth:0}]},options:{responsive:true,maintainAspectRatio:false,cutout:'55%',plugins:{legend:{position:'bottom',labels:{font:{size:10},boxWidth:10}}}}});
+    }
+    function initDeliveryCharts(){
+        var c1=document.getElementById('delivAreaChart'); var c2=document.getElementById('delivTimeChart');
+        if(!c1||c1.dataset.init) return; c1.dataset.init='1'; c2.dataset.init='1';
+        new Chart(c1.getContext('2d'),{type:'bar',data:{labels:['Central','Dharampeth','Sadar','Sitabuldi','Wardha Rd'],datasets:[{label:'Delivered',data:[228,181,152,136,99],backgroundColor:'#2d6a4f',borderRadius:4},{label:'Failed',data:[6,6,4,7,23],backgroundColor:'#e85d04',borderRadius:4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{font:{size:10},boxWidth:10}}},scales:{x:{stacked:false,ticks:{font:{size:9}}},y:{ticks:{font:{size:9}}}}}});
+        new Chart(c2.getContext('2d'),{type:'bar',data:{labels:['< 6 hrs','6–12 hrs','12–18 hrs','18–24 hrs','> 24 hrs'],datasets:[{data:[124,287,243,168,20],backgroundColor:['#2d6a4f','#52b788','#ffd60a','#f48c06','#c62828'],borderRadius:8}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{ticks:{font:{size:9}}},y:{ticks:{font:{size:9}}}}}});
+    }
+</script>
+</body>
+</html>

@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Orders Management | PickleHub Admin</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+    <style>
+        :root{--primary:#e85d04;--dark:#1a1a2e;--sidebar:240px;}
+        *{margin:0;padding:0;box-sizing:border-box;}
+        body{font-family:'Poppins',sans-serif;background:#f0f2f5;display:flex;min-height:100vh;}
+        .sidebar{width:var(--sidebar);background:linear-gradient(180deg,#1a1a2e,#0f3460);position:fixed;top:0;left:0;height:100vh;overflow-y:auto;z-index:100;}
+        .sidebar-logo{padding:18px;border-bottom:1px solid rgba(255,255,255,0.08);display:flex;align-items:center;gap:10px;}
+        .s-ico{width:36px;height:36px;background:linear-gradient(135deg,#e85d04,#ffd60a);border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:17px;}
+        .s-name{font-family:'Playfair Display',serif;font-size:15px;font-weight:700;color:#ffd60a;}
+        .s-sub{font-size:9px;color:#f48c06;letter-spacing:1px;display:block;}
+        .nav-sec{padding:12px 14px 3px;font-size:9px;font-weight:700;color:rgba(255,255,255,0.3);letter-spacing:2px;text-transform:uppercase;}
+        .nav-i{display:flex;align-items:center;gap:10px;padding:10px 18px;color:rgba(255,255,255,0.65);text-decoration:none;font-size:13px;font-weight:500;transition:.2s;border-left:3px solid transparent;}
+        .nav-i:hover,.nav-i.active{background:rgba(232,93,4,0.15);color:#ffd60a;border-left-color:#e85d04;}
+        .nav-i i{width:18px;text-align:center;font-size:13px;}
+        .nbadge{background:#e85d04;color:#fff;border-radius:50px;padding:1px 7px;font-size:10px;margin-left:auto;}
+
+        .main-w{margin-left:var(--sidebar);flex:1;display:flex;flex-direction:column;}
+        .topbar{background:#fff;padding:13px 22px;display:flex;align-items:center;justify-content:space-between;box-shadow:0 2px 8px rgba(0,0,0,0.06);position:sticky;top:0;z-index:99;}
+        .topbar-title{font-size:16px;font-weight:700;color:#1a1a2e;}
+        .content{padding:22px;flex:1;}
+
+        /* FILTER BAR */
+        .filter-bar{background:#fff;border-radius:14px;padding:16px 18px;box-shadow:0 2px 8px rgba(0,0,0,0.05);margin-bottom:18px;display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap;}
+        .fl{font-size:11px;font-weight:700;color:#888;margin-bottom:3px;display:block;}
+        .finp{border-radius:10px;border:1.5px solid #e0e0e0;padding:8px 12px;font-size:13px;font-family:'Poppins',sans-serif;outline:none;transition:.2s;}
+        .finp:focus{border-color:#e85d04;}
+        .btn-f{background:linear-gradient(135deg,#e85d04,#f48c06);color:#fff;border:none;border-radius:10px;padding:9px 18px;font-weight:700;font-size:13px;cursor:pointer;font-family:'Poppins',sans-serif;white-space:nowrap;}
+        .btn-exp{background:linear-gradient(135deg,#2d6a4f,#52b788);color:#fff;border:none;border-radius:10px;padding:9px 14px;font-weight:700;font-size:13px;cursor:pointer;font-family:'Poppins',sans-serif;white-space:nowrap;}
+        .btn-wa-bulk{background:linear-gradient(135deg,#128C7E,#25D366);color:#fff;border:none;border-radius:10px;padding:9px 14px;font-weight:700;font-size:13px;cursor:pointer;font-family:'Poppins',sans-serif;white-space:nowrap;}
+
+        /* STATUS TABS */
+        .status-tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:16px;}
+        .stab{padding:7px 16px;border-radius:50px;border:1.5px solid #e0e0e0;background:#fff;font-size:12px;font-weight:700;cursor:pointer;color:#888;transition:.2s;font-family:'Poppins',sans-serif;}
+        .stab:hover{border-color:#e85d04;color:#e85d04;}
+        .stab.on{border-color:#e85d04;background:#e85d04;color:#fff;}
+        .stab .cnt{background:rgba(255,255,255,0.3);border-radius:50px;padding:1px 6px;font-size:10px;margin-left:4px;}
+        .stab:not(.on) .cnt{background:#f0f0f0;color:#888;}
+
+        /* BULK ACTIONS */
+        .bulk-bar{background:#fff3e0;border-radius:12px;padding:12px 16px;margin-bottom:14px;display:none;align-items:center;gap:10px;flex-wrap:wrap;border:1.5px solid #f48c06;}
+        .bulk-bar.show{display:flex;}
+        .bulk-count{font-weight:700;font-size:13px;color:#e85d04;}
+        .btn-bulk{border:none;border-radius:8px;padding:7px 14px;font-size:12px;font-weight:700;cursor:pointer;font-family:'Poppins',sans-serif;}
+
+        /* ORDERS TABLE */
+        .sec-card{background:#fff;border-radius:16px;box-shadow:0 4px 15px rgba(0,0,0,0.06);overflow:hidden;}
+        .data-tbl{width:100%;font-size:13px;border-collapse:collapse;}
+        .data-tbl th{background:linear-gradient(135deg,#1a1a2e,#0f3460);color:rgba(255,255,255,0.85);font-size:11px;text-transform:uppercase;letter-spacing:.5px;padding:12px 14px;font-weight:700;white-space:nowrap;}
+        .data-tbl th.chk{width:40px;text-align:center;}
+        .data-tbl td{padding:12px 14px;border-bottom:1px solid #f8f8f8;vertical-align:middle;}
+        .data-tbl tr:hover td{background:#fffaf7;}
+        .data-tbl tr:last-child td{border-bottom:none;}
+        .data-tbl tr.selected td{background:#fff8f5;}
+
+        .pill{padding:4px 10px;border-radius:50px;font-size:11px;font-weight:700;white-space:nowrap;}
+        .s-pending{background:#fff3cd;color:#856404;}
+        .s-pay_rev{background:#e8e0ff;color:#4a0e8f;}
+        .s-confirmed{background:#d4edda;color:#155724;}
+        .s-processing{background:#e3f2fd;color:#1565c0;}
+        .s-dispatched{background:#cce5ff;color:#004085;}
+        .s-delivered{background:#d1ecf1;color:#0c5460;}
+        .s-cancelled{background:#f8d7da;color:#721c24;}
+
+        .act-btn{border:none;border-radius:7px;padding:5px 11px;font-size:11px;font-weight:700;cursor:pointer;font-family:'Poppins',sans-serif;transition:.2s;white-space:nowrap;}
+
+        /* ORDER DETAIL PANEL */
+        .detail-panel{position:fixed;top:0;right:0;width:420px;height:100vh;background:#fff;box-shadow:-4px 0 30px rgba(0,0,0,0.12);z-index:200;transform:translateX(100%);transition:.3s;overflow-y:auto;}
+        .detail-panel.open{transform:translateX(0);}
+        .detail-head{background:linear-gradient(135deg,#1a1a2e,#0f3460);padding:20px;color:#fff;position:sticky;top:0;z-index:1;}
+        .detail-body{padding:20px;}
+        .det-row{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #f8f8f8;font-size:13px;}
+        .det-row:last-child{border-bottom:none;}
+        .det-lbl{color:#888;font-size:12px;}
+        .det-val{font-weight:600;text-align:right;}
+        .status-select{border:1.5px solid #e0e0e0;border-radius:10px;padding:8px 12px;font-size:13px;font-family:'Poppins',sans-serif;outline:none;width:100%;}
+        .status-select:focus{border-color:#e85d04;}
+        .btn-update{background:linear-gradient(135deg,#e85d04,#f48c06);color:#fff;border:none;border-radius:10px;padding:10px;width:100%;font-weight:700;font-size:13px;cursor:pointer;font-family:'Poppins',sans-serif;margin-top:8px;}
+        .btn-wa-notify{background:linear-gradient(135deg,#128C7E,#25D366);color:#fff;border:none;border-radius:10px;padding:10px;width:100%;font-weight:700;font-size:13px;cursor:pointer;font-family:'Poppins',sans-serif;margin-top:6px;display:flex;align-items:center;justify-content:center;gap:7px;}
+        .overlay{position:fixed;inset:0;background:rgba(0,0,0,0.4);z-index:199;display:none;}
+        .overlay.show{display:block;}
+        .inline-msg{border-radius:8px;padding:8px 12px;font-size:12px;font-weight:600;margin-top:8px;display:none;}
+        .inline-msg.ok{background:#d4edda;color:#155724;}
+        .inline-msg.err{background:#f8d7da;color:#721c24;}
+
+        .ss-thumb{width:100%;border-radius:10px;border:2px solid #e85d04;cursor:pointer;transition:.2s;}
+        .ss-thumb:hover{opacity:.85;}
+
+        /* PAGINATION */
+        .pagination-wrap{padding:14px 18px;border-top:1px solid #f5f5f5;display:flex;align-items:center;justify-content:space-between;font-size:12px;color:#888;}
+        .page-btn{border:1.5px solid #e0e0e0;background:#fff;border-radius:8px;padding:6px 12px;font-size:12px;cursor:pointer;font-family:'Poppins',sans-serif;transition:.2s;}
+        .page-btn:hover,.page-btn.on{border-color:#e85d04;color:#e85d04;}
+        .page-btn.on{background:#fff8f5;font-weight:700;}
+    </style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<nav class="sidebar" aria-label="Admin Sidebar">
+    <div class="sidebar-logo"><div class="s-ico">🥒</div><div><span class="s-name">PickleHub</span><small class="s-sub">Admin Panel</small></div></div>
+    <div class="nav-sec">Main</div>
+    <a class="nav-i" href="picklehub_dashboard.html"><i class="fa fa-tachometer-alt"></i> Dashboard</a>
+    <div class="nav-sec">Orders</div>
+    <a class="nav-i active" href="#"><i class="fa fa-shopping-bag"></i> All Orders <span class="nbadge">42</span></a>
+    <a class="nav-i" href="#"><i class="fa fa-clock"></i> Payment Review <span class="nbadge" style="background:#6a0dad;">5</span></a>
+    <a class="nav-i" href="#"><i class="fa fa-truck"></i> Dispatched</a>
+    <a class="nav-i" href="#"><i class="fa fa-check-circle"></i> Delivered</a>
+    <div class="nav-sec">Catalogue</div>
+    <a class="nav-i" href="#"><i class="fa fa-box"></i> Products</a>
+    <a class="nav-i" href="#"><i class="fa fa-tags"></i> Categories</a>
+    <a class="nav-i" href="#"><i class="fa fa-star"></i> Reviews <span class="nbadge" style="background:#f48c06;">8</span></a>
+    <div class="nav-sec">Reports</div>
+    <a class="nav-i" href="picklehub_reports.html"><i class="fa fa-chart-bar"></i> Sales Reports</a>
+    <div class="nav-sec">Settings</div>
+    <a class="nav-i" href="#"><i class="fa fa-cog"></i> Site Settings</a>
+    <a class="nav-i" href="#"><i class="fa fa-qrcode"></i> UPI / QR Code</a>
+</nav>
+
+<!-- MAIN -->
+<div class="main-w">
+    <div class="topbar">
+        <div class="topbar-title">🛒 Orders Management</div>
+        <div style="display:flex;gap:8px;align-items:center;">
+            <button class="btn-exp" id="exportCsvBtn" type="button"><i class="fa fa-download me-1" aria-hidden="true"></i> CSV</button>
+            <button class="btn-wa-bulk" id="bulkWaBtn" type="button"><i class="fab fa-whatsapp me-1" aria-hidden="true"></i> WA Broadcast</button>
+        </div>
+    </div>
+
+    <div class="content">
+
+        <!-- FILTER BAR -->
+        <div class="filter-bar" aria-label="Order filters">
+            <div><label class="fl" for="searchOrd">Search</label><input class="finp" type="text" id="searchOrd" placeholder="Order ID / Name / Phone" style="width:220px;"></div>
+            <div><label class="fl" for="dateFrom">From</label><input class="finp" type="date" id="dateFrom" value="2026-03-01"></div>
+            <div><label class="fl" for="dateTo">To</label><input class="finp" type="date" id="dateTo" value="2026-03-17"></div>
+            <div><label class="fl" for="payFilter">Payment</label>
+                <select class="finp" id="payFilter">
+                    <option value="">All Methods</option>
+                    <option value="cod">COD</option>
+                    <option value="upi">UPI</option>
+                    <option value="bank">Bank Transfer</option>
+                </select>
+            </div>
+            <div><label class="fl" for="sortFilter">Sort By</label>
+                <select class="finp" id="sortFilter">
+                    <option>Newest First</option>
+                    <option>Oldest First</option>
+                    <option>Highest Amount</option>
+                    <option>Lowest Amount</option>
+                </select>
+            </div>
+            <button class="btn-f" type="button" id="applyFilterBtn"><i class="fa fa-filter me-1" aria-hidden="true"></i> Apply</button>
+        </div>
+
+        <!-- STATUS TABS -->
+        <div class="status-tabs" role="tablist" aria-label="Filter by order status">
+            <button class="stab on" data-status="all" role="tab" aria-selected="true" type="button">All Orders<span class="cnt">42</span></button>
+            <button class="stab" data-status="pending" role="tab" type="button">🕐 Pending<span class="cnt">3</span></button>
+            <button class="stab" data-status="payment_review" role="tab" type="button">🔍 Pay Review<span class="cnt">5</span></button>
+            <button class="stab" data-status="confirmed" role="tab" type="button">✅ Confirmed<span class="cnt">8</span></button>
+            <button class="stab" data-status="dispatched" role="tab" type="button">🚚 Dispatched<span class="cnt">12</span></button>
+            <button class="stab" data-status="delivered" role="tab" type="button">🎉 Delivered<span class="cnt">10</span></button>
+            <button class="stab" data-status="cancelled" role="tab" type="button">❌ Cancelled<span class="cnt">4</span></button>
+        </div>
+
+        <!-- BULK ACTION BAR -->
+        <div class="bulk-bar" id="bulkBar" role="toolbar" aria-label="Bulk actions">
+            <span class="bulk-count" id="bulkCount">0 selected</span>
+            <button class="btn-bulk" style="background:#2d6a4f;color:#fff;" type="button" id="bulkConfirmBtn">✅ Mark Confirmed</button>
+            <button class="btn-bulk" style="background:#e85d04;color:#fff;" type="button" id="bulkDispatchBtn">🚚 Mark Dispatched</button>
+            <button class="btn-bulk" style="background:#25D366;color:#fff;" type="button" id="bulkWaNotifyBtn"><i class="fab fa-whatsapp"></i> Notify All via WA</button>
+            <button class="btn-bulk" style="background:#c62828;color:#fff;" type="button" id="bulkCancelBtn">❌ Cancel Selected</button>
+            <button class="btn-bulk" style="background:#aaa;color:#fff;" type="button" id="clearSelectBtn">✕ Clear</button>
+        </div>
+
+        <!-- ORDERS TABLE -->
+        <div class="sec-card">
+            <div style="overflow-x:auto;">
+                <table class="data-tbl" id="ordersTable" aria-label="Orders list">
+                    <thead>
+                        <tr>
+                            <th class="chk"><input type="checkbox" id="selectAll" aria-label="Select all orders"></th>
+                            <th>Order ID</th>
+                            <th>Customer</th>
+                            <th>Items</th>
+                            <th>Amount</th>
+                            <th>Payment</th>
+                            <th>Screenshot</th>
+                            <th>Status</th>
+                            <th>Date &amp; Time</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="ordersBody">
+                        <tr data-id="00847" data-status="payment_review">
+                            <td style="text-align:center;"><input type="checkbox" class="row-chk" aria-label="Select order 00847"></td>
+                            <td><strong>#PH-2026-00847</strong></td>
+                            <td><strong>Priya Deshmukh</strong><br><small style="color:#aaa;">+91-98765-XXXXX</small><br><small style="color:#888;font-size:10px;">📍 Dharampeth, 440010</small></td>
+                            <td><small>Mango 500g×2<br>Garlic 250g×1</small></td>
+                            <td><strong style="color:#e85d04;">₹967</strong><br><small style="color:#aaa;font-size:10px;">Del: Free</small></td>
+                            <td><span style="font-size:12px;">📱 UPI</span></td>
+                            <td><div style="width:44px;height:44px;background:#f0f0f0;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:20px;cursor:pointer;" onclick="viewSS('00847')" role="button" tabindex="0" aria-label="View payment screenshot for order 00847">📸</div></td>
+                            <td><span class="pill s-pay_rev">🔍 Pay Review</span></td>
+                            <td><small>17 Mar 2026<br>5:42 PM</small></td>
+                            <td style="white-space:nowrap;">
+                                <button class="act-btn" style="background:#2d6a4f;color:#fff;margin-bottom:3px;" type="button" data-action="verify" data-id="00847">✅ Verify</button><br>
+                                <button class="act-btn" style="background:#e85d04;color:#fff;margin-bottom:3px;" type="button" data-action="view" data-id="00847">👁 View</button><br>
+                                <button class="act-btn" style="background:#25D366;color:#fff;" type="button" data-action="wa" data-id="00847" data-phone="919876543210" data-name="Priya">💬 WA</button>
+                            </td>
+                        </tr>
+                        <tr data-id="00846" data-status="confirmed">
+                            <td style="text-align:center;"><input type="checkbox" class="row-chk" aria-label="Select order 00846"></td>
+                            <td><strong>#PH-2026-00846</strong></td>
+                            <td><strong>Rahul Sharma</strong><br><small style="color:#aaa;">+91-99887-XXXXX</small><br><small style="color:#888;font-size:10px;">📍 Sadar, 440022</small></td>
+                            <td><small>Lemon 500g×1<br>Mixed 400g×2</small></td>
+                            <td><strong style="color:#e85d04;">₹810</strong><br><small style="color:#aaa;font-size:10px;">Del: Free</small></td>
+                            <td><span style="font-size:12px;">💵 COD</span></td>
+                            <td><small style="color:#aaa;">—</small></td>
+                            <td><span class="pill s-confirmed">✅ Confirmed</span></td>
+                            <td><small>17 Mar 2026<br>5:28 PM</small></td>
+                            <td style="white-space:nowrap;">
+                                <button class="act-btn" style="background:#e85d04;color:#fff;margin-bottom:3px;" type="button" data-action="dispatch" data-id="00846">🚚 Dispatch</button><br>
+                                <button class="act-btn" style="background:#1565c0;color:#fff;margin-bottom:3px;" type="button" data-action="view" data-id="00846">👁 View</button><br>
+                                <button class="act-btn" style="background:#25D366;color:#fff;" type="button" data-action="wa" data-id="00846" data-phone="919988765432" data-name="Rahul">💬 WA</button>
+                            </td>
+                        </tr>
+                        <tr data-id="00845" data-status="dispatched">
+                            <td style="text-align:center;"><input type="checkbox" class="row-chk" aria-label="Select order 00845"></td>
+                            <td><strong>#PH-2026-00845</strong></td>
+                            <td><strong>Sunita Khare</strong><br><small style="color:#aaa;">+91-97654-XXXXX</small><br><small style="color:#888;font-size:10px;">📍 Wardha Rd, 440015</small></td>
+                            <td><small>Coconut 250g×2<br>Garlic 500g×1</small></td>
+                            <td><strong style="color:#e85d04;">₹1,299</strong><br><small style="color:#aaa;font-size:10px;">Del: Free</small></td>
+                            <td><span style="font-size:12px;">🏦 Bank</span></td>
+                            <td><div style="width:44px;height:44px;background:#f0f0f0;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:20px;cursor:pointer;" onclick="viewSS('00845')" role="button" tabindex="0" aria-label="View screenshot 00845">📸</div></td>
+                            <td><span class="pill s-dispatched">🚚 Dispatched</span></td>
+                            <td><small>17 Mar 2026<br>4:11 PM</small></td>
+                            <td style="white-space:nowrap;">
+                                <button class="act-btn" style="background:#2d6a4f;color:#fff;margin-bottom:3px;" type="button" data-action="delivered" data-id="00845">🎉 Delivered</button><br>
+                                <button class="act-btn" style="background:#1565c0;color:#fff;margin-bottom:3px;" type="button" data-action="view" data-id="00845">👁 View</button><br>
+                                <button class="act-btn" style="background:#25D366;color:#fff;" type="button" data-action="wa" data-id="00845" data-phone="919765432109" data-name="Sunita">💬 WA</button>
+                            </td>
+                        </tr>
+                        <tr data-id="00844" data-status="delivered">
+                            <td style="text-align:center;"><input type="checkbox" class="row-chk" aria-label="Select order 00844"></td>
+                            <td><strong>#PH-2026-00844</strong></td>
+                            <td><strong>Amit Patel</strong><br><small style="color:#aaa;">+91-98901-XXXXX</small><br><small style="color:#888;font-size:10px;">📍 Central, 440001</small></td>
+                            <td><small>Mango 1Kg×1</small></td>
+                            <td><strong style="color:#e85d04;">₹599</strong><br><small style="color:#aaa;font-size:10px;">Del: ₹40</small></td>
+                            <td><span style="font-size:12px;">📱 UPI</span></td>
+                            <td><div style="width:44px;height:44px;background:#f0f0f0;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:20px;cursor:pointer;" role="button" tabindex="0" aria-label="View screenshot 00844">📸</div></td>
+                            <td><span class="pill s-delivered">🎉 Delivered</span></td>
+                            <td><small>17 Mar 2026<br>2:45 PM</small></td>
+                            <td style="white-space:nowrap;">
+                                <button class="act-btn" style="background:#1565c0;color:#fff;margin-bottom:3px;" type="button" data-action="view" data-id="00844">👁 View</button><br>
+                                <button class="act-btn" style="background:#25D366;color:#fff;" type="button" data-action="wa" data-id="00844" data-phone="919890198765" data-name="Amit">💬 WA</button>
+                            </td>
+                        </tr>
+                        <tr data-id="00843" data-status="cancelled">
+                            <td style="text-align:center;"><input type="checkbox" class="row-chk" aria-label="Select order 00843"></td>
+                            <td><strong>#PH-2026-00843</strong></td>
+                            <td><strong>Meera Joshi</strong><br><small style="color:#aaa;">+91-91234-XXXXX</small><br><small style="color:#888;font-size:10px;">📍 Sitabuldi, 440012</small></td>
+                            <td><small>Mixed 400g×3</small></td>
+                            <td><strong style="color:#e85d04;">₹747</strong><br><small style="color:#aaa;font-size:10px;">Del: Free</small></td>
+                            <td><span style="font-size:12px;">💵 COD</span></td>
+                            <td><small style="color:#aaa;">—</small></td>
+                            <td><span class="pill s-cancelled">❌ Cancelled</span></td>
+                            <td><small>17 Mar 2026<br>12:20 PM</small></td>
+                            <td style="white-space:nowrap;">
+                                <button class="act-btn" style="background:#1565c0;color:#fff;margin-bottom:3px;" type="button" data-action="view" data-id="00843">👁 View</button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="pagination-wrap">
+                <span>Showing 5 of 42 orders</span>
+                <div style="display:flex;gap:4px;">
+                    <button class="page-btn" type="button">‹ Prev</button>
+                    <button class="page-btn on" type="button">1</button>
+                    <button class="page-btn" type="button">2</button>
+                    <button class="page-btn" type="button">3</button>
+                    <button class="page-btn" type="button">Next ›</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ORDER DETAIL SLIDE-PANEL -->
+<div class="overlay" id="overlay"></div>
+<div class="detail-panel" id="detailPanel" role="dialog" aria-modal="true" aria-labelledby="detailTitle">
+    <div class="detail-head">
+        <div style="display:flex;align-items:center;justify-content:space-between;">
+            <div>
+                <div style="font-size:11px;color:rgba(255,255,255,0.5);letter-spacing:1px;text-transform:uppercase;">Order Details</div>
+                <div id="detailTitle" style="font-size:17px;font-weight:700;color:#ffd60a;margin-top:2px;">#PH-2026-00847</div>
+            </div>
+            <button type="button" id="closeDetail" style="background:rgba(255,255,255,0.1);border:none;color:#fff;width:34px;height:34px;border-radius:50%;font-size:16px;cursor:pointer;" aria-label="Close order details">✕</button>
+        </div>
+    </div>
+    <div class="detail-body">
+        <div style="font-size:11px;font-weight:700;color:#aaa;letter-spacing:1px;text-transform:uppercase;margin-bottom:10px;">Customer</div>
+        <div class="det-row"><span class="det-lbl">Name</span><span class="det-val" id="detName">Priya Deshmukh</span></div>
+        <div class="det-row"><span class="det-lbl">Mobile</span><span class="det-val" id="detPhone">+91-98765-43210</span></div>
+        <div class="det-row"><span class="det-lbl">Address</span><span class="det-val" id="detAddr" style="max-width:200px;">123, Dharampeth, Nagpur – 440010</span></div>
+
+        <div style="font-size:11px;font-weight:700;color:#aaa;letter-spacing:1px;text-transform:uppercase;margin:16px 0 10px;">Order Items</div>
+        <div id="detItems" style="font-size:13px;"></div>
+
+        <div style="font-size:11px;font-weight:700;color:#aaa;letter-spacing:1px;text-transform:uppercase;margin:16px 0 10px;">Financials</div>
+        <div class="det-row"><span class="det-lbl">Subtotal</span><span class="det-val" id="detSubtotal">₹927</span></div>
+        <div class="det-row"><span class="det-lbl">Delivery</span><span class="det-val" id="detDeliv">Free</span></div>
+        <div class="det-row" style="font-size:14px;font-weight:800;"><span style="color:#1a1a2e;">Total</span><span style="color:#e85d04;" id="detTotal">₹927</span></div>
+
+        <div style="font-size:11px;font-weight:700;color:#aaa;letter-spacing:1px;text-transform:uppercase;margin:16px 0 10px;">Payment</div>
+        <div class="det-row"><span class="det-lbl">Method</span><span class="det-val" id="detMethod">📱 UPI</span></div>
+        <div class="det-row"><span class="det-lbl">Reference</span><span class="det-val" id="detRef">—</span></div>
+        <div class="det-row"><span class="det-lbl">Verified</span><span class="det-val" id="detVerif">⏳ Pending</span></div>
+
+        <div style="font-size:11px;font-weight:700;color:#aaa;letter-spacing:1px;text-transform:uppercase;margin:16px 0 10px;">Payment Screenshot</div>
+        <div id="detSS" style="background:#f8f9fa;border-radius:12px;padding:30px;text-align:center;font-size:36px;margin-bottom:16px;">📸<div style="font-size:12px;color:#aaa;margin-top:6px;">Screenshot uploaded</div></div>
+
+        <div style="font-size:11px;font-weight:700;color:#aaa;letter-spacing:1px;text-transform:uppercase;margin-bottom:10px;">Update Status</div>
+        <select class="status-select" id="statusSelect" aria-label="Update order status">
+            <option value="pending">🕐 Pending</option>
+            <option value="payment_review">🔍 Payment Under Review</option>
+            <option value="confirmed">✅ Confirmed</option>
+            <option value="processing">📦 Processing</option>
+            <option value="dispatched">🚚 Dispatched</option>
+            <option value="delivered">🎉 Delivered</option>
+            <option value="cancelled">❌ Cancelled</option>
+        </select>
+        <div>
+            <label style="font-size:12px;font-weight:700;color:#555;margin-top:10px;display:block;" for="trackInfo">Tracking Info (optional)</label>
+            <input type="text" class="finp" id="trackInfo" placeholder="e.g. Out for delivery via Rahul, 9876XXXXX" style="width:100%;margin-top:4px;">
+        </div>
+        <button class="btn-update" type="button" id="updateStatusBtn">💾 Update Order Status</button>
+        <div class="inline-msg" id="updateMsg" role="alert" aria-live="polite"></div>
+        <a href="#" class="btn-wa-notify" id="waNotifyBtn" rel="noopener noreferrer" target="_blank" style="text-decoration:none;margin-top:10px;">
+            <i class="fab fa-whatsapp" aria-hidden="true"></i> Notify Customer via WhatsApp
+        </a>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+(function () {
+    "use strict";
+
+    /* ── STATUS TAB FILTER ── */
+    document.querySelectorAll(".stab").forEach(function (btn) {
+        btn.addEventListener("click", function () {
+            document.querySelectorAll(".stab").forEach(function (b) {
+                b.classList.remove("on");
+                b.setAttribute("aria-selected", "false");
+            });
+            this.classList.add("on");
+            this.setAttribute("aria-selected", "true");
+            var status = this.dataset.status;
+            document.querySelectorAll("#ordersBody tr").forEach(function (row) {
+                row.style.display = (status === "all" || row.dataset.status === status) ? "" : "none";
+            });
+        });
+    });
+
+    /* ── SELECT ALL ── */
+    var selectAll = document.getElementById("selectAll");
+    selectAll.addEventListener("change", function () {
+        document.querySelectorAll(".row-chk").forEach(function (chk) {
+            chk.checked = selectAll.checked;
+            chk.closest("tr").classList.toggle("selected", selectAll.checked);
+        });
+        updateBulkBar();
+    });
+    document.querySelectorAll(".row-chk").forEach(function (chk) {
+        chk.addEventListener("change", function () {
+            this.closest("tr").classList.toggle("selected", this.checked);
+            updateBulkBar();
+        });
+    });
+    function updateBulkBar() {
+        var checked = document.querySelectorAll(".row-chk:checked").length;
+        var bar = document.getElementById("bulkBar");
+        bar.classList.toggle("show", checked > 0);
+        document.getElementById("bulkCount").textContent = checked + " selected";
+    }
+    document.getElementById("clearSelectBtn").addEventListener("click", function () {
+        document.querySelectorAll(".row-chk").forEach(function (c) { c.checked = false; c.closest("tr").classList.remove("selected"); });
+        selectAll.checked = false;
+        updateBulkBar();
+    });
+    document.getElementById("bulkConfirmBtn").addEventListener("click", function () { showInlineMsg("Status updated to Confirmed for selected orders.", "ok"); });
+    document.getElementById("bulkDispatchBtn").addEventListener("click", function () { showInlineMsg("Selected orders marked as Dispatched.", "ok"); });
+    document.getElementById("bulkCancelBtn").addEventListener("click", function () { showInlineMsg("Selected orders cancelled.", "ok"); });
+
+    /* ── SEARCH FILTER ── */
+    document.getElementById("applyFilterBtn").addEventListener("click", function () {
+        var q = document.getElementById("searchOrd").value.trim().toLowerCase();
+        document.querySelectorAll("#ordersBody tr").forEach(function (row) {
+            row.style.display = (!q || row.textContent.toLowerCase().includes(q)) ? "" : "none";
+        });
+    });
+
+    /* ── ACTION BUTTONS ── */
+    document.querySelectorAll("[data-action]").forEach(function (btn) {
+        btn.addEventListener("click", function () {
+            var action = this.dataset.action;
+            var id = this.dataset.id;
+            if (action === "view") { openDetail(id); }
+            else if (action === "verify") { verifyOrder(this, id); }
+            else if (action === "dispatch") { dispatchOrder(this, id); }
+            else if (action === "delivered") { markDelivered(this, id); }
+            else if (action === "wa") { sendWA(this.dataset.phone, this.dataset.name, id); }
+        });
+    });
+
+    function verifyOrder(btn, id) {
+        btn.textContent = "✅ Verified";
+        btn.style.background = "#1b4332";
+        btn.disabled = true;
+        var row = btn.closest("tr");
+        row.querySelector(".pill").textContent = "✅ Confirmed";
+        row.querySelector(".pill").className = "pill s-confirmed";
+    }
+    function dispatchOrder(btn, id) {
+        btn.textContent = "🚚 Dispatched";
+        btn.style.background = "#1565c0";
+        btn.disabled = true;
+        var row = btn.closest("tr");
+        row.querySelector(".pill").textContent = "🚚 Dispatched";
+        row.querySelector(".pill").className = "pill s-dispatched";
+    }
+    function markDelivered(btn, id) {
+        btn.textContent = "🎉 Done";
+        btn.style.background = "#0c5460";
+        btn.disabled = true;
+        var row = btn.closest("tr");
+        row.querySelector(".pill").textContent = "🎉 Delivered";
+        row.querySelector(".pill").className = "pill s-delivered";
+    }
+    function sendWA(phone, name, id) {
+        var msg = "Hi " + name + "! Your PickleHub order #PH-2026-" + id + " has been confirmed. We will deliver soon. Thank you!";
+        var a = document.createElement("a");
+        a.href = "https://wa.me/" + phone + "?text=" + encodeURIComponent(msg);
+        a.target = "_blank";
+        a.rel = "noopener noreferrer";
+        a.click();
+    }
+
+    /* ── DETAIL PANEL ── */
+    var detailData = {
+        "00847": { name:"Priya Deshmukh", phone:"+91-98765-43210", addr:"123, Dharampeth, Nagpur – 440010", items:"🥭 Mango 500g × 2 — ₹638<br>🧄 Garlic 250g × 1 — ₹199", sub:"₹837", deliv:"Free", total:"₹837", method:"📱 UPI", ref:"UPI Ref #N/A", verif:"⏳ Pending", status:"payment_review" },
+        "00846": { name:"Rahul Sharma",   phone:"+91-99887-43210", addr:"45, Sadar, Nagpur – 440022",        items:"🍋 Lemon 500g × 1 — ₹280<br>🌶️ Mixed 400g × 2 — ₹498", sub:"₹778", deliv:"Free", total:"₹778", method:"💵 COD",    ref:"—",           verif:"N/A",         status:"confirmed" },
+        "00845": { name:"Sunita Khare",   phone:"+91-97654-43210", addr:"78, Wardha Road, Nagpur – 440015",  items:"🫙 Coconut 250g × 2 — ₹440<br>🧄 Garlic 500g × 1 — ₹319", sub:"₹759", deliv:"Free", total:"₹759", method:"🏦 Bank",   ref:"NEFT/XXXXX",  verif:"✅ Verified",  status:"dispatched" },
+        "00844": { name:"Amit Patel",     phone:"+91-98901-43210", addr:"12, Central, Nagpur – 440001",      items:"🥭 Mango 1Kg × 1 — ₹599",                                 sub:"₹599", deliv:"₹40",  total:"₹639", method:"📱 UPI",    ref:"UPI #OK",     verif:"✅ Verified",  status:"delivered" },
+        "00843": { name:"Meera Joshi",    phone:"+91-91234-43210", addr:"34, Sitabuldi, Nagpur – 440012",    items:"🌶️ Mixed 400g × 3 — ₹747",                                sub:"₹747", deliv:"Free", total:"₹747", method:"💵 COD",    ref:"—",           verif:"N/A",         status:"cancelled" }
+    };
+
+    function openDetail(id) {
+        var d = detailData[id];
+        if (!d) return;
+        document.getElementById("detailTitle").textContent = "#PH-2026-" + id;
+        document.getElementById("detName").textContent = d.name;
+        document.getElementById("detPhone").textContent = d.phone;
+        document.getElementById("detAddr").textContent = d.addr;
+        document.getElementById("detItems").innerHTML = d.items;
+        document.getElementById("detSubtotal").textContent = d.sub;
+        document.getElementById("detDeliv").textContent = d.deliv;
+        document.getElementById("detTotal").textContent = d.total;
+        document.getElementById("detMethod").textContent = d.method;
+        document.getElementById("detRef").textContent = d.ref;
+        document.getElementById("detVerif").textContent = d.verif;
+        document.getElementById("statusSelect").value = d.status;
+        document.getElementById("updateMsg").style.display = "none";
+        document.getElementById("detailPanel").classList.add("open");
+        document.getElementById("overlay").classList.add("show");
+    }
+
+    function closeDetail() {
+        document.getElementById("detailPanel").classList.remove("open");
+        document.getElementById("overlay").classList.remove("show");
+    }
+
+    document.getElementById("closeDetail").addEventListener("click", closeDetail);
+    document.getElementById("overlay").addEventListener("click", closeDetail);
+
+    document.getElementById("updateStatusBtn").addEventListener("click", function () {
+        var val = document.getElementById("statusSelect").value;
+        showInlineMsg("Order status updated to: " + val + " ✅", "ok");
+    });
+
+    function showInlineMsg(text, type) {
+        var el = document.getElementById("updateMsg");
+        el.className = "inline-msg " + type;
+        el.textContent = text;
+        el.style.display = "block";
+    }
+
+    window.viewSS = function (id) { openDetail(id); };
+
+    /* ── EXPORT CSV (placeholder) ── */
+    document.getElementById("exportCsvBtn").addEventListener("click", function () {
+        var rows = [["Order ID","Customer","Phone","Amount","Payment","Status","Date"]];
+        document.querySelectorAll("#ordersBody tr").forEach(function (row) {
+            if (row.style.display !== "none") {
+                var cells = row.querySelectorAll("td");
+                rows.push([cells[1].textContent.trim(), cells[2].querySelector("strong").textContent, "", cells[4].querySelector("strong").textContent, cells[5].textContent.trim(), cells[7].textContent.trim(), cells[8].textContent.trim()]);
+            }
+        });
+        var csv = rows.map(function (r) { return r.map(function (c) { return '"' + c.replace(/"/g, '""') + '"'; }).join(","); }).join("
+");
+        var blob = new Blob([csv], { type: "text/csv" });
+        var a = document.createElement("a");
+        a.href = URL.createObjectURL(blob);
+        a.download = "picklehub_orders.csv";
+        a.click();
+        URL.revokeObjectURL(a.href);
+    });
+
+}());
+</script>
+</body>
+</html>

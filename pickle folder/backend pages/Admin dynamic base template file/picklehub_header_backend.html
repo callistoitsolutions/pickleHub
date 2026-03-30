@@ -1,0 +1,635 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Header & Top Bar Settings | PickleHub Admin</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&family=Playfair+Display:wght@700;800&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Poppins',sans-serif;background:#f0f2f5;color:#1a1a2e;font-size:13px;}
+/* LAYOUT */
+.wrap{display:flex;min-height:100vh;}
+/* SIDEBAR */
+.sb{width:220px;background:#1a1a2e;position:fixed;top:0;left:0;height:100vh;overflow-y:auto;z-index:50;}
+.sb-logo{padding:18px 16px;border-bottom:1px solid rgba(255,255,255,.07);}
+.sb-logo-name{font-family:'Playfair Display',serif;font-size:18px;font-weight:800;color:#ffd60a;}
+.sb-logo-sub{font-size:10px;color:rgba(255,255,255,.35);margin-top:2px;}
+.sb-sec{padding:14px 16px 4px;font-size:9px;font-weight:800;color:rgba(255,255,255,.25);text-transform:uppercase;letter-spacing:2px;}
+.sb-a{display:flex;align-items:center;gap:10px;padding:9px 16px;color:rgba(255,255,255,.55);text-decoration:none;font-size:12px;font-weight:600;border-left:3px solid transparent;transition:.2s;}
+.sb-a:hover{background:rgba(255,255,255,.05);color:#fff;}
+.sb-a.on{background:rgba(232,93,4,.15);color:#ffd60a;border-left-color:#e85d04;}
+.sb-a i{width:16px;text-align:center;}
+/* MAIN */
+.main{margin-left:220px;flex:1;display:flex;flex-direction:column;}
+/* TOPBAR */
+.tbar{background:#fff;padding:13px 26px;display:flex;align-items:center;gap:14px;box-shadow:0 2px 8px rgba(0,0,0,.06);position:sticky;top:0;z-index:40;}
+.tbar-title{font-size:16px;font-weight:800;color:#1a1a2e;}
+.tbar-sub{font-size:11px;color:#aaa;margin-top:1px;}
+.tbar-right{margin-left:auto;display:flex;gap:10px;flex-wrap:wrap;}
+/* BUTTONS */
+.btn-p{background:linear-gradient(135deg,#e85d04,#f48c06);color:#fff;border:none;border-radius:10px;padding:9px 18px;font-size:12px;font-weight:700;cursor:pointer;font-family:'Poppins',sans-serif;display:inline-flex;align-items:center;gap:6px;transition:.2s;}
+.btn-p:hover{transform:translateY(-1px);box-shadow:0 4px 14px rgba(232,93,4,.3);}
+.btn-s{background:#fff;border:1.5px solid #e0e0e0;color:#555;border-radius:10px;padding:8px 16px;font-size:12px;font-weight:700;cursor:pointer;font-family:'Poppins',sans-serif;display:inline-flex;align-items:center;gap:6px;transition:.2s;}
+.btn-s:hover{border-color:#e85d04;color:#e85d04;}
+.btn-danger{background:#fdecea;border:1.5px solid #f5c6cb;color:#c62828;border-radius:8px;padding:6px 12px;font-size:11px;font-weight:700;cursor:pointer;font-family:'Poppins',sans-serif;display:inline-flex;align-items:center;gap:5px;transition:.2s;}
+.btn-danger:hover{background:#c62828;color:#fff;}
+.btn-sm-add{background:#e3f2fd;border:1.5px solid #90caf9;color:#1565c0;border-radius:8px;padding:7px 14px;font-size:11px;font-weight:700;cursor:pointer;font-family:'Poppins',sans-serif;display:inline-flex;align-items:center;gap:5px;transition:.2s;}
+.btn-sm-add:hover{background:#1565c0;color:#fff;}
+/* PAGE */
+.page{padding:22px 26px;}
+/* CARD */
+.card{background:#fff;border-radius:16px;box-shadow:0 2px 12px rgba(0,0,0,.06);overflow:hidden;margin-bottom:20px;}
+.card-head{padding:14px 20px;border-bottom:1px solid #f5f5f5;display:flex;align-items:center;gap:10px;}
+.ch-ico{font-size:20px;}
+.ch-title{font-size:14px;font-weight:800;color:#1a1a2e;}
+.ch-sub{font-size:11px;color:#aaa;margin-left:4px;}
+.ch-right{margin-left:auto;}
+.card-body{padding:20px;}
+/* FORM */
+.lbl{font-size:11px;font-weight:800;color:#333;margin-bottom:5px;display:block;}
+.lbl-hint{font-size:10px;color:#aaa;font-weight:400;margin-left:6px;}
+.req{color:#e85d04;}
+.inp{width:100%;border-radius:10px;border:1.5px solid #e0e0e0;padding:10px 14px;font-size:13px;font-family:'Poppins',sans-serif;outline:none;transition:.2s;color:#1a1a2e;background:#fff;}
+.inp:focus{border-color:#e85d04;box-shadow:0 0 0 3px rgba(232,93,4,.08);}
+select.inp{cursor:pointer;}
+/* TOGGLE */
+.tog-row{display:flex;align-items:center;gap:10px;}
+.tog{width:46px;height:24px;border-radius:50px;background:#ddd;cursor:pointer;position:relative;transition:.3s;flex-shrink:0;}
+.tog.on{background:#2d6a4f;}
+.tog::after{content:'';position:absolute;width:18px;height:18px;background:#fff;border-radius:50%;top:3px;left:3px;transition:.3s;box-shadow:0 1px 4px rgba(0,0,0,.2);}
+.tog.on::after{left:25px;}
+.tog-lbl{font-size:12px;font-weight:700;color:#555;}
+/* MARQUEE ITEMS */
+.marquee-item{background:#f8f9fa;border-radius:12px;padding:14px 16px;margin-bottom:10px;display:flex;align-items:center;gap:10px;border:1.5px solid #f0f0f0;transition:.2s;}
+.marquee-item:hover{border-color:#e85d04;}
+.mi-drag{color:#ccc;cursor:grab;font-size:16px;}
+.mi-emoji{width:36px;height:36px;border-radius:8px;background:#fff3e0;border:none;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.mi-inp{flex:1;border:none;background:transparent;font-size:13px;font-family:'Poppins',sans-serif;outline:none;color:#1a1a2e;font-weight:500;}
+/* NAV LINK ITEMS */
+.nl-item{background:#f8f9fa;border-radius:12px;padding:12px 16px;margin-bottom:10px;display:flex;align-items:center;gap:10px;border:1.5px solid #f0f0f0;transition:.2s;}
+.nl-item:hover{border-color:#e85d04;}
+.nl-emo{width:30px;background:none;border:none;font-size:18px;cursor:pointer;text-align:center;padding:0;}
+.nl-name{width:130px;border:1.5px solid #e8e8e8;border-radius:8px;padding:7px 10px;font-size:12px;font-family:'Poppins',sans-serif;outline:none;background:#fff;}
+.nl-name:focus{border-color:#e85d04;}
+.nl-url{flex:1;border:1.5px solid #e8e8e8;border-radius:8px;padding:7px 10px;font-size:12px;font-family:'Poppins',sans-serif;outline:none;background:#fff;}
+.nl-url:focus{border-color:#e85d04;}
+.nl-vis{width:28px;height:28px;border-radius:7px;border:1.5px solid #e0e0e0;background:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:13px;color:#888;transition:.2s;}
+.nl-vis.hidden-link{background:#fdecea;border-color:#f5c6cb;color:#c62828;}
+/* PREVIEW PANEL */
+.preview-wrap{position:sticky;top:70px;}
+.preview-label{font-size:11px;font-weight:800;color:#aaa;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:10px;display:flex;align-items:center;gap:8px;}
+.preview-label::after{content:'';flex:1;height:1px;background:#e0e0e0;}
+/* LIVE PREVIEW — TOP BAR */
+.prev-topbar{background:linear-gradient(90deg,#9d0208,#e85d04);color:#fff;font-size:12px;padding:7px 14px;border-radius:10px 10px 0 0;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:6px;overflow:hidden;}
+.prev-marquee{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:55%;}
+.prev-topbar-right{display:flex;align-items:center;gap:10px;font-size:11px;color:#ffd60a;}
+/* LIVE PREVIEW — NAVBAR */
+.prev-nav{background:linear-gradient(135deg,#1a1a2e,#0f3460);padding:12px 14px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+.prev-logo-ico{width:36px;height:36px;background:linear-gradient(135deg,#e85d04,#ffd60a);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;}
+.prev-brand{line-height:1.2;}
+.prev-brand-name{font-family:'Playfair Display',serif;font-size:15px;font-weight:800;color:#ffd60a;}
+.prev-brand-city{font-size:10px;color:#f48c06;letter-spacing:1.5px;text-transform:uppercase;}
+.prev-nav-right{margin-left:auto;display:flex;gap:8px;}
+.prev-nav-icon{color:rgba(255,255,255,.7);font-size:10px;display:flex;flex-direction:column;align-items:center;gap:2px;}
+.prev-nav-icon i{font-size:14px;}
+/* LIVE PREVIEW — NAV LINKS BAR */
+.prev-navlinks{background:linear-gradient(90deg,#e85d04,#f48c06,#ffd60a,#f48c06,#e85d04);padding:6px 10px;border-radius:0 0 10px 10px;display:flex;flex-wrap:wrap;gap:2px;}
+.prev-nl{color:#1a1a2e;font-size:10px;font-weight:700;padding:5px 10px;border-radius:4px;text-decoration:none;}
+/* COLOR PALETTE */
+.color-row{display:flex;gap:8px;flex-wrap:wrap;}
+.color-swatch{width:28px;height:28px;border-radius:8px;cursor:pointer;border:3px solid transparent;transition:.2s;flex-shrink:0;}
+.color-swatch.sel{border-color:#1a1a2e;transform:scale(1.15);}
+/* EMOJI PICKER */
+.emoji-grid{display:flex;flex-wrap:wrap;gap:6px;padding:10px;background:#f8f9fa;border-radius:10px;margin-top:6px;}
+.e-btn{width:34px;height:34px;border:none;background:#fff;border-radius:8px;font-size:18px;cursor:pointer;transition:.2s;display:flex;align-items:center;justify-content:center;border:1.5px solid #f0f0f0;}
+.e-btn:hover{background:#fff3e0;border-color:#e85d04;transform:scale(1.2);}
+/* TOAST */
+.toast-wrap{position:fixed;bottom:20px;right:20px;z-index:9999;display:flex;flex-direction:column;gap:8px;}
+.t-item{background:#1a1a2e;color:#fff;border-radius:12px;padding:12px 18px;font-size:12px;font-weight:600;box-shadow:0 8px 24px rgba(0,0,0,.2);transform:translateX(150px);opacity:0;transition:.35s;border-left:4px solid #52b788;max-width:300px;}
+.t-item.show{transform:translateX(0);opacity:1;}
+.t-item.err{border-left-color:#e85d04;}
+/* STATUS BADGE */
+.s-pill{padding:3px 10px;border-radius:50px;font-size:10px;font-weight:800;display:inline-flex;align-items:center;gap:4px;}
+.sp-green{background:#d4edda;color:#155724;}
+.sp-yellow{background:#fff3cd;color:#856404;}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<!-- ── SIDEBAR ── -->
+<aside class="sb">
+  <div class="sb-logo">
+    <div class="sb-logo-name">🥒 PickleHub</div>
+    <div class="sb-logo-sub">Admin Panel</div>
+  </div>
+  <div class="sb-sec">Main</div>
+  <a class="sb-a" href="#"><i class="fa fa-tachometer-alt"></i> Dashboard</a>
+  <a class="sb-a" href="#"><i class="fa fa-boxes"></i> Products</a>
+  <a class="sb-a" href="#"><i class="fa fa-shopping-bag"></i> Orders</a>
+  <div class="sb-sec">Site Settings</div>
+  <a class="sb-a on" href="#"><i class="fa fa-sliders-h"></i> Header & Top Bar</a>
+  <a class="sb-a" href="#"><i class="fa fa-image"></i> Hero Banner</a>
+  <a class="sb-a" href="#"><i class="fa fa-star"></i> Featured Products</a>
+  <a class="sb-a" href="#"><i class="fa fa-tags"></i> Offers & Banners</a>
+  <a class="sb-a" href="#"><i class="fa fa-map-pin"></i> Pincode Manager</a>
+  <a class="sb-a" href="#"><i class="fa fa-cog"></i> General Settings</a>
+  <div class="sb-sec">More</div>
+  <a class="sb-a" href="#"><i class="fa fa-users"></i> Customers</a>
+  <a class="sb-a" href="#"><i class="fa fa-sign-out-alt"></i> Logout</a>
+</aside>
+
+<!-- ── MAIN ── -->
+<div class="main">
+
+<!-- TOP BAR -->
+<div class="tbar">
+  <div>
+    <div class="tbar-title">⚙️ Header & Top Bar Settings</div>
+    <div class="tbar-sub">Changes reflect instantly on the frontend live preview →</div>
+  </div>
+  <div class="tbar-right">
+    <span class="s-pill sp-green" id="saveStatus">✅ All Changes Saved</span>
+    <button class="btn-s" onclick="resetAll()"><i class="fa fa-undo"></i> Reset</button>
+    <button class="btn-p" onclick="saveAll()"><i class="fa fa-save"></i> Save & Publish</button>
+  </div>
+</div>
+
+<div class="page">
+<div class="row g-4">
+
+<!-- ════ LEFT: FORMS ════ -->
+<div class="col-lg-7">
+
+  <!-- 1. TOP BAR MARQUEE -->
+  <div class="card">
+    <div class="card-head">
+      <span class="ch-ico">📢</span>
+      <span class="ch-title">Top Bar Marquee Messages</span>
+      <span class="ch-sub">— scrolling announcement ticker</span>
+      <div class="ch-right">
+        <div class="tog-row">
+          <div class="tog on" id="tog-topbar" onclick="togSwitch(this,'tog-topbar');updatePreview()"></div>
+          <span class="tog-lbl" id="tog-topbar-lbl">Visible</span>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <div style="margin-bottom:12px;">
+        <label class="lbl">Marquee Speed <span class="lbl-hint">seconds (lower = faster)</span></label>
+        <input class="inp" type="number" id="marqueeSpeed" value="25" min="5" max="60" style="max-width:120px;" oninput="updatePreview()">
+      </div>
+      <label class="lbl">Messages <span class="lbl-hint">drag to reorder</span></label>
+      <div id="marqueeList">
+        <!-- items injected by JS -->
+      </div>
+      <button class="btn-sm-add" onclick="addMarqueeItem()"><i class="fa fa-plus"></i> Add Message</button>
+    </div>
+  </div>
+
+  <!-- 2. CONTACT INFO (top-right) -->
+  <div class="card">
+    <div class="card-head">
+      <span class="ch-ico">📞</span>
+      <span class="ch-title">Top Bar — Contact Info</span>
+      <span class="ch-sub">— right side (desktop only)</span>
+    </div>
+    <div class="card-body">
+      <div class="row g-3">
+        <div class="col-md-6">
+          <label class="lbl">Phone Number <span class="req">*</span></label>
+          <div style="display:flex;gap:8px;align-items:center;">
+            <span style="font-size:18px;">📞</span>
+            <input class="inp" type="text" id="phoneNum" value="+91-98765 43210" oninput="updatePreview()">
+          </div>
+        </div>
+        <div class="col-md-6">
+          <label class="lbl">Phone Link (tel:)</label>
+          <input class="inp" type="text" id="phoneLink" value="tel:+919876543210" oninput="updatePreview()">
+        </div>
+        <div class="col-md-6">
+          <label class="lbl">WhatsApp Number <span class="req">*</span></label>
+          <div style="display:flex;gap:8px;align-items:center;">
+            <span style="font-size:18px;">💬</span>
+            <input class="inp" type="text" id="waNum" value="919876543210" oninput="updatePreview()">
+          </div>
+        </div>
+        <div class="col-md-6">
+          <label class="lbl">WhatsApp Label</label>
+          <input class="inp" type="text" id="waLabel" value="WhatsApp Order" oninput="updatePreview()">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 3. BRAND / LOGO -->
+  <div class="card">
+    <div class="card-head">
+      <span class="ch-ico">🏷️</span>
+      <span class="ch-title">Brand & Logo</span>
+      <span class="ch-sub">— navbar left side</span>
+    </div>
+    <div class="card-body">
+      <div class="row g-3">
+        <div class="col-md-3">
+          <label class="lbl">Logo Emoji <span class="req">*</span></label>
+          <input class="inp" type="text" id="logoEmoji" value="🥒" maxlength="4" oninput="updatePreview()" style="font-size:22px;text-align:center;">
+          <div style="font-size:10px;color:#aaa;margin-top:4px;">Paste any emoji</div>
+        </div>
+        <div class="col-md-5">
+          <label class="lbl">Brand Name <span class="req">*</span></label>
+          <input class="inp" type="text" id="brandName" value="PickleHub" oninput="updatePreview()">
+        </div>
+        <div class="col-md-4">
+          <label class="lbl">City / Tagline</label>
+          <input class="inp" type="text" id="brandCity" value="Nagpur" oninput="updatePreview()">
+        </div>
+        <div class="col-12">
+          <label class="lbl">Logo Background Color</label>
+          <div class="color-row" id="logoBgRow">
+            <div class="color-swatch sel" style="background:linear-gradient(135deg,#e85d04,#ffd60a);" onclick="selectLogoBg(this,'linear-gradient(135deg,#e85d04,#ffd60a)')"></div>
+            <div class="color-swatch" style="background:linear-gradient(135deg,#25d366,#128c7e);" onclick="selectLogoBg(this,'linear-gradient(135deg,#25d366,#128c7e)')"></div>
+            <div class="color-swatch" style="background:linear-gradient(135deg,#1565c0,#0d47a1);" onclick="selectLogoBg(this,'linear-gradient(135deg,#1565c0,#0d47a1)')"></div>
+            <div class="color-swatch" style="background:linear-gradient(135deg,#9d0208,#e85d04);" onclick="selectLogoBg(this,'linear-gradient(135deg,#9d0208,#e85d04)')"></div>
+            <div class="color-swatch" style="background:linear-gradient(135deg,#6a0dad,#b039e0);" onclick="selectLogoBg(this,'linear-gradient(135deg,#6a0dad,#b039e0)')"></div>
+            <div class="color-swatch" style="background:linear-gradient(135deg,#212121,#424242);" onclick="selectLogoBg(this,'linear-gradient(135deg,#212121,#424242)')"></div>
+            <input type="color" style="width:28px;height:28px;border-radius:8px;cursor:pointer;border:1.5px solid #ddd;padding:2px;" onchange="selectLogoBg(null,this.value)" title="Custom color">
+          </div>
+        </div>
+        <div class="col-12">
+          <label class="lbl">Navbar Background</label>
+          <div class="color-row" id="navBgRow">
+            <div class="color-swatch sel" style="background:linear-gradient(135deg,#1a1a2e,#0f3460);" onclick="selectNavBg(this,'linear-gradient(135deg,#1a1a2e,#0f3460)')"></div>
+            <div class="color-swatch" style="background:#1a1a2e;" onclick="selectNavBg(this,'#1a1a2e')"></div>
+            <div class="color-swatch" style="background:#fff;border:1.5px solid #ddd;" onclick="selectNavBg(this,'#fff')"></div>
+            <div class="color-swatch" style="background:linear-gradient(135deg,#155724,#2d6a4f);" onclick="selectNavBg(this,'linear-gradient(135deg,#155724,#2d6a4f)')"></div>
+            <div class="color-swatch" style="background:linear-gradient(135deg,#9d0208,#e85d04);" onclick="selectNavBg(this,'linear-gradient(135deg,#9d0208,#e85d04)')"></div>
+            <input type="color" value="#1a1a2e" style="width:28px;height:28px;border-radius:8px;cursor:pointer;border:1.5px solid #ddd;padding:2px;" onchange="selectNavBg(null,this.value)" title="Custom color">
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 4. NAV LINKS BAR -->
+  <div class="card">
+    <div class="card-head">
+      <span class="ch-ico">🔗</span>
+      <span class="ch-title">Navigation Links Bar</span>
+      <span class="ch-sub">— category menu below navbar</span>
+      <div class="ch-right">
+        <div class="tog-row">
+          <div class="tog on" id="tog-navlinks" onclick="togSwitch(this,'tog-navlinks');updatePreview()"></div>
+          <span class="tog-lbl" id="tog-navlinks-lbl">Visible</span>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <div style="background:#fff8f5;border-radius:10px;padding:10px 14px;margin-bottom:14px;font-size:12px;color:#e85d04;font-weight:600;">
+        💡 Emoji + Name + URL for each link. Toggle eye icon to hide/show.
+      </div>
+      <div id="navLinksList"></div>
+      <button class="btn-sm-add" onclick="addNavLink()"><i class="fa fa-plus"></i> Add Nav Link</button>
+    </div>
+  </div>
+
+</div><!-- col left -->
+
+<!-- ════ RIGHT: LIVE PREVIEW ════ -->
+<div class="col-lg-5">
+  <div class="preview-wrap">
+    <div class="preview-label">👁️ Live Frontend Preview</div>
+
+    <!-- PREVIEW BOX -->
+    <div style="border-radius:14px;overflow:hidden;box-shadow:0 8px 30px rgba(0,0,0,.12);border:1.5px solid #e0e0e0;">
+
+      <!-- TOP BAR PREVIEW -->
+      <div class="prev-topbar" id="prev-topbar">
+        <div class="prev-marquee" id="prev-marquee-txt">🎉 FREE DELIVERY on orders above ₹499 &nbsp;|&nbsp; 🔥 Andhra Garlic Pickle @ ₹199</div>
+        <div class="prev-topbar-right" id="prev-contact">
+          <span>📞 +91-98765 43210</span>
+          <span>|</span>
+          <span>💬 WhatsApp Order</span>
+        </div>
+      </div>
+
+      <!-- NAVBAR PREVIEW -->
+      <div class="prev-nav" id="prev-nav">
+        <div class="prev-logo-ico" id="prev-logo-ico">🥒</div>
+        <div class="prev-brand">
+          <div class="prev-brand-name" id="prev-brand-name">PickleHub</div>
+          <div class="prev-brand-city" id="prev-brand-city">Nagpur</div>
+        </div>
+        <!-- Search bar preview -->
+        <div style="flex:1;margin:0 10px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);border-radius:50px;overflow:hidden;display:flex;max-width:180px;">
+          <input style="background:transparent;border:none;color:#fff;padding:5px 10px;font-size:11px;width:100%;outline:none;" placeholder="Search pickles..." disabled>
+          <button style="background:#e85d04;border:none;padding:5px 10px;color:#fff;font-size:11px;cursor:default;">🔍</button>
+        </div>
+        <div class="prev-nav-right">
+          <div class="prev-nav-icon"><i class="fa fa-user"></i><span>Account</span></div>
+          <div class="prev-nav-icon"><i class="fa fa-heart"></i><span>Wishlist</span></div>
+          <div class="prev-nav-icon" style="position:relative;">
+            <i class="fa fa-shopping-cart"></i>
+            <span style="position:absolute;top:-4px;right:-4px;background:#e85d04;color:#fff;border-radius:50%;width:14px;height:14px;font-size:8px;display:flex;align-items:center;justify-content:center;">3</span>
+            <span>Cart</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- NAV LINKS BAR PREVIEW -->
+      <div class="prev-navlinks" id="prev-navlinks">
+        <!-- rendered by JS -->
+      </div>
+    </div><!-- preview box -->
+
+    <!-- SAVE REMINDER -->
+    <div style="background:#fff;border-radius:12px;padding:14px 16px;margin-top:14px;border:1.5px solid #f0f0f0;">
+      <div style="font-size:12px;font-weight:800;color:#1a1a2e;margin-bottom:6px;">📋 How it works</div>
+      <div style="font-size:11px;color:#888;line-height:1.9;">
+        ① Fill the form → preview updates <strong>instantly</strong> on the right<br>
+        ② Click <strong>Save & Publish</strong> — data saved to DB via Django<br>
+        ③ Frontend template reads from DB using <code>{{ site_settings }}</code><br>
+        ④ Changes reflect on <strong>every page</strong> automatically
+      </div>
+    </div>
+
+    <!-- DJANGO CODE SNIPPET -->
+    <div style="background:#1a1a2e;border-radius:12px;padding:14px 16px;margin-top:14px;">
+      <div style="font-size:11px;font-weight:800;color:#ffd60a;margin-bottom:8px;">🐍 Django Integration Snippet</div>
+      <div style="font-size:11px;color:rgba(255,255,255,.7);font-family:monospace;line-height:2;">
+        <span style="color:#52b788;"># models.py</span><br>
+        <span style="color:#f48c06;">class</span> SiteHeader(models.Model):<br>
+        &nbsp;&nbsp;marquee_text = models.TextField()<br>
+        &nbsp;&nbsp;phone = models.CharField(max_length=20)<br>
+        &nbsp;&nbsp;whatsapp = models.CharField(max_length=20)<br>
+        &nbsp;&nbsp;brand_name = models.CharField(max_length=50)<br>
+        &nbsp;&nbsp;brand_city = models.CharField(max_length=50)<br>
+        &nbsp;&nbsp;logo_emoji = models.CharField(max_length=10)<br><br>
+        <span style="color:#52b788;"># context_processors.py</span><br>
+        <span style="color:#f48c06;">def</span> site_header(request):<br>
+        &nbsp;&nbsp;<span style="color:#f48c06;">return</span> {<span style="color:#ffd60a;">'hdr'</span>: SiteHeader.objects.first()}<br><br>
+        <span style="color:#52b788;"># base.html usage</span><br>
+        <span style="color:#ffd60a;">{{ hdr.marquee_text }}</span><br>
+        <span style="color:#ffd60a;">{{ hdr.phone }}</span>
+      </div>
+    </div>
+
+  </div>
+</div><!-- col right -->
+
+</div><!-- row -->
+</div><!-- page -->
+</div><!-- main -->
+</div><!-- wrap -->
+
+<div class="toast-wrap" id="toastWrap"></div>
+
+<script>
+/* ════ DATA ════ */
+var STATE = {
+  marqueeItems: [
+    {emoji:'🎉', text:'FREE DELIVERY on orders above ₹499'},
+    {emoji:'🔥', text:'"Pickle of the Week" – Andhra Garlic Pickle @ ₹199'},
+    {emoji:'📦', text:'24-Hour Delivery in Nagpur'},
+  ],
+  navLinks: [
+    {emoji:'🏠', name:'Home',        url:'/',                  vis:true},
+    {emoji:'🛒', name:'All Pickles', url:'/products/',         vis:true},
+    {emoji:'🥭', name:'Mango Pickle',url:'/category/mango/',   vis:true},
+    {emoji:'🧄', name:'Garlic Pickle',url:'/category/garlic/', vis:true},
+    {emoji:'🌶️',name:'Andhra Style', url:'/category/andhra/', vis:true},
+    {emoji:'🗺️',name:'Regional',     url:'/category/regional/',vis:true},
+    {emoji:'🏷️',name:'Brands',       url:'/brands/',           vis:true},
+    {emoji:'🔥',name:'Offers',       url:'/offers/',           vis:true},
+    {emoji:'📞',name:'Contact',      url:'/contact/',          vis:true},
+  ],
+  logoBg: 'linear-gradient(135deg,#e85d04,#ffd60a)',
+  navBg: 'linear-gradient(135deg,#1a1a2e,#0f3460)',
+};
+
+/* ════ RENDER MARQUEE LIST ════ */
+function renderMarqueeList(){
+  var list = document.getElementById('marqueeList');
+  list.innerHTML = '';
+  STATE.marqueeItems.forEach(function(item, i){
+    var d = document.createElement('div');
+    d.className = 'marquee-item';
+    d.innerHTML =
+      '<span class="mi-drag" title="Drag to reorder"><i class="fa fa-grip-vertical"></i></span>' +
+      '<button class="mi-emoji" title="Click to change emoji" onclick="cycleEmoji('+i+')">' + item.emoji + '</button>' +
+      '<input class="mi-inp" type="text" value="' + item.text.replace(/"/g,'&quot;') + '" placeholder="Enter message text..." oninput="STATE.marqueeItems['+i+'].text=this.value;updatePreview()" />' +
+      '<button class="btn-danger" onclick="removeMarqueeItem('+i+')"><i class="fa fa-trash"></i></button>';
+    list.appendChild(d);
+  });
+}
+
+function addMarqueeItem(){
+  STATE.marqueeItems.push({emoji:'✨', text:'New announcement message'});
+  renderMarqueeList();
+  updatePreview();
+  toast('✅ Message added','ok');
+}
+
+function removeMarqueeItem(i){
+  STATE.marqueeItems.splice(i,1);
+  renderMarqueeList();
+  updatePreview();
+  toast('🗑️ Message removed','err');
+}
+
+var emojiList = ['🎉','🔥','📦','✨','🏷️','💥','🆕','⚡','🎁','🛒','💯','🥒','🌶️','🧄','🥭'];
+function cycleEmoji(i){
+  var cur = emojiList.indexOf(STATE.marqueeItems[i].emoji);
+  STATE.marqueeItems[i].emoji = emojiList[(cur+1) % emojiList.length];
+  renderMarqueeList();
+  updatePreview();
+}
+
+/* ════ RENDER NAV LINKS LIST ════ */
+function renderNavLinksList(){
+  var list = document.getElementById('navLinksList');
+  list.innerHTML = '';
+  STATE.navLinks.forEach(function(link, i){
+    var d = document.createElement('div');
+    d.className = 'nl-item';
+    d.innerHTML =
+      '<span style="color:#ccc;cursor:grab;font-size:14px;"><i class="fa fa-grip-vertical"></i></span>' +
+      '<input class="nl-emo" type="text" value="' + link.emoji + '" maxlength="4" oninput="STATE.navLinks['+i+'].emoji=this.value;updatePreview()" title="Emoji">' +
+      '<input class="nl-name" type="text" value="' + link.name + '" placeholder="Label" oninput="STATE.navLinks['+i+'].name=this.value;updatePreview()" title="Link label">' +
+      '<input class="nl-url"  type="text" value="' + link.url  + '" placeholder="/url/" oninput="STATE.navLinks['+i+'].url=this.value" title="URL path">' +
+      '<button class="nl-vis ' + (link.vis?'':'hidden-link') + '" title="Toggle visibility" onclick="toggleLinkVis('+i+')">' +
+        '<i class="fa ' + (link.vis?'fa-eye':'fa-eye-slash') + '"></i>' +
+      '</button>' +
+      '<button class="btn-danger" onclick="removeNavLink('+i+')"><i class="fa fa-trash"></i></button>';
+    list.appendChild(d);
+  });
+}
+
+function addNavLink(){
+  STATE.navLinks.push({emoji:'🔗', name:'New Link', url:'/', vis:true});
+  renderNavLinksList();
+  updatePreview();
+  toast('✅ Nav link added','ok');
+}
+
+function removeNavLink(i){
+  STATE.navLinks.splice(i,1);
+  renderNavLinksList();
+  updatePreview();
+  toast('🗑️ Nav link removed','err');
+}
+
+function toggleLinkVis(i){
+  STATE.navLinks[i].vis = !STATE.navLinks[i].vis;
+  renderNavLinksList();
+  updatePreview();
+}
+
+/* ════ TOGGLE ════ */
+function togSwitch(el, id){
+  el.classList.toggle('on');
+  var isOn = el.classList.contains('on');
+  document.getElementById(id+'-lbl').textContent = isOn ? 'Visible' : 'Hidden';
+}
+
+/* ════ COLOR SELECTORS ════ */
+function selectLogoBg(swatch, val){
+  document.querySelectorAll('#logoBgRow .color-swatch').forEach(function(s){s.classList.remove('sel');});
+  if(swatch) swatch.classList.add('sel');
+  STATE.logoBg = val;
+  updatePreview();
+}
+function selectNavBg(swatch, val){
+  document.querySelectorAll('#navBgRow .color-swatch').forEach(function(s){s.classList.remove('sel');});
+  if(swatch) swatch.classList.add('sel');
+  STATE.navBg = val;
+  updatePreview();
+}
+
+/* ════ LIVE PREVIEW UPDATE ════ */
+function updatePreview(){
+  markUnsaved();
+  // TOP BAR
+  var topbarOn = document.getElementById('tog-topbar').classList.contains('on');
+  var prevTopbar = document.getElementById('prev-topbar');
+  prevTopbar.style.display = topbarOn ? 'flex' : 'none';
+
+  // MARQUEE TEXT
+  var parts = STATE.marqueeItems.map(function(m){ return m.emoji + ' ' + m.text; });
+  document.getElementById('prev-marquee-txt').innerHTML = parts.join(' &nbsp;|&nbsp; ');
+
+  // CONTACT
+  var ph = document.getElementById('phoneNum').value;
+  var waLbl = document.getElementById('waLabel').value;
+  document.getElementById('prev-contact').innerHTML =
+    '<span>📞 ' + ph + '</span><span>|</span><span>💬 ' + waLbl + '</span>';
+
+  // BRAND
+  document.getElementById('prev-logo-ico').textContent = document.getElementById('logoEmoji').value || '🥒';
+  document.getElementById('prev-logo-ico').style.background = STATE.logoBg;
+  document.getElementById('prev-brand-name').textContent = document.getElementById('brandName').value || 'PickleHub';
+  document.getElementById('prev-brand-city').textContent = document.getElementById('brandCity').value;
+  document.getElementById('prev-nav').style.background = STATE.navBg;
+
+  // NAV LINKS
+  var navLinksOn = document.getElementById('tog-navlinks').classList.contains('on');
+  var nlBar = document.getElementById('prev-navlinks');
+  nlBar.style.display = navLinksOn ? 'flex' : 'none';
+  nlBar.innerHTML = '';
+  STATE.navLinks.forEach(function(l){
+    if(!l.vis) return;
+    var a = document.createElement('a');
+    a.className = 'prev-nl';
+    a.textContent = l.emoji + ' ' + l.name;
+    a.href = '#';
+    nlBar.appendChild(a);
+  });
+}
+
+/* ════ SAVE ════ */
+var unsaved = false;
+function markUnsaved(){
+  unsaved = true;
+  document.getElementById('saveStatus').textContent = '⏳ Unsaved changes';
+  document.getElementById('saveStatus').className = 's-pill sp-yellow';
+}
+
+function saveAll(){
+  var data = {
+    topbar_visible: document.getElementById('tog-topbar').classList.contains('on'),
+    marquee_items: STATE.marqueeItems,
+    marquee_speed: document.getElementById('marqueeSpeed').value,
+    phone: document.getElementById('phoneNum').value,
+    phone_link: document.getElementById('phoneLink').value,
+    whatsapp: document.getElementById('waNum').value,
+    whatsapp_label: document.getElementById('waLabel').value,
+    logo_emoji: document.getElementById('logoEmoji').value,
+    brand_name: document.getElementById('brandName').value,
+    brand_city: document.getElementById('brandCity').value,
+    logo_bg: STATE.logoBg,
+    nav_bg: STATE.navBg,
+    navlinks_visible: document.getElementById('tog-navlinks').classList.contains('on'),
+    nav_links: STATE.navLinks,
+  };
+  // Simulated save — in Django this would POST to /admin/site-header/save/
+  console.log('Saving data:', JSON.stringify(data, null, 2));
+  localStorage.setItem('picklehub_header_settings', JSON.stringify(data));
+  setTimeout(function(){
+    unsaved = false;
+    document.getElementById('saveStatus').textContent = '✅ All Changes Saved';
+    document.getElementById('saveStatus').className = 's-pill sp-green';
+    toast('✅ Header settings saved & published!','ok');
+  }, 600);
+  toast('💾 Saving...','ok');
+}
+
+function resetAll(){
+  if(!confirm('Reset all settings to default?')) return;
+  localStorage.removeItem('picklehub_header_settings');
+  location.reload();
+}
+
+/* ════ LOAD SAVED DATA ════ */
+function loadSaved(){
+  var saved = localStorage.getItem('picklehub_header_settings');
+  if(!saved) return;
+  try {
+    var d = JSON.parse(saved);
+    if(d.marquee_items) STATE.marqueeItems = d.marquee_items;
+    if(d.nav_links) STATE.navLinks = d.nav_links;
+    if(d.logo_bg) STATE.logoBg = d.logo_bg;
+    if(d.nav_bg) STATE.navBg = d.nav_bg;
+    if(d.phone) document.getElementById('phoneNum').value = d.phone;
+    if(d.phone_link) document.getElementById('phoneLink').value = d.phone_link;
+    if(d.whatsapp) document.getElementById('waNum').value = d.whatsapp;
+    if(d.whatsapp_label) document.getElementById('waLabel').value = d.whatsapp_label;
+    if(d.logo_emoji) document.getElementById('logoEmoji').value = d.logo_emoji;
+    if(d.brand_name) document.getElementById('brandName').value = d.brand_name;
+    if(d.brand_city) document.getElementById('brandCity').value = d.brand_city;
+    if(d.marquee_speed) document.getElementById('marqueeSpeed').value = d.marquee_speed;
+    if(d.topbar_visible === false){ document.getElementById('tog-topbar').classList.remove('on'); document.getElementById('tog-topbar-lbl').textContent='Hidden'; }
+    if(d.navlinks_visible === false){ document.getElementById('tog-navlinks').classList.remove('on'); document.getElementById('tog-navlinks-lbl').textContent='Hidden'; }
+  } catch(e){}
+}
+
+/* ════ TOAST ════ */
+function toast(msg, type){
+  var wrap = document.getElementById('toastWrap');
+  var t = document.createElement('div');
+  t.className = 't-item' + (type==='err'?' err':'');
+  t.textContent = msg;
+  wrap.appendChild(t);
+  requestAnimationFrame(function(){requestAnimationFrame(function(){t.classList.add('show');});});
+  setTimeout(function(){t.classList.remove('show');setTimeout(function(){if(t.parentNode)t.parentNode.removeChild(t);},400);},3200);
+}
+
+/* ════ INIT ════ */
+loadSaved();
+renderMarqueeList();
+renderNavLinksList();
+updatePreview();
+</script>
+</body>
+</html>

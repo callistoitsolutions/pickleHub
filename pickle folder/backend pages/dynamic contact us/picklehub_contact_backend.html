@@ -1,0 +1,686 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Contact Page Settings | PickleHub Admin</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&family=Playfair+Display:wght@700;800&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Poppins',sans-serif;background:#f0f2f5;color:#1a1a2e;font-size:13px;}
+.wrap{display:flex;min-height:100vh;}
+/* ── SIDEBAR ── */
+.sb{width:220px;background:#1a1a2e;position:fixed;top:0;left:0;height:100vh;overflow-y:auto;z-index:50;}
+.sb-logo{padding:18px 16px;border-bottom:1px solid rgba(255,255,255,.07);}
+.sb-logo-name{font-family:'Playfair Display',serif;font-size:18px;font-weight:800;color:#ffd60a;}
+.sb-logo-sub{font-size:10px;color:rgba(255,255,255,.3);margin-top:2px;}
+.sb-sec{padding:14px 16px 4px;font-size:9px;font-weight:800;color:rgba(255,255,255,.25);text-transform:uppercase;letter-spacing:2px;}
+.sb-a{display:flex;align-items:center;gap:10px;padding:9px 16px;color:rgba(255,255,255,.55);text-decoration:none;font-size:12px;font-weight:600;border-left:3px solid transparent;transition:.2s;}
+.sb-a:hover{background:rgba(255,255,255,.05);color:#fff;}
+.sb-a.on{background:rgba(232,93,4,.15);color:#ffd60a;border-left-color:#e85d04;}
+.sb-a i{width:16px;text-align:center;}
+/* ── MAIN ── */
+.main{margin-left:220px;flex:1;}
+.tbar{background:#fff;padding:13px 26px;display:flex;align-items:center;gap:14px;box-shadow:0 2px 8px rgba(0,0,0,.06);position:sticky;top:0;z-index:40;flex-wrap:wrap;}
+.tbar-title{font-size:16px;font-weight:800;color:#1a1a2e;}
+.tbar-sub{font-size:11px;color:#aaa;margin-top:1px;}
+.tbar-right{margin-left:auto;display:flex;gap:10px;flex-wrap:wrap;align-items:center;}
+.btn-p{background:linear-gradient(135deg,#e85d04,#f48c06);color:#fff;border:none;border-radius:10px;padding:9px 18px;font-size:12px;font-weight:700;cursor:pointer;font-family:'Poppins',sans-serif;display:inline-flex;align-items:center;gap:6px;transition:.2s;}
+.btn-p:hover{transform:translateY(-1px);box-shadow:0 4px 14px rgba(232,93,4,.3);}
+.btn-s{background:#fff;border:1.5px solid #e0e0e0;color:#555;border-radius:10px;padding:8px 16px;font-size:12px;font-weight:700;cursor:pointer;font-family:'Poppins',sans-serif;display:inline-flex;align-items:center;gap:6px;transition:.2s;}
+.btn-s:hover{border-color:#e85d04;color:#e85d04;}
+.s-pill{padding:4px 12px;border-radius:50px;font-size:10px;font-weight:800;}
+.sp-green{background:#d4edda;color:#155724;}
+.sp-yellow{background:#fff3cd;color:#856404;}
+/* ── SECTION TABS ── */
+.sec-tabs{display:flex;gap:0;background:#fff;border-bottom:1px solid #f0f0f0;flex-wrap:wrap;}
+.sec-tab{padding:11px 18px;font-size:12px;font-weight:700;color:#888;cursor:pointer;border-bottom:3px solid transparent;transition:.2s;white-space:nowrap;}
+.sec-tab.on{color:#e85d04;border-bottom-color:#e85d04;}
+/* ── PAGE ── */
+.page{padding:22px 26px;}
+/* ── CARDS ── */
+.card{background:#fff;border-radius:16px;box-shadow:0 2px 12px rgba(0,0,0,.06);overflow:hidden;margin-bottom:20px;}
+.card-head{padding:14px 20px;border-bottom:1px solid #f5f5f5;display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+.ch-ico{font-size:20px;}.ch-title{font-size:14px;font-weight:800;color:#1a1a2e;}.ch-sub{font-size:11px;color:#aaa;}
+.ch-right{margin-left:auto;display:flex;align-items:center;gap:10px;}
+.card-body{padding:20px;}
+/* ── FORM ── */
+.lbl{font-size:11px;font-weight:800;color:#333;margin-bottom:5px;display:block;}
+.lbl-hint{font-size:10px;color:#aaa;font-weight:400;margin-left:4px;}
+.req{color:#e85d04;}
+.inp{width:100%;border-radius:10px;border:1.5px solid #e0e0e0;padding:9px 13px;font-size:13px;font-family:'Poppins',sans-serif;outline:none;transition:.2s;color:#1a1a2e;background:#fff;}
+.inp:focus{border-color:#e85d04;box-shadow:0 0 0 3px rgba(232,93,4,.08);}
+textarea.inp{resize:vertical;min-height:60px;}
+.inp-sm{border:1.5px solid #e8e8e8;border-radius:8px;padding:7px 10px;font-size:12px;font-family:'Poppins',sans-serif;outline:none;background:#fff;transition:.2s;}
+.inp-sm:focus{border-color:#e85d04;}
+.inp-flex{flex:1;min-width:80px;}.inp-w80{width:80px;}.inp-w120{width:120px;}.inp-w160{width:160px;}
+/* ── TOGGLE ── */
+.tog{width:44px;height:24px;border-radius:50px;background:#ddd;cursor:pointer;position:relative;transition:.3s;flex-shrink:0;}
+.tog.on{background:#2d6a4f;}
+.tog::after{content:'';position:absolute;width:18px;height:18px;background:#fff;border-radius:50%;top:3px;left:3px;transition:.3s;box-shadow:0 1px 4px rgba(0,0,0,.2);}
+.tog.on::after{left:23px;}
+.tog-row{display:flex;align-items:center;gap:8px;}
+.tog-lbl{font-size:11px;font-weight:700;color:#555;}
+/* ── ITEM ROWS ── */
+.item-row{background:#f8f9fa;border-radius:10px;padding:10px 12px;margin-bottom:8px;display:flex;align-items:center;gap:8px;border:1.5px solid #f0f0f0;transition:.2s;flex-wrap:wrap;}
+.item-row:hover{border-color:#e85d04;}
+.drag-h{color:#ccc;cursor:grab;font-size:13px;flex-shrink:0;}
+.btn-del{background:#fdecea;border:1.5px solid #f5c6cb;color:#c62828;border-radius:7px;padding:5px 10px;font-size:11px;font-weight:700;cursor:pointer;font-family:'Poppins',sans-serif;display:inline-flex;align-items:center;gap:4px;transition:.2s;flex-shrink:0;}
+.btn-del:hover{background:#c62828;color:#fff;border-color:#c62828;}
+.btn-add{background:#e3f2fd;border:1.5px solid #90caf9;color:#1565c0;border-radius:8px;padding:7px 14px;font-size:11px;font-weight:700;cursor:pointer;font-family:'Poppins',sans-serif;display:inline-flex;align-items:center;gap:5px;transition:.2s;margin-top:6px;}
+.btn-add:hover{background:#1565c0;color:#fff;}
+/* ── COLOR PICKER ── */
+.color-row{display:flex;align-items:center;gap:8px;}
+.color-swatch{width:30px;height:30px;border-radius:7px;border:1.5px solid #e0e0e0;cursor:pointer;flex-shrink:0;}
+/* ── HOURS GRID ── */
+.hours-table{width:100%;border-collapse:collapse;}
+.hours-table th{font-size:11px;font-weight:800;color:#aaa;text-align:left;padding:6px 8px;border-bottom:1px solid #f0f0f0;}
+.hours-table td{padding:7px 8px;border-bottom:1px solid #f5f5f5;vertical-align:middle;}
+.day-lbl{font-size:12px;font-weight:700;color:#1a1a2e;}
+/* ── PANEL ── */
+.sec-panel{display:none;}.sec-panel.on{display:block;}
+/* ── PREVIEW ── */
+.preview-wrap{position:sticky;top:80px;}
+.prev-lbl{font-size:11px;font-weight:800;color:#aaa;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:10px;display:flex;align-items:center;gap:8px;}
+.prev-lbl::after{content:'';flex:1;height:1px;background:#e0e0e0;}
+.pv-box{background:#fff;border-radius:14px;box-shadow:0 8px 30px rgba(0,0,0,.1);border:1.5px solid #e0e0e0;overflow:hidden;}
+.pv-hero{background:linear-gradient(135deg,#1a1a2e,#0f3460);padding:16px;text-align:center;}
+.pv-hero-title{font-family:'Playfair Display',serif;font-size:18px;font-weight:800;color:#ffd60a;margin-bottom:4px;}
+.pv-hero-sub{font-size:10px;color:rgba(255,255,255,.65);}
+.pv-body{padding:14px;}
+.pv-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px;}
+.pv-cc{background:#f8f9fa;border-radius:10px;padding:10px;text-align:center;border:1.5px solid #f0f0f0;}
+.pv-cc-ico{font-size:18px;margin-bottom:4px;}
+.pv-cc-title{font-size:10px;font-weight:800;color:#1a1a2e;}
+.pv-cc-val{font-size:9px;color:#e85d04;font-weight:700;margin-top:2px;word-break:break-all;}
+.pv-cc-sub{font-size:9px;color:#aaa;}
+.pv-form-title{font-size:12px;font-weight:800;color:#1a1a2e;margin-bottom:6px;}
+.pv-pill{display:inline-block;border:1.5px solid #e85d04;border-radius:50px;padding:2px 9px;font-size:9px;font-weight:700;color:#e85d04;margin:2px;background:#fff8f5;}
+.pv-hours{margin-top:10px;}
+.pv-hour-row{display:flex;justify-content:space-between;font-size:10px;padding:4px 0;border-bottom:1px solid #f5f5f5;color:#555;}
+.pv-hour-open{color:#2d6a4f;font-weight:700;}
+.pv-hour-closed{color:#c62828;font-weight:700;}
+.pv-address{font-size:11px;color:#555;line-height:1.8;margin-top:8px;}
+/* ── DJANGO SNIPPET ── */
+.code-box{background:#1a1a2e;border-radius:12px;padding:14px 16px;margin-top:14px;}
+.code-box-title{font-size:11px;font-weight:800;color:#ffd60a;margin-bottom:8px;}
+.code-box pre{font-size:10px;color:rgba(255,255,255,.75);font-family:monospace;line-height:1.9;margin:0;white-space:pre-wrap;}
+.kw{color:#f48c06;}.str{color:#ffd60a;}.cm{color:#52b788;}
+/* ── TOAST ── */
+.toast-wrap{position:fixed;bottom:20px;right:20px;z-index:9999;display:flex;flex-direction:column;gap:8px;}
+.t-item{background:#1a1a2e;color:#fff;border-radius:12px;padding:12px 18px;font-size:12px;font-weight:600;box-shadow:0 8px 24px rgba(0,0,0,.2);transform:translateX(150px);opacity:0;transition:.35s;border-left:4px solid #52b788;max-width:300px;}
+.t-item.show{transform:translateX(0);opacity:1;}
+.t-item.err{border-left-color:#e85d04;}
+@media(max-width:768px){.sb{display:none;}.main{margin-left:0;}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<!-- SIDEBAR -->
+<aside class="sb">
+  <div class="sb-logo">
+    <div class="sb-logo-name">🥒 PickleHub</div>
+    <div class="sb-logo-sub">Admin Panel</div>
+  </div>
+  <div class="sb-sec">Main</div>
+  <a class="sb-a" href="#"><i class="fa fa-tachometer-alt"></i> Dashboard</a>
+  <a class="sb-a" href="#"><i class="fa fa-boxes"></i> Products</a>
+  <a class="sb-a" href="#"><i class="fa fa-shopping-bag"></i> Orders</a>
+  <div class="sb-sec">Site Settings</div>
+  <a class="sb-a" href="#"><i class="fa fa-sliders-h"></i> Header Settings</a>
+  <a class="sb-a" href="#"><i class="fa fa-home"></i> Home Page</a>
+  <a class="sb-a" href="#"><i class="fa fa-filter"></i> Filter Settings</a>
+  <a class="sb-a on" href="#"><i class="fa fa-envelope"></i> Contact Page</a>
+  <a class="sb-a" href="#"><i class="fa fa-shoe-prints"></i> Footer Settings</a>
+  <a class="sb-a" href="#"><i class="fa fa-map-pin"></i> Pincode Manager</a>
+  <div class="sb-sec">More</div>
+  <a class="sb-a" href="#"><i class="fa fa-users"></i> Customers</a>
+  <a class="sb-a" href="#"><i class="fa fa-sign-out-alt"></i> Logout</a>
+</aside>
+
+<!-- MAIN -->
+<div class="main">
+<div class="tbar">
+  <div>
+    <div class="tbar-title">📬 Contact Page Settings</div>
+    <div class="tbar-sub">All 5 sections — changes reflect instantly in live preview →</div>
+  </div>
+  <div class="tbar-right">
+    <span class="s-pill sp-green" id="saveStatus">✅ All Saved</span>
+    <button class="btn-s" onclick="resetAll()"><i class="fa fa-undo"></i> Reset</button>
+    <button class="btn-p" onclick="saveAll()"><i class="fa fa-save"></i> Save & Publish</button>
+  </div>
+</div>
+
+<!-- SECTION TABS -->
+<div class="sec-tabs">
+  <div class="sec-tab on"  onclick="switchTab(0)">🦸 Hero Banner</div>
+  <div class="sec-tab"     onclick="switchTab(1)">📇 Contact Cards</div>
+  <div class="sec-tab"     onclick="switchTab(2)">✉️ Enquiry Form</div>
+  <div class="sec-tab"     onclick="switchTab(3)">📍 Location & Map</div>
+  <div class="sec-tab"     onclick="switchTab(4)">🕐 Working Hours</div>
+</div>
+
+<div class="page">
+<div class="row g-4">
+
+<!-- ══ LEFT FORMS ══ -->
+<div class="col-lg-7">
+
+<!-- ── PANEL 0: HERO BANNER ── -->
+<div class="sec-panel on" id="panel-0">
+  <div class="card">
+    <div class="card-head">
+      <span class="ch-ico">🦸</span><span class="ch-title">Hero Banner</span><span class="ch-sub">— top section of contact page</span>
+      <div class="ch-right">
+        <div class="tog-row"><div class="tog on" id="tog-hero" onclick="togSwitch(this,'hero')"></div><span class="tog-lbl" id="tog-hero-lbl">Visible</span></div>
+      </div>
+    </div>
+    <div class="card-body">
+      <div class="row g-3">
+        <div class="col-md-6">
+          <label class="lbl">Page Title <span class="req">*</span></label>
+          <input class="inp" id="heroTitle" value="📬 Contact Us" oninput="updatePreview()">
+        </div>
+        <div class="col-md-6">
+          <label class="lbl">Subtitle</label>
+          <input class="inp" id="heroSub" value="We're here to help! Reach out via any channel below." oninput="updatePreview()">
+        </div>
+        <div class="col-md-6">
+          <label class="lbl">Background Gradient — Start Color</label>
+          <div class="color-row">
+            <input type="color" class="color-swatch" id="heroColor1" value="#1a1a2e" oninput="updatePreview()">
+            <input class="inp" id="heroColor1Txt" value="#1a1a2e" oninput="document.getElementById('heroColor1').value=this.value;updatePreview()">
+          </div>
+        </div>
+        <div class="col-md-6">
+          <label class="lbl">Background Gradient — End Color</label>
+          <div class="color-row">
+            <input type="color" class="color-swatch" id="heroColor2" value="#0f3460" oninput="updatePreview()">
+            <input class="inp" id="heroColor2Txt" value="#0f3460" oninput="document.getElementById('heroColor2').value=this.value;updatePreview()">
+          </div>
+        </div>
+        <div class="col-md-6">
+          <label class="lbl">Title Color</label>
+          <div class="color-row">
+            <input type="color" class="color-swatch" id="heroTitleColor" value="#ffd60a" oninput="updatePreview()">
+            <input class="inp" id="heroTitleColorTxt" value="#ffd60a" oninput="document.getElementById('heroTitleColor').value=this.value;updatePreview()">
+          </div>
+        </div>
+        <div class="col-md-6">
+          <label class="lbl">SEO Page Title <span class="lbl-hint">(browser tab)</span></label>
+          <input class="inp" id="seoTitle" value="Contact Us | PickleHub Nagpur" oninput="markUnsaved()">
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── PANEL 1: CONTACT CARDS ── -->
+<div class="sec-panel" id="panel-1">
+  <div class="card">
+    <div class="card-head">
+      <span class="ch-ico">📇</span><span class="ch-title">Contact Cards</span><span class="ch-sub">— 5 quick-contact cards row</span>
+      <div class="ch-right">
+        <div class="tog-row"><div class="tog on" id="tog-cards" onclick="togSwitch(this,'cards')"></div><span class="tog-lbl" id="tog-cards-lbl">Visible</span></div>
+      </div>
+    </div>
+    <div class="card-body">
+      <div style="background:#fff8f5;border-radius:10px;padding:10px 14px;margin-bottom:14px;font-size:11px;color:#e85d04;font-weight:600;">
+        💡 Each card links to its channel. Use emoji for icon. Color is the icon background.
+      </div>
+      <div id="contactCardsList"></div>
+      <button class="btn-add" onclick="addContactCard()"><i class="fa fa-plus"></i> Add Card</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── PANEL 2: ENQUIRY FORM ── -->
+<div class="sec-panel" id="panel-2">
+  <div class="card">
+    <div class="card-head">
+      <span class="ch-ico">✉️</span><span class="ch-title">Enquiry Form Settings</span><span class="ch-sub">— contact form on left side</span>
+      <div class="ch-right">
+        <div class="tog-row"><div class="tog on" id="tog-form" onclick="togSwitch(this,'form')"></div><span class="tog-lbl" id="tog-form-lbl">Visible</span></div>
+      </div>
+    </div>
+    <div class="card-body">
+      <div class="row g-3 mb-3">
+        <div class="col-md-6">
+          <label class="lbl">Form Title</label>
+          <input class="inp" id="formTitle" value="✉️ Send Us a Message" oninput="updatePreview()">
+        </div>
+        <div class="col-md-6">
+          <label class="lbl">Form Subtitle</label>
+          <input class="inp" id="formSub" value="Fill the form — we'll reply within 24 hours" oninput="markUnsaved()">
+        </div>
+        <div class="col-md-6">
+          <label class="lbl">Submit Button Text</label>
+          <input class="inp" id="formBtnText" value="Send Message" oninput="markUnsaved()">
+        </div>
+        <div class="col-md-6">
+          <label class="lbl">Success Message</label>
+          <input class="inp" id="formSuccessMsg" value="Message sent successfully! We'll reply within 24 hours." oninput="markUnsaved()">
+        </div>
+        <div class="col-md-6">
+          <label class="lbl">Reply Email (receives form submissions)</label>
+          <input class="inp" id="formReplyEmail" value="support@picklehub.in" oninput="markUnsaved()">
+        </div>
+        <div class="col-md-6">
+          <label class="lbl">Show Order ID field</label>
+          <div class="tog-row" style="margin-top:10px;">
+            <div class="tog on" id="tog-orderfield" onclick="togSwitch(this,'orderfield')"></div>
+            <span class="tog-lbl" id="tog-orderfield-lbl">Visible</span>
+          </div>
+        </div>
+      </div>
+      <hr style="border-color:#f0f0f0;margin:4px 0 16px;">
+      <label class="lbl">📋 Enquiry Type Pills <span class="lbl-hint">— customer selects query type</span></label>
+      <div id="enquiryPillsList"></div>
+      <button class="btn-add" onclick="addEnquiryPill()"><i class="fa fa-plus"></i> Add Enquiry Type</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── PANEL 3: LOCATION & MAP ── -->
+<div class="sec-panel" id="panel-3">
+  <div class="card">
+    <div class="card-head">
+      <span class="ch-ico">📍</span><span class="ch-title">Location & Map</span><span class="ch-sub">— address card on right side</span>
+      <div class="ch-right">
+        <div class="tog-row"><div class="tog on" id="tog-map" onclick="togSwitch(this,'map')"></div><span class="tog-lbl" id="tog-map-lbl">Visible</span></div>
+      </div>
+    </div>
+    <div class="card-body">
+      <div class="row g-3">
+        <div class="col-12">
+          <label class="lbl">Section Title</label>
+          <input class="inp" id="mapTitle" value="📍 Our Location" oninput="updatePreview()">
+        </div>
+        <div class="col-md-6">
+          <label class="lbl">Business Name <span class="req">*</span></label>
+          <input class="inp" id="bizName" value="PickleHub Nagpur" oninput="updatePreview()">
+        </div>
+        <div class="col-md-6">
+          <label class="lbl">Shop / Office Number</label>
+          <input class="inp" id="shopNo" value="Shop No. 12, Orange City Market" oninput="updatePreview()">
+        </div>
+        <div class="col-md-6">
+          <label class="lbl">Area / Locality</label>
+          <input class="inp" id="locality" value="Sitabuldi" oninput="updatePreview()">
+        </div>
+        <div class="col-md-3">
+          <label class="lbl">City</label>
+          <input class="inp" id="city" value="Nagpur" oninput="updatePreview()">
+        </div>
+        <div class="col-md-3">
+          <label class="lbl">PIN Code</label>
+          <input class="inp" id="pincode" value="440012" maxlength="6" oninput="updatePreview()">
+        </div>
+        <div class="col-md-6">
+          <label class="lbl">State</label>
+          <input class="inp" id="state" value="Maharashtra, India" oninput="updatePreview()">
+        </div>
+        <div class="col-md-6">
+          <label class="lbl">Appointment Required?</label>
+          <div class="tog-row" style="margin-top:10px;">
+            <div class="tog on" id="tog-appt" onclick="togSwitch(this,'appt')"></div>
+            <span class="tog-lbl" id="tog-appt-lbl">By appointment only</span>
+          </div>
+        </div>
+        <div class="col-12">
+          <label class="lbl">Google Maps Embed URL <span class="lbl-hint">(paste iframe src)</span></label>
+          <input class="inp" id="mapUrl" value="https://maps.google.com/?q=Sitabuldi,Nagpur" placeholder="https://maps.google.com/..." oninput="markUnsaved()">
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── PANEL 4: WORKING HOURS ── -->
+<div class="sec-panel" id="panel-4">
+  <div class="card">
+    <div class="card-head">
+      <span class="ch-ico">🕐</span><span class="ch-title">Working Hours</span><span class="ch-sub">— 7-day schedule</span>
+      <div class="ch-right">
+        <div class="tog-row"><div class="tog on" id="tog-hours" onclick="togSwitch(this,'hours')"></div><span class="tog-lbl" id="tog-hours-lbl">Visible</span></div>
+      </div>
+    </div>
+    <div class="card-body">
+      <div class="row g-2 mb-3">
+        <div class="col-md-6">
+          <label class="lbl">Section Title</label>
+          <input class="inp" id="hoursTitle" value="🕐 Working Hours" oninput="updatePreview()">
+        </div>
+      </div>
+      <table class="hours-table">
+        <thead><tr><th>Day</th><th>Open Time</th><th>Close Time</th><th>Status</th></tr></thead>
+        <tbody id="hoursTbody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+</div><!-- /col-left -->
+
+<!-- ══ RIGHT PREVIEW ══ -->
+<div class="col-lg-5">
+  <div class="preview-wrap">
+    <div class="prev-lbl">👁️ Live Contact Page Preview</div>
+    <div class="pv-box">
+      <div class="pv-hero" id="pvHero">
+        <div class="pv-hero-title" id="pvHeroTitle">📬 Contact Us</div>
+        <div class="pv-hero-sub" id="pvHeroSub">We're here to help! Reach out via any channel below.</div>
+      </div>
+      <div class="pv-body">
+        <div class="pv-cards" id="pvCards"></div>
+        <div style="background:#f8f9fa;border-radius:10px;padding:10px 12px;margin-bottom:10px;" id="pvForm">
+          <div class="pv-form-title" id="pvFormTitle">✉️ Send Us a Message</div>
+          <div id="pvPills" style="margin-bottom:8px;"></div>
+          <div style="font-size:10px;color:#aaa;">[ Name · Phone · Email · Message fields ]</div>
+        </div>
+        <div style="background:#f8f9fa;border-radius:10px;padding:10px 12px;margin-bottom:10px;" id="pvMap">
+          <div class="pv-form-title" id="pvMapTitle">📍 Our Location</div>
+          <div style="background:linear-gradient(135deg,#e3f2fd,#bbdefb);border-radius:8px;height:60px;display:flex;align-items:center;justify-content:center;font-size:22px;margin-bottom:8px;">🗺️</div>
+          <div class="pv-address" id="pvAddress"></div>
+        </div>
+        <div style="background:#f8f9fa;border-radius:10px;padding:10px 12px;" id="pvHoursBox">
+          <div class="pv-form-title" id="pvHoursTitle">🕐 Working Hours</div>
+          <div class="pv-hours" id="pvHoursRows"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- DJANGO SNIPPET -->
+    <div class="code-box">
+      <div class="code-box-title">🐍 Django Integration</div>
+      <pre><span class="cm"># models.py</span>
+<span class="kw">class</span> ContactPage(models.Model):
+    hero_title     = CharField(max_length=100)
+    hero_subtitle  = CharField(max_length=200)
+    biz_name       = CharField(max_length=100)
+    address        = TextField()
+    map_url        = URLField(blank=True)
+    reply_email    = EmailField()
+
+<span class="kw">class</span> ContactCard(models.Model):
+    icon      = CharField(max_length=10)   <span class="cm"># emoji</span>
+    title     = CharField(max_length=60)
+    value     = CharField(max_length=100)
+    sub_text  = CharField(max_length=80)
+    url       = CharField(max_length=200)
+    bg_color  = CharField(max_length=10)
+    is_active = BooleanField(default=True)
+    order     = IntegerField(default=0)
+
+<span class="kw">class</span> WorkingHour(models.Model):
+    day        = CharField(max_length=20)
+    open_time  = CharField(max_length=20)
+    close_time = CharField(max_length=20)
+    is_closed  = BooleanField(default=False)
+
+<span class="cm"># contact.html template</span>
+<span class="str">{% for card in contact_cards %}</span>
+  &lt;div class="cc"&gt;
+    &lt;div class="cc-ico"&gt;<span class="str">{{ card.icon }}</span>&lt;/div&gt;
+    &lt;div class="cc-title"&gt;<span class="str">{{ card.title }}</span>&lt;/div&gt;
+    &lt;div class="cc-val"&gt;<span class="str">{{ card.value }}</span>&lt;/div&gt;
+  &lt;/div&gt;
+<span class="str">{% endfor %}</span></pre>
+    </div>
+
+  </div>
+</div>
+
+</div><!-- /row -->
+</div><!-- /page -->
+</div><!-- /main -->
+</div><!-- /wrap -->
+<div class="toast-wrap" id="toastWrap"></div>
+
+<script>
+/* ════ STATE ════ */
+var S = {
+  contactCards: [
+    {emoji:'💬', title:'WhatsApp',     value:'+91-9876543210', sub:'Fastest response · 24×7',  url:'https://wa.me/919876543210', bg:'#d4edda'},
+    {emoji:'📞', title:'Call Us',      value:'+91-9876543210', sub:'Mon–Sat · 10am–7pm',       url:'tel:+919876543210',          bg:'#e3f2fd'},
+    {emoji:'📧', title:'Email',        value:'support@picklehub.in', sub:'Reply within 24 hours', url:'mailto:support@picklehub.in', bg:'#fff3e0'},
+    {emoji:'📸', title:'Instagram DM', value:'@picklehub_nagpur',    sub:'Mon–Sat · 10am–6pm',   url:'https://instagram.com/picklehub_nagpur', bg:'#fce4ec'},
+    {emoji:'📍', title:'Visit Us',     value:'Nagpur, Maharashtra',  sub:'By appointment only',  url:'https://maps.google.com/?q=Nagpur', bg:'#e8f5e9'},
+  ],
+  enquiryPills: ['General Query','Order Issue','Wholesale/Bulk','Partnership','Feedback','Complaint'],
+  hours: [
+    {day:'Monday',    open:'10:00 AM', close:'7:00 PM', closed:false},
+    {day:'Tuesday',   open:'10:00 AM', close:'7:00 PM', closed:false},
+    {day:'Wednesday', open:'10:00 AM', close:'7:00 PM', closed:false},
+    {day:'Thursday',  open:'10:00 AM', close:'7:00 PM', closed:false},
+    {day:'Friday',    open:'10:00 AM', close:'7:00 PM', closed:false},
+    {day:'Saturday',  open:'10:00 AM', close:'5:00 PM', closed:false},
+    {day:'Sunday',    open:'',         close:'',        closed:true},
+  ],
+};
+
+/* ════ RENDER CONTACT CARDS ════ */
+function renderContactCards(){
+  var el = document.getElementById('contactCardsList');
+  el.innerHTML = '';
+  S.contactCards.forEach(function(c,i){
+    var d = document.createElement('div');
+    d.style = 'background:#f8f9fa;border-radius:12px;padding:14px;margin-bottom:10px;border:1.5px solid #f0f0f0;';
+    d.innerHTML =
+      '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">' +
+      '<span style="font-size:11px;font-weight:800;color:#e85d04;">Card '+(i+1)+': '+c.title+'</span>' +
+      '<div style="display:flex;gap:6px;">' +
+      '<div class="tog-row"><div class="tog on" id="tog-card-'+i+'" onclick="togSwitch(this,\'card-'+i+'\')"></div><span class="tog-lbl" id="tog-card-'+i+'-lbl">Visible</span></div>' +
+      '<button class="btn-del" onclick="S.contactCards.splice('+i+',1);renderContactCards();updatePreview()"><i class="fa fa-trash"></i></button>' +
+      '</div></div>' +
+      '<div class="row g-2">' +
+      '<div class="col-md-1"><label class="lbl">Icon</label><input class="inp" value="'+c.emoji+'" maxlength="4" style="font-size:20px;text-align:center;" oninput="S.contactCards['+i+'].emoji=this.value;updatePreview()"></div>' +
+      '<div class="col-md-3"><label class="lbl">Title</label><input class="inp" value="'+c.title+'" oninput="S.contactCards['+i+'].title=this.value;updatePreview()"></div>' +
+      '<div class="col-md-4"><label class="lbl">Display Value</label><input class="inp" value="'+c.value+'" oninput="S.contactCards['+i+'].value=this.value;updatePreview()"></div>' +
+      '<div class="col-md-4"><label class="lbl">Sub-text</label><input class="inp" value="'+c.sub+'" oninput="S.contactCards['+i+'].sub=this.value;updatePreview()"></div>' +
+      '<div class="col-md-8"><label class="lbl">Link URL (tel: / mailto: / https://)</label><input class="inp" value="'+c.url+'" oninput="S.contactCards['+i+'].url=this.value;markUnsaved()"></div>' +
+      '<div class="col-md-4"><label class="lbl">Icon BG Color</label><div class="color-row"><input type="color" class="color-swatch" value="'+c.bg+'" oninput="S.contactCards['+i+'].bg=this.value;updatePreview()"><input class="inp" value="'+c.bg+'" style="font-family:monospace;font-size:11px;" oninput="S.contactCards['+i+'].bg=this.value;updatePreview()"></div></div>' +
+      '</div>';
+    el.appendChild(d);
+  });
+}
+function addContactCard(){
+  S.contactCards.push({emoji:'📱',title:'New Channel',value:'Value here',sub:'Sub text',url:'#',bg:'#f0f0f0'});
+  renderContactCards(); updatePreview(); toast('✅ Card added','ok');
+}
+
+/* ════ RENDER ENQUIRY PILLS ════ */
+function renderEnquiryPills(){
+  var el = document.getElementById('enquiryPillsList');
+  el.innerHTML = '';
+  S.enquiryPills.forEach(function(p,i){
+    var d = document.createElement('div');
+    d.className = 'item-row';
+    d.innerHTML =
+      '<span class="drag-h"><i class="fa fa-grip-vertical"></i></span>' +
+      '<input class="inp-sm inp-flex" value="'+p+'" oninput="S.enquiryPills['+i+']=this.value;updatePreview()">' +
+      '<button class="btn-del" onclick="S.enquiryPills.splice('+i+',1);renderEnquiryPills();updatePreview()"><i class="fa fa-trash"></i></button>';
+    el.appendChild(d);
+  });
+}
+function addEnquiryPill(){
+  S.enquiryPills.push('New Type');
+  renderEnquiryPills(); updatePreview(); toast('✅ Pill added','ok');
+}
+
+/* ════ RENDER HOURS TABLE ════ */
+function renderHoursTable(){
+  var tb = document.getElementById('hoursTbody');
+  tb.innerHTML = '';
+  S.hours.forEach(function(h,i){
+    var tr = document.createElement('tr');
+    tr.innerHTML =
+      '<td><span class="day-lbl">'+h.day+'</span></td>' +
+      '<td><input class="inp-sm inp-w120" value="'+h.open+'" placeholder="10:00 AM" '+(h.closed?'disabled style="opacity:.4;"':'')+' oninput="S.hours['+i+'].open=this.value;updatePreview()"></td>' +
+      '<td><input class="inp-sm inp-w120" value="'+h.close+'" placeholder="7:00 PM"  '+(h.closed?'disabled style="opacity:.4;"':'')+' oninput="S.hours['+i+'].close=this.value;updatePreview()"></td>' +
+      '<td><div class="tog-row"><div class="tog '+(h.closed?'':'on')+'" id="tog-day-'+i+'" onclick="toggleDay('+i+')"></div><span class="tog-lbl" id="tog-day-'+i+'-lbl">'+(h.closed?'Closed':'Open')+'</span></div></td>';
+    tb.appendChild(tr);
+  });
+}
+function toggleDay(i){
+  S.hours[i].closed = !S.hours[i].closed;
+  renderHoursTable(); updatePreview();
+}
+
+/* ════ TOGGLE ════ */
+function togSwitch(el, id){
+  el.classList.toggle('on');
+  var on = el.classList.contains('on');
+  var lbl = document.getElementById('tog-'+id+'-lbl');
+  if(lbl){
+    if(lbl.textContent === 'Visible' || lbl.textContent === 'Hidden') lbl.textContent = on ? 'Visible' : 'Hidden';
+    else if(lbl.textContent === 'Open' || lbl.textContent === 'Closed') lbl.textContent = on ? 'Open' : 'Closed';
+    else if(lbl.textContent.includes('appointment')) lbl.textContent = on ? 'By appointment only' : 'Walk-in welcome';
+    else lbl.textContent = on ? 'On' : 'Off';
+  }
+  updatePreview(); markUnsaved();
+}
+
+/* ════ TABS ════ */
+function switchTab(idx){
+  document.querySelectorAll('.sec-tab').forEach(function(t,i){t.classList.toggle('on',i===idx);});
+  document.querySelectorAll('.sec-panel').forEach(function(p,i){p.classList.toggle('on',i===idx);});
+}
+
+/* ════ LIVE PREVIEW ════ */
+function updatePreview(){
+  markUnsaved();
+
+  // HERO
+  var hv = document.getElementById('tog-hero').classList.contains('on');
+  var pvHero = document.getElementById('pvHero');
+  pvHero.style.display = hv ? 'block' : 'none';
+  var c1 = document.getElementById('heroColor1').value;
+  var c2 = document.getElementById('heroColor2').value;
+  pvHero.style.background = 'linear-gradient(135deg,'+c1+','+c2+')';
+  document.getElementById('pvHeroTitle').textContent = document.getElementById('heroTitle').value;
+  document.getElementById('pvHeroTitle').style.color = document.getElementById('heroTitleColor').value;
+  document.getElementById('pvHeroSub').textContent = document.getElementById('heroSub').value;
+
+  // CONTACT CARDS
+  var cv = document.getElementById('tog-cards').classList.contains('on');
+  var pvCards = document.getElementById('pvCards');
+  pvCards.style.display = cv ? 'grid' : 'none';
+  pvCards.innerHTML = S.contactCards.map(function(c){
+    return '<div class="pv-cc"><div class="pv-cc-ico" style="background:'+c.bg+';width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;margin:0 auto 4px;font-size:14px;">'+c.emoji+'</div><div class="pv-cc-title">'+c.title+'</div><div class="pv-cc-val">'+c.value+'</div><div class="pv-cc-sub">'+c.sub+'</div></div>';
+  }).join('');
+
+  // FORM
+  var fv = document.getElementById('tog-form').classList.contains('on');
+  document.getElementById('pvForm').style.display = fv ? 'block' : 'none';
+  document.getElementById('pvFormTitle').textContent = document.getElementById('formTitle').value;
+  document.getElementById('pvPills').innerHTML = S.enquiryPills.map(function(p){ return '<span class="pv-pill">'+p+'</span>'; }).join('');
+
+  // MAP/ADDRESS
+  var mv = document.getElementById('tog-map').classList.contains('on');
+  document.getElementById('pvMap').style.display = mv ? 'block' : 'none';
+  document.getElementById('pvMapTitle').textContent = document.getElementById('mapTitle').value;
+  var addr = '<b>'+document.getElementById('bizName').value+'</b><br>'+
+    document.getElementById('shopNo').value+'<br>'+
+    document.getElementById('locality').value+', '+document.getElementById('city').value+' – '+document.getElementById('pincode').value+'<br>'+
+    document.getElementById('state').value;
+  if(document.getElementById('tog-appt').classList.contains('on')) addr += '<br><span style="font-size:10px;color:#e85d04;font-weight:700;">📅 By appointment only</span>';
+  document.getElementById('pvAddress').innerHTML = addr;
+
+  // HOURS
+  var hrsv = document.getElementById('tog-hours').classList.contains('on');
+  document.getElementById('pvHoursBox').style.display = hrsv ? 'block' : 'none';
+  document.getElementById('pvHoursTitle').textContent = document.getElementById('hoursTitle').value;
+  document.getElementById('pvHoursRows').innerHTML = S.hours.map(function(h){
+    return '<div class="pv-hour-row"><b>'+h.day+'</b><span class="'+(h.closed?'pv-hour-closed':'pv-hour-open')+'">'+(h.closed?'Closed':h.open+' – '+h.close)+'</span></div>';
+  }).join('');
+}
+
+/* ════ SAVE / UNSAVED ════ */
+function markUnsaved(){
+  document.getElementById('saveStatus').textContent = '⏳ Unsaved changes';
+  document.getElementById('saveStatus').className = 's-pill sp-yellow';
+}
+function saveAll(){
+  var data = {
+    hero:{title:document.getElementById('heroTitle').value,sub:document.getElementById('heroSub').value,color1:document.getElementById('heroColor1').value,color2:document.getElementById('heroColor2').value,titleColor:document.getElementById('heroTitleColor').value,seoTitle:document.getElementById('seoTitle').value,visible:document.getElementById('tog-hero').classList.contains('on')},
+    form:{title:document.getElementById('formTitle').value,sub:document.getElementById('formSub').value,btnText:document.getElementById('formBtnText').value,successMsg:document.getElementById('formSuccessMsg').value,replyEmail:document.getElementById('formReplyEmail').value,orderField:document.getElementById('tog-orderfield').classList.contains('on'),visible:document.getElementById('tog-form').classList.contains('on')},
+    map:{title:document.getElementById('mapTitle').value,bizName:document.getElementById('bizName').value,shopNo:document.getElementById('shopNo').value,locality:document.getElementById('locality').value,city:document.getElementById('city').value,pincode:document.getElementById('pincode').value,state:document.getElementById('state').value,appt:document.getElementById('tog-appt').classList.contains('on'),mapUrl:document.getElementById('mapUrl').value,visible:document.getElementById('tog-map').classList.contains('on')},
+    hours:{title:document.getElementById('hoursTitle').value,visible:document.getElementById('tog-hours').classList.contains('on'),items:S.hours},
+    contactCards: S.contactCards,
+    enquiryPills: S.enquiryPills,
+  };
+  localStorage.setItem('ph_contact_settings', JSON.stringify(data));
+  toast('💾 Saving...','ok');
+  setTimeout(function(){
+    document.getElementById('saveStatus').textContent = '✅ All Saved';
+    document.getElementById('saveStatus').className = 's-pill sp-green';
+    toast('✅ Contact page saved & published!','ok');
+  }, 600);
+}
+function resetAll(){
+  if(!confirm('Reset all contact page settings?')) return;
+  localStorage.removeItem('ph_contact_settings');
+  location.reload();
+}
+
+/* ════ LOAD SAVED ════ */
+function loadSaved(){
+  var saved = localStorage.getItem('ph_contact_settings');
+  if(!saved) return;
+  try{
+    var d = JSON.parse(saved);
+    if(d.hero){
+      document.getElementById('heroTitle').value = d.hero.title||'';
+      document.getElementById('heroSub').value = d.hero.sub||'';
+      document.getElementById('heroColor1').value = d.hero.color1||'#1a1a2e';
+      document.getElementById('heroColor2').value = d.hero.color2||'#0f3460';
+      document.getElementById('heroTitleColor').value = d.hero.titleColor||'#ffd60a';
+      if(d.hero.seoTitle) document.getElementById('seoTitle').value = d.hero.seoTitle;
+    }
+    if(d.form){
+      document.getElementById('formTitle').value = d.form.title||'';
+      document.getElementById('formSub').value = d.form.sub||'';
+      document.getElementById('formBtnText').value = d.form.btnText||'';
+      document.getElementById('formSuccessMsg').value = d.form.successMsg||'';
+      document.getElementById('formReplyEmail').value = d.form.replyEmail||'';
+    }
+    if(d.map){
+      document.getElementById('mapTitle').value = d.map.title||'';
+      document.getElementById('bizName').value = d.map.bizName||'';
+      document.getElementById('shopNo').value = d.map.shopNo||'';
+      document.getElementById('locality').value = d.map.locality||'';
+      document.getElementById('city').value = d.map.city||'';
+      document.getElementById('pincode').value = d.map.pincode||'';
+      document.getElementById('state').value = d.map.state||'';
+      if(d.map.mapUrl) document.getElementById('mapUrl').value = d.map.mapUrl;
+    }
+    if(d.hours && d.hours.items) S.hours = d.hours.items;
+    if(d.contactCards) S.contactCards = d.contactCards;
+    if(d.enquiryPills) S.enquiryPills = d.enquiryPills;
+  }catch(e){}
+}
+
+/* ════ TOAST ════ */
+function toast(msg, type){
+  var wrap = document.getElementById('toastWrap');
+  var t = document.createElement('div');
+  t.className = 't-item'+(type==='err'?' err':'');
+  t.textContent = msg;
+  wrap.appendChild(t);
+  requestAnimationFrame(function(){ requestAnimationFrame(function(){ t.classList.add('show'); }); });
+  setTimeout(function(){ t.classList.remove('show'); setTimeout(function(){ if(t.parentNode) t.parentNode.removeChild(t); }, 400); }, 3000);
+}
+
+/* ════ INIT ════ */
+loadSaved();
+renderContactCards();
+renderEnquiryPills();
+renderHoursTable();
+updatePreview();
+</script>
+</body>
+</html>

@@ -1,0 +1,693 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Footer Settings | PickleHub Admin</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&family=Playfair+Display:wght@700;800&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Poppins',sans-serif;background:#f0f2f5;color:#1a1a2e;font-size:13px;}
+.wrap{display:flex;min-height:100vh;}
+/* SIDEBAR */
+.sb{width:220px;background:#1a1a2e;position:fixed;top:0;left:0;height:100vh;overflow-y:auto;z-index:50;}
+.sb-logo{padding:18px 16px;border-bottom:1px solid rgba(255,255,255,.07);}
+.sb-logo-name{font-family:'Playfair Display',serif;font-size:18px;font-weight:800;color:#ffd60a;}
+.sb-logo-sub{font-size:10px;color:rgba(255,255,255,.35);margin-top:2px;}
+.sb-sec{padding:14px 16px 4px;font-size:9px;font-weight:800;color:rgba(255,255,255,.25);text-transform:uppercase;letter-spacing:2px;}
+.sb-a{display:flex;align-items:center;gap:10px;padding:9px 16px;color:rgba(255,255,255,.55);text-decoration:none;font-size:12px;font-weight:600;border-left:3px solid transparent;transition:.2s;}
+.sb-a:hover{background:rgba(255,255,255,.05);color:#fff;}
+.sb-a.on{background:rgba(232,93,4,.15);color:#ffd60a;border-left-color:#e85d04;}
+.sb-a i{width:16px;text-align:center;}
+/* MAIN */
+.main{margin-left:220px;flex:1;display:flex;flex-direction:column;}
+.tbar{background:#fff;padding:13px 26px;display:flex;align-items:center;gap:14px;box-shadow:0 2px 8px rgba(0,0,0,.06);position:sticky;top:0;z-index:40;flex-wrap:wrap;}
+.tbar-title{font-size:16px;font-weight:800;color:#1a1a2e;}
+.tbar-sub{font-size:11px;color:#aaa;margin-top:1px;}
+.tbar-right{margin-left:auto;display:flex;gap:10px;flex-wrap:wrap;}
+/* BUTTONS */
+.btn-p{background:linear-gradient(135deg,#e85d04,#f48c06);color:#fff;border:none;border-radius:10px;padding:9px 18px;font-size:12px;font-weight:700;cursor:pointer;font-family:'Poppins',sans-serif;display:inline-flex;align-items:center;gap:6px;transition:.2s;}
+.btn-p:hover{transform:translateY(-1px);box-shadow:0 4px 14px rgba(232,93,4,.3);}
+.btn-s{background:#fff;border:1.5px solid #e0e0e0;color:#555;border-radius:10px;padding:8px 16px;font-size:12px;font-weight:700;cursor:pointer;font-family:'Poppins',sans-serif;display:inline-flex;align-items:center;gap:6px;transition:.2s;}
+.btn-s:hover{border-color:#e85d04;color:#e85d04;}
+.btn-danger{background:#fdecea;border:1.5px solid #f5c6cb;color:#c62828;border-radius:8px;padding:6px 12px;font-size:11px;font-weight:700;cursor:pointer;font-family:'Poppins',sans-serif;display:inline-flex;align-items:center;gap:5px;transition:.2s;}
+.btn-danger:hover{background:#c62828;color:#fff;}
+.btn-add{background:#e3f2fd;border:1.5px solid #90caf9;color:#1565c0;border-radius:8px;padding:7px 14px;font-size:11px;font-weight:700;cursor:pointer;font-family:'Poppins',sans-serif;display:inline-flex;align-items:center;gap:5px;transition:.2s;}
+.btn-add:hover{background:#1565c0;color:#fff;}
+/* CARD */
+.card{background:#fff;border-radius:16px;box-shadow:0 2px 12px rgba(0,0,0,.06);overflow:hidden;margin-bottom:20px;}
+.card-head{padding:14px 20px;border-bottom:1px solid #f5f5f5;display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+.ch-ico{font-size:20px;}
+.ch-title{font-size:14px;font-weight:800;color:#1a1a2e;}
+.ch-sub{font-size:11px;color:#aaa;}
+.ch-right{margin-left:auto;}
+.card-body{padding:20px;}
+/* FORM */
+.lbl{font-size:11px;font-weight:800;color:#333;margin-bottom:5px;display:block;}
+.lbl-hint{font-size:10px;color:#aaa;font-weight:400;margin-left:5px;}
+.req{color:#e85d04;}
+.inp{width:100%;border-radius:10px;border:1.5px solid #e0e0e0;padding:10px 14px;font-size:13px;font-family:'Poppins',sans-serif;outline:none;transition:.2s;color:#1a1a2e;background:#fff;}
+.inp:focus{border-color:#e85d04;box-shadow:0 0 0 3px rgba(232,93,4,.08);}
+textarea.inp{resize:vertical;min-height:70px;}
+/* TOGGLE */
+.tog-row{display:flex;align-items:center;gap:10px;}
+.tog{width:44px;height:24px;border-radius:50px;background:#ddd;cursor:pointer;position:relative;transition:.3s;flex-shrink:0;}
+.tog.on{background:#2d6a4f;}
+.tog::after{content:'';position:absolute;width:18px;height:18px;background:#fff;border-radius:50%;top:3px;left:3px;transition:.3s;box-shadow:0 1px 4px rgba(0,0,0,.2);}
+.tog.on::after{left:23px;}
+.tog-lbl{font-size:12px;font-weight:700;color:#555;}
+/* LINK ROWS */
+.link-row{background:#f8f9fa;border-radius:11px;padding:11px 14px;margin-bottom:9px;display:flex;align-items:center;gap:9px;border:1.5px solid #f0f0f0;transition:.2s;}
+.link-row:hover{border-color:#e85d04;}
+.lr-grab{color:#ccc;cursor:grab;font-size:14px;}
+.lr-inp-name{width:140px;border:1.5px solid #e8e8e8;border-radius:8px;padding:7px 10px;font-size:12px;font-family:'Poppins',sans-serif;outline:none;background:#fff;}
+.lr-inp-name:focus{border-color:#e85d04;}
+.lr-inp-url{flex:1;border:1.5px solid #e8e8e8;border-radius:8px;padding:7px 10px;font-size:12px;font-family:'Poppins',sans-serif;outline:none;background:#fff;}
+.lr-inp-url:focus{border-color:#e85d04;}
+/* SOCIAL ROW */
+.social-row{display:flex;align-items:center;gap:10px;background:#f8f9fa;border-radius:11px;padding:11px 14px;margin-bottom:9px;border:1.5px solid #f0f0f0;}
+.soc-ico{width:36px;height:36px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:16px;color:#fff;flex-shrink:0;}
+.soc-fb{background:#1877f2;}.soc-ig{background:linear-gradient(135deg,#833ab4,#fd1d1d,#fcb045);}.soc-wa{background:#25d366;}.soc-yt{background:#ff0000;}
+/* STATUS */
+.s-pill{padding:3px 10px;border-radius:50px;font-size:10px;font-weight:800;display:inline-flex;align-items:center;gap:4px;}
+.sp-green{background:#d4edda;color:#155724;}
+.sp-yellow{background:#fff3cd;color:#856404;}
+/* PREVIEW */
+.preview-wrap{position:sticky;top:70px;}
+.prev-lbl{font-size:11px;font-weight:800;color:#aaa;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:10px;display:flex;align-items:center;gap:8px;}
+.prev-lbl::after{content:'';flex:1;height:1px;background:#e0e0e0;}
+/* FOOTER PREVIEW */
+.pf-wrap{border-radius:14px;overflow:hidden;box-shadow:0 8px 30px rgba(0,0,0,.14);border:1.5px solid #e0e0e0;font-size:11px;}
+.pf-main{background:linear-gradient(135deg,#1a1a2e,#0f3460);padding:20px;color:rgba(255,255,255,.75);}
+.pf-logo{font-family:'Playfair Display',serif;font-size:18px;color:#ffd60a;font-weight:800;margin-bottom:6px;}
+.pf-desc{font-size:10px;color:rgba(255,255,255,.45);line-height:1.7;margin-bottom:10px;}
+.pf-social{display:flex;gap:7px;margin-bottom:0;}
+.pf-soc-ico{width:28px;height:28px;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:12px;color:#fff;}
+.pf-col-title{font-size:11px;font-weight:800;color:#fff;margin-bottom:8px;padding-bottom:5px;border-bottom:2px solid #e85d04;display:inline-block;}
+.pf-link{display:block;color:rgba(255,255,255,.45);font-size:10px;margin-bottom:4px;text-decoration:none;}
+.pf-link::before{content:'› ';color:#e85d04;}
+.pf-contact-item{display:flex;gap:7px;margin-bottom:6px;font-size:10px;color:rgba(255,255,255,.45);}
+.pf-contact-item i{color:#e85d04;margin-top:2px;font-size:11px;}
+.pf-bottom{background:rgba(0,0,0,.3);padding:10px 20px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:6px;}
+.pf-bottom p{font-size:9px;color:rgba(255,255,255,.35);margin:0;}
+.pf-bottom a{color:#ffd60a;text-decoration:none;font-size:9px;}
+/* FLOATING BTNS PREVIEW */
+.pf-floating{background:#fff;border-top:1px dashed #eee;padding:8px 14px;display:flex;gap:8px;align-items:center;}
+.pf-fb-btn{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:16px;color:#fff;}
+.pf-fb-wa{background:#25d366;}.pf-fb-ig{background:linear-gradient(135deg,#833ab4,#fd1d1d,#fcb045);}
+/* TOAST */
+.toast-wrap{position:fixed;bottom:20px;right:20px;z-index:9999;display:flex;flex-direction:column;gap:8px;}
+.t-item{background:#1a1a2e;color:#fff;border-radius:12px;padding:12px 18px;font-size:12px;font-weight:600;box-shadow:0 8px 24px rgba(0,0,0,.2);transform:translateX(150px);opacity:0;transition:.35s;border-left:4px solid #52b788;max-width:300px;}
+.t-item.show{transform:translateX(0);opacity:1;}
+.t-item.err{border-left-color:#e85d04;}
+/* PAGE */
+.page{padding:22px 26px;}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<!-- SIDEBAR -->
+<aside class="sb">
+  <div class="sb-logo">
+    <div class="sb-logo-name">🥒 PickleHub</div>
+    <div class="sb-logo-sub">Admin Panel</div>
+  </div>
+  <div class="sb-sec">Main</div>
+  <a class="sb-a" href="#"><i class="fa fa-tachometer-alt"></i> Dashboard</a>
+  <a class="sb-a" href="#"><i class="fa fa-boxes"></i> Products</a>
+  <a class="sb-a" href="#"><i class="fa fa-shopping-bag"></i> Orders</a>
+  <div class="sb-sec">Site Settings</div>
+  <a class="sb-a" href="#"><i class="fa fa-sliders-h"></i> Header & Top Bar</a>
+  <a class="sb-a" href="#"><i class="fa fa-image"></i> Hero Banner</a>
+  <a class="sb-a" href="#"><i class="fa fa-star"></i> Featured Products</a>
+  <a class="sb-a" href="#"><i class="fa fa-tags"></i> Offers & Banners</a>
+  <a class="sb-a on" href="#"><i class="fa fa-shoe-prints"></i> Footer Settings</a>
+  <a class="sb-a" href="#"><i class="fa fa-map-pin"></i> Pincode Manager</a>
+  <a class="sb-a" href="#"><i class="fa fa-cog"></i> General Settings</a>
+  <div class="sb-sec">More</div>
+  <a class="sb-a" href="#"><i class="fa fa-users"></i> Customers</a>
+  <a class="sb-a" href="#"><i class="fa fa-sign-out-alt"></i> Logout</a>
+</aside>
+
+<!-- MAIN -->
+<div class="main">
+<div class="tbar">
+  <div>
+    <div class="tbar-title">🦶 Footer Settings</div>
+    <div class="tbar-sub">All changes reflect instantly in the live preview →</div>
+  </div>
+  <div class="tbar-right">
+    <span class="s-pill sp-green" id="saveStatus">✅ All Changes Saved</span>
+    <button class="btn-s" onclick="resetAll()"><i class="fa fa-undo"></i> Reset</button>
+    <button class="btn-p" onclick="saveAll()"><i class="fa fa-save"></i> Save & Publish</button>
+  </div>
+</div>
+
+<div class="page">
+<div class="row g-4">
+
+<!-- ══ LEFT FORMS ══ -->
+<div class="col-lg-7">
+
+  <!-- 1. BRAND INFO -->
+  <div class="card">
+    <div class="card-head">
+      <span class="ch-ico">🏷️</span>
+      <span class="ch-title">Brand Info</span>
+      <span class="ch-sub">— footer logo & description</span>
+    </div>
+    <div class="card-body">
+      <div class="row g-3">
+        <div class="col-md-3">
+          <label class="lbl">Logo Emoji <span class="req">*</span></label>
+          <input class="inp" type="text" id="footerLogoEmoji" value="🥒" maxlength="4" oninput="updatePreview()" style="font-size:22px;text-align:center;">
+        </div>
+        <div class="col-md-5">
+          <label class="lbl">Brand Name <span class="req">*</span></label>
+          <input class="inp" type="text" id="footerBrandName" value="PickleHub" oninput="updatePreview()">
+        </div>
+        <div class="col-md-4">
+          <label class="lbl">City</label>
+          <input class="inp" type="text" id="footerBrandCity" value="Nagpur" oninput="updatePreview()">
+        </div>
+        <div class="col-12">
+          <label class="lbl">Brand Description <span class="lbl-hint">shown below logo in footer</span></label>
+          <textarea class="inp" id="footerDesc" oninput="updatePreview()">Nagpur's exclusive pickle distribution platform. Discover rare and regional pickle brands not available in local stores. 24-hour delivery across Nagpur.</textarea>
+        </div>
+        <div class="col-md-6">
+          <label class="lbl">Copyright Year</label>
+          <input class="inp" type="text" id="copyYear" value="2026" oninput="updatePreview()">
+        </div>
+        <div class="col-md-6">
+          <label class="lbl">Developer Credit</label>
+          <input class="inp" type="text" id="devCredit" value="Callisto IT Solutions" oninput="updatePreview()">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 2. SOCIAL MEDIA LINKS -->
+  <div class="card">
+    <div class="card-head">
+      <span class="ch-ico">📲</span>
+      <span class="ch-title">Social Media Links</span>
+      <span class="ch-sub">— icons in footer & floating buttons</span>
+    </div>
+    <div class="card-body">
+      <div class="row g-3">
+        <div class="col-12">
+          <div class="social-row">
+            <div class="soc-ico soc-fb"><i class="fab fa-facebook-f"></i></div>
+            <div style="flex:1;">
+              <label class="lbl" style="margin-bottom:4px;">Facebook URL</label>
+              <input class="inp" type="url" id="fbUrl" value="https://facebook.com/picklehub" oninput="updatePreview()">
+            </div>
+            <div class="tog-row">
+              <div class="tog on" id="tog-fb" onclick="togSwitch(this,'tog-fb');updatePreview()"></div>
+              <span class="tog-lbl" id="tog-fb-lbl" style="font-size:10px;">On</span>
+            </div>
+          </div>
+          <div class="social-row">
+            <div class="soc-ico soc-ig"><i class="fab fa-instagram"></i></div>
+            <div style="flex:1;">
+              <label class="lbl" style="margin-bottom:4px;">Instagram URL</label>
+              <input class="inp" type="url" id="igUrl" value="https://instagram.com/picklehub" oninput="updatePreview()">
+            </div>
+            <div class="tog-row">
+              <div class="tog on" id="tog-ig" onclick="togSwitch(this,'tog-ig');updatePreview()"></div>
+              <span class="tog-lbl" id="tog-ig-lbl" style="font-size:10px;">On</span>
+            </div>
+          </div>
+          <div class="social-row">
+            <div class="soc-ico soc-wa"><i class="fab fa-whatsapp"></i></div>
+            <div style="flex:1;">
+              <label class="lbl" style="margin-bottom:4px;">WhatsApp Number (digits only)</label>
+              <input class="inp" type="text" id="waNum" value="919876543210" oninput="updatePreview()">
+            </div>
+            <div class="tog-row">
+              <div class="tog on" id="tog-wa" onclick="togSwitch(this,'tog-wa');updatePreview()"></div>
+              <span class="tog-lbl" id="tog-wa-lbl" style="font-size:10px;">On</span>
+            </div>
+          </div>
+          <div class="social-row">
+            <div class="soc-ico soc-yt"><i class="fab fa-youtube"></i></div>
+            <div style="flex:1;">
+              <label class="lbl" style="margin-bottom:4px;">YouTube URL</label>
+              <input class="inp" type="url" id="ytUrl" value="https://youtube.com/picklehub" oninput="updatePreview()">
+            </div>
+            <div class="tog-row">
+              <div class="tog on" id="tog-yt" onclick="togSwitch(this,'tog-yt');updatePreview()"></div>
+              <span class="tog-lbl" id="tog-yt-lbl" style="font-size:10px;">On</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 3. CONTACT DETAILS -->
+  <div class="card">
+    <div class="card-head">
+      <span class="ch-ico">📞</span>
+      <span class="ch-title">Contact Details</span>
+      <span class="ch-sub">— shown in footer Contact Us column</span>
+    </div>
+    <div class="card-body">
+      <div class="row g-3">
+        <div class="col-12">
+          <label class="lbl">📍 Address</label>
+          <input class="inp" type="text" id="address" value="Nagpur, Maharashtra, India – 440001" oninput="updatePreview()">
+        </div>
+        <div class="col-md-6">
+          <label class="lbl">📞 Phone Number</label>
+          <input class="inp" type="text" id="phone" value="+91-98765 43210" oninput="updatePreview()">
+        </div>
+        <div class="col-md-6">
+          <label class="lbl">📞 Phone href (tel:)</label>
+          <input class="inp" type="text" id="phoneHref" value="tel:+919876543210" oninput="updatePreview()">
+        </div>
+        <div class="col-md-6">
+          <label class="lbl">📧 Email</label>
+          <input class="inp" type="email" id="email" value="hello@picklehub.in" oninput="updatePreview()">
+        </div>
+        <div class="col-md-6">
+          <label class="lbl">🕐 Business Hours</label>
+          <input class="inp" type="text" id="hours" value="Mon–Sun: 9:00 AM – 9:00 PM" oninput="updatePreview()">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 4. QUICK LINKS -->
+  <div class="card">
+    <div class="card-head">
+      <span class="ch-ico">🔗</span>
+      <span class="ch-title">Quick Links</span>
+      <span class="ch-sub">— footer column 2</span>
+    </div>
+    <div class="card-body">
+      <div id="quickLinksList"></div>
+      <button class="btn-add" onclick="addLink('quickLinks')"><i class="fa fa-plus"></i> Add Link</button>
+    </div>
+  </div>
+
+  <!-- 5. CATEGORY LINKS -->
+  <div class="card">
+    <div class="card-head">
+      <span class="ch-ico">🥒</span>
+      <span class="ch-title">Category Links</span>
+      <span class="ch-sub">— footer column 3</span>
+    </div>
+    <div class="card-body">
+      <div id="catLinksList"></div>
+      <button class="btn-add" onclick="addLink('catLinks')"><i class="fa fa-plus"></i> Add Link</button>
+    </div>
+  </div>
+
+  <!-- 6. MY ACCOUNT LINKS -->
+  <div class="card">
+    <div class="card-head">
+      <span class="ch-ico">👤</span>
+      <span class="ch-title">My Account Links</span>
+      <span class="ch-sub">— footer column 4</span>
+    </div>
+    <div class="card-body">
+      <div id="accountLinksList"></div>
+      <button class="btn-add" onclick="addLink('accountLinks')"><i class="fa fa-plus"></i> Add Link</button>
+    </div>
+  </div>
+
+  <!-- 7. FOOTER BOTTOM BAR -->
+  <div class="card">
+    <div class="card-head">
+      <span class="ch-ico">📋</span>
+      <span class="ch-title">Footer Bottom Bar</span>
+      <span class="ch-sub">— legal links & copyright row</span>
+    </div>
+    <div class="card-body">
+      <div class="row g-3">
+        <div class="col-md-4">
+          <label class="lbl">Privacy Policy URL</label>
+          <input class="inp" type="text" id="privacyUrl" value="/privacy-policy/" oninput="updatePreview()">
+        </div>
+        <div class="col-md-4">
+          <label class="lbl">Terms & Conditions URL</label>
+          <input class="inp" type="text" id="termsUrl" value="/terms-conditions/" oninput="updatePreview()">
+        </div>
+        <div class="col-md-4">
+          <label class="lbl">Sitemap URL</label>
+          <input class="inp" type="text" id="sitemapUrl" value="/sitemap.xml" oninput="updatePreview()">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 8. FLOATING BUTTONS -->
+  <div class="card">
+    <div class="card-head">
+      <span class="ch-ico">💬</span>
+      <span class="ch-title">Floating Action Buttons</span>
+      <span class="ch-sub">— fixed bottom-right corner</span>
+    </div>
+    <div class="card-body">
+      <div class="row g-3">
+        <div class="col-md-8">
+          <label class="lbl">WhatsApp Pre-filled Message</label>
+          <input class="inp" type="text" id="waMsg" value="Hi PickleHub! I want to order pickles." oninput="updatePreview()">
+        </div>
+        <div class="col-md-4">
+          <label class="lbl">WhatsApp Floating Button</label>
+          <div class="tog-row" style="margin-top:10px;">
+            <div class="tog on" id="tog-fwa" onclick="togSwitch(this,'tog-fwa');updatePreview()"></div>
+            <span class="tog-lbl" id="tog-fwa-lbl">Visible</span>
+          </div>
+        </div>
+        <div class="col-md-8">
+          <label class="lbl">Instagram DM URL</label>
+          <input class="inp" type="url" id="igDmUrl" value="https://ig.me/m/picklehub" oninput="updatePreview()">
+        </div>
+        <div class="col-md-4">
+          <label class="lbl">Instagram Floating Button</label>
+          <div class="tog-row" style="margin-top:10px;">
+            <div class="tog on" id="tog-fig" onclick="togSwitch(this,'tog-fig');updatePreview()"></div>
+            <span class="tog-lbl" id="tog-fig-lbl">Visible</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /col left -->
+
+<!-- ══ RIGHT PREVIEW ══ -->
+<div class="col-lg-5">
+  <div class="preview-wrap">
+    <div class="prev-lbl">👁️ Live Footer Preview</div>
+
+    <div class="pf-wrap">
+      <!-- FOOTER MAIN -->
+      <div class="pf-main">
+        <div class="row g-3">
+          <!-- COL 1: BRAND -->
+          <div class="col-5">
+            <div class="pf-logo" id="pv-logo">🥒 PickleHub</div>
+            <div class="pf-desc" id="pv-desc">Nagpur's exclusive pickle distribution platform. 24-hour delivery across Nagpur.</div>
+            <div class="pf-social" id="pv-social">
+              <div class="pf-soc-ico soc-fb"><i class="fab fa-facebook-f"></i></div>
+              <div class="pf-soc-ico soc-ig"><i class="fab fa-instagram"></i></div>
+              <div class="pf-soc-ico soc-wa"><i class="fab fa-whatsapp"></i></div>
+              <div class="pf-soc-ico soc-yt"><i class="fab fa-youtube"></i></div>
+            </div>
+          </div>
+          <!-- COL 2: QUICK LINKS -->
+          <div class="col-3">
+            <div class="pf-col-title">Quick Links</div>
+            <div id="pv-quicklinks"></div>
+          </div>
+          <!-- COL 3: CATEGORIES -->
+          <div class="col-4">
+            <div class="pf-col-title">Categories</div>
+            <div id="pv-catlinks"></div>
+          </div>
+        </div>
+        <!-- CONTACT ROW -->
+        <div style="margin-top:14px;padding-top:12px;border-top:1px solid rgba(255,255,255,.07);">
+          <div style="font-size:10px;font-weight:800;color:#fff;margin-bottom:8px;">Contact Us</div>
+          <div class="row g-2">
+            <div class="col-6" id="pv-contact-left"></div>
+            <div class="col-6" id="pv-contact-right"></div>
+          </div>
+        </div>
+      </div>
+      <!-- FOOTER BOTTOM -->
+      <div class="pf-bottom" id="pv-bottom">
+        <p>© <span id="pv-year">2026</span> <a href="/">PickleHub Nagpur</a>. All Rights Reserved. | Developed by <a href="#"><span id="pv-dev">Callisto IT Solutions</span></a></p>
+        <p><a href="#" id="pv-privacy">Privacy Policy</a> | <a href="#" id="pv-terms">Terms</a> | <a href="#" id="pv-sitemap">Sitemap</a></p>
+      </div>
+      <!-- FLOATING BUTTONS PREVIEW -->
+      <div class="pf-floating">
+        <span style="font-size:10px;color:#aaa;font-weight:700;">Floating Buttons:</span>
+        <div class="pf-fb-btn pf-fb-wa" id="pv-fwa"><i class="fab fa-whatsapp"></i></div>
+        <div class="pf-fb-btn pf-fb-ig" id="pv-fig"><i class="fab fa-instagram"></i></div>
+        <span style="font-size:10px;color:#aaa;" id="pv-wa-msg"></span>
+      </div>
+    </div>
+
+    <!-- HOW IT WORKS -->
+    <div style="background:#fff;border-radius:12px;padding:14px 16px;margin-top:14px;border:1.5px solid #f0f0f0;">
+      <div style="font-size:12px;font-weight:800;color:#1a1a2e;margin-bottom:6px;">📋 How it works</div>
+      <div style="font-size:11px;color:#888;line-height:2;">
+        ① Edit any field → preview updates <strong>instantly</strong> on the right<br>
+        ② Toggle icons to show/hide social & floating buttons<br>
+        ③ Click <strong>Save & Publish</strong> → saves to Django DB<br>
+        ④ Frontend reads <code>{{ footer.brand_name }}</code> from context
+      </div>
+    </div>
+
+    <!-- DJANGO SNIPPET -->
+    <div style="background:#1a1a2e;border-radius:12px;padding:14px 16px;margin-top:14px;">
+      <div style="font-size:11px;font-weight:800;color:#ffd60a;margin-bottom:8px;">🐍 Django Integration</div>
+      <div style="font-size:11px;color:rgba(255,255,255,.7);font-family:monospace;line-height:2;">
+        <span style="color:#52b788;"># models.py</span><br>
+        <span style="color:#f48c06;">class</span> SiteFooter(models.Model):<br>
+        &nbsp;&nbsp;brand_name = CharField(max_length=50)<br>
+        &nbsp;&nbsp;description = TextField()<br>
+        &nbsp;&nbsp;facebook_url = URLField()<br>
+        &nbsp;&nbsp;instagram_url = URLField()<br>
+        &nbsp;&nbsp;whatsapp_num = CharField(max_length=20)<br>
+        &nbsp;&nbsp;phone = CharField(max_length=20)<br>
+        &nbsp;&nbsp;email = EmailField()<br>
+        &nbsp;&nbsp;address = CharField(max_length=200)<br>
+        &nbsp;&nbsp;hours = CharField(max_length=100)<br><br>
+        <span style="color:#52b788;"># base.html</span><br>
+        <span style="color:#ffd60a;">{{ footer.brand_name }}</span><br>
+        <span style="color:#ffd60a;">{{ footer.description }}</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+</div><!-- /row -->
+</div><!-- /page -->
+</div><!-- /main -->
+</div><!-- /wrap -->
+
+<div class="toast-wrap" id="toastWrap"></div>
+
+<script>
+/* ════ STATE ════ */
+var STATE = {
+  quickLinks: [
+    {name:'Home', url:'/'},
+    {name:'All Pickles', url:'/products/'},
+    {name:'Brands', url:'/brands/'},
+    {name:'Offers', url:'/offers/'},
+    {name:'About Us', url:'/about/'},
+    {name:'Contact', url:'/contact/'},
+    {name:'FAQ', url:'/faq/'},
+  ],
+  catLinks: [
+    {name:'Mango Pickle', url:'/category/mango/'},
+    {name:'Garlic Pickle', url:'/category/garlic/'},
+    {name:'Lemon Pickle', url:'/category/lemon/'},
+    {name:'Chilli Pickle', url:'/category/chilli/'},
+    {name:'Mixed Pickle', url:'/category/mixed/'},
+    {name:'Regional', url:'/category/regional/'},
+  ],
+  accountLinks: [
+    {name:'Login', url:'/login/'},
+    {name:'My Profile', url:'/profile/'},
+    {name:'My Orders', url:'/orders/'},
+    {name:'Wishlist', url:'/wishlist/'},
+    {name:'My Cart', url:'/cart/'},
+  ],
+};
+
+/* ════ RENDER LINK LISTS ════ */
+function renderLinkList(key) {
+  var el = document.getElementById(key + 'List');
+  el.innerHTML = '';
+  STATE[key].forEach(function(item, i) {
+    var d = document.createElement('div');
+    d.className = 'link-row';
+    d.innerHTML =
+      '<span class="lr-grab"><i class="fa fa-grip-vertical"></i></span>' +
+      '<input class="lr-inp-name" type="text" value="' + item.name.replace(/"/g,'&quot;') + '" placeholder="Label" oninput="STATE[\'' + key + '\'][' + i + '].name=this.value;updatePreview()">' +
+      '<input class="lr-inp-url"  type="text" value="' + item.url.replace(/"/g,'&quot;') + '" placeholder="/url/" oninput="STATE[\'' + key + '\'][' + i + '].url=this.value">' +
+      '<button class="btn-danger" onclick="removeLink(\'' + key + '\',' + i + ')"><i class="fa fa-trash"></i></button>';
+    el.appendChild(d);
+  });
+}
+
+function addLink(key) {
+  STATE[key].push({name:'New Link', url:'/'});
+  renderLinkList(key);
+  updatePreview();
+  toast('✅ Link added','ok');
+}
+
+function removeLink(key, i) {
+  STATE[key].splice(i, 1);
+  renderLinkList(key);
+  updatePreview();
+  toast('🗑️ Link removed','err');
+}
+
+/* ════ TOGGLE ════ */
+function togSwitch(el, id) {
+  el.classList.toggle('on');
+  var on = el.classList.contains('on');
+  var lbl = document.getElementById(id + '-lbl');
+  if(lbl) lbl.textContent = on ? (lbl.textContent.length > 3 ? 'Visible' : 'On') : (lbl.textContent.length > 3 ? 'Hidden' : 'Off');
+}
+
+/* ════ LIVE PREVIEW ════ */
+function updatePreview() {
+  markUnsaved();
+
+  // Logo & Brand
+  var emoji = document.getElementById('footerLogoEmoji').value || '🥒';
+  var name  = document.getElementById('footerBrandName').value || 'PickleHub';
+  document.getElementById('pv-logo').textContent = emoji + ' ' + name;
+  document.getElementById('pv-desc').textContent = document.getElementById('footerDesc').value;
+
+  // Social icons visibility
+  var social = document.getElementById('pv-social');
+  var icons = [];
+  if(document.getElementById('tog-fb').classList.contains('on')) icons.push('<div class="pf-soc-ico soc-fb"><i class="fab fa-facebook-f"></i></div>');
+  if(document.getElementById('tog-ig').classList.contains('on')) icons.push('<div class="pf-soc-ico soc-ig"><i class="fab fa-instagram"></i></div>');
+  if(document.getElementById('tog-wa').classList.contains('on')) icons.push('<div class="pf-soc-ico soc-wa"><i class="fab fa-whatsapp"></i></div>');
+  if(document.getElementById('tog-yt').classList.contains('on')) icons.push('<div class="pf-soc-ico soc-yt"><i class="fab fa-youtube"></i></div>');
+  social.innerHTML = icons.join('');
+
+  // Quick Links preview
+  var ql = document.getElementById('pv-quicklinks');
+  ql.innerHTML = STATE.quickLinks.slice(0,5).map(function(l){ return '<a class="pf-link" href="#">'+l.name+'</a>'; }).join('');
+
+  // Cat Links preview
+  var cl = document.getElementById('pv-catlinks');
+  cl.innerHTML = STATE.catLinks.slice(0,5).map(function(l){ return '<a class="pf-link" href="#">'+l.name+'</a>'; }).join('');
+
+  // Contact
+  var addr  = document.getElementById('address').value;
+  var ph    = document.getElementById('phone').value;
+  var email = document.getElementById('email').value;
+  var hours = document.getElementById('hours').value;
+  document.getElementById('pv-contact-left').innerHTML =
+    '<div class="pf-contact-item"><i class="fa fa-map-marker-alt"></i><span>'+addr+'</span></div>' +
+    '<div class="pf-contact-item"><i class="fa fa-phone"></i><span>'+ph+'</span></div>';
+  document.getElementById('pv-contact-right').innerHTML =
+    '<div class="pf-contact-item"><i class="fa fa-envelope"></i><span>'+email+'</span></div>' +
+    '<div class="pf-contact-item"><i class="fa fa-clock"></i><span>'+hours+'</span></div>';
+
+  // Bottom bar
+  document.getElementById('pv-year').textContent = document.getElementById('copyYear').value;
+  document.getElementById('pv-dev').textContent  = document.getElementById('devCredit').value;
+
+  // Floating buttons
+  var fwa = document.getElementById('tog-fwa').classList.contains('on');
+  var fig = document.getElementById('tog-fig').classList.contains('on');
+  document.getElementById('pv-fwa').style.display = fwa ? 'flex' : 'none';
+  document.getElementById('pv-fig').style.display = fig ? 'flex' : 'none';
+  document.getElementById('pv-wa-msg').textContent = fwa ? '"'+document.getElementById('waMsg').value+'"' : '';
+}
+
+/* ════ SAVE ════ */
+var unsaved = false;
+function markUnsaved() {
+  unsaved = true;
+  document.getElementById('saveStatus').textContent = '⏳ Unsaved changes';
+  document.getElementById('saveStatus').className = 's-pill sp-yellow';
+}
+
+function saveAll() {
+  var data = {
+    logo_emoji: document.getElementById('footerLogoEmoji').value,
+    brand_name: document.getElementById('footerBrandName').value,
+    brand_city: document.getElementById('footerBrandCity').value,
+    description: document.getElementById('footerDesc').value,
+    copy_year: document.getElementById('copyYear').value,
+    dev_credit: document.getElementById('devCredit').value,
+    facebook_url: document.getElementById('fbUrl').value,
+    instagram_url: document.getElementById('igUrl').value,
+    whatsapp_num: document.getElementById('waNum').value,
+    youtube_url: document.getElementById('ytUrl').value,
+    fb_on: document.getElementById('tog-fb').classList.contains('on'),
+    ig_on: document.getElementById('tog-ig').classList.contains('on'),
+    wa_on: document.getElementById('tog-wa').classList.contains('on'),
+    yt_on: document.getElementById('tog-yt').classList.contains('on'),
+    address: document.getElementById('address').value,
+    phone: document.getElementById('phone').value,
+    phone_href: document.getElementById('phoneHref').value,
+    email: document.getElementById('email').value,
+    hours: document.getElementById('hours').value,
+    quick_links: STATE.quickLinks,
+    cat_links: STATE.catLinks,
+    account_links: STATE.accountLinks,
+    privacy_url: document.getElementById('privacyUrl').value,
+    terms_url: document.getElementById('termsUrl').value,
+    sitemap_url: document.getElementById('sitemapUrl').value,
+    wa_msg: document.getElementById('waMsg').value,
+    ig_dm_url: document.getElementById('igDmUrl').value,
+    floating_wa: document.getElementById('tog-fwa').classList.contains('on'),
+    floating_ig: document.getElementById('tog-fig').classList.contains('on'),
+  };
+  localStorage.setItem('picklehub_footer_settings', JSON.stringify(data));
+  console.log('Footer data saved:', data);
+  toast('💾 Saving...', 'ok');
+  setTimeout(function() {
+    unsaved = false;
+    document.getElementById('saveStatus').textContent = '✅ All Changes Saved';
+    document.getElementById('saveStatus').className = 's-pill sp-green';
+    toast('✅ Footer settings saved & published!', 'ok');
+  }, 600);
+}
+
+function resetAll() {
+  if(!confirm('Reset all footer settings to default?')) return;
+  localStorage.removeItem('picklehub_footer_settings');
+  location.reload();
+}
+
+/* ════ LOAD SAVED ════ */
+function loadSaved() {
+  var saved = localStorage.getItem('picklehub_footer_settings');
+  if(!saved) return;
+  try {
+    var d = JSON.parse(saved);
+    var fields = ['footerLogoEmoji','footerBrandName','footerBrandCity','footerDesc','copyYear','devCredit','fbUrl','igUrl','waNum','ytUrl','address','phone','phoneHref','email','hours','privacyUrl','termsUrl','sitemapUrl','waMsg','igDmUrl'];
+    var keys   = ['logo_emoji','brand_name','brand_city','description','copy_year','dev_credit','facebook_url','instagram_url','whatsapp_num','youtube_url','address','phone','phone_href','email','hours','privacy_url','terms_url','sitemap_url','wa_msg','ig_dm_url'];
+    fields.forEach(function(f,i){ if(d[keys[i]] !== undefined) document.getElementById(f).value = d[keys[i]]; });
+    if(d.quick_links) STATE.quickLinks = d.quick_links;
+    if(d.cat_links) STATE.catLinks = d.cat_links;
+    if(d.account_links) STATE.accountLinks = d.account_links;
+    var togs = {fb:'tog-fb',ig:'tog-ig',wa:'tog-wa',yt:'tog-yt',fwa:'tog-fwa',fig:'tog-fig'};
+    var togKeys = {fb:'fb_on',ig:'ig_on',wa:'wa_on',yt:'yt_on',fwa:'floating_wa',fig:'floating_ig'};
+    Object.keys(togs).forEach(function(k){
+      if(d[togKeys[k]] === false) { document.getElementById(togs[k]).classList.remove('on'); }
+    });
+  } catch(e) {}
+}
+
+/* ════ TOAST ════ */
+function toast(msg, type) {
+  var wrap = document.getElementById('toastWrap');
+  var t = document.createElement('div');
+  t.className = 't-item' + (type==='err'?' err':'');
+  t.textContent = msg;
+  wrap.appendChild(t);
+  requestAnimationFrame(function(){requestAnimationFrame(function(){t.classList.add('show');});});
+  setTimeout(function(){t.classList.remove('show');setTimeout(function(){if(t.parentNode)t.parentNode.removeChild(t);},400);},3200);
+}
+
+/* ════ INIT ════ */
+loadSaved();
+renderLinkList('quickLinks');
+renderLinkList('catLinks');
+renderLinkList('accountLinks');
+updatePreview();
+</script>
+</body>
+</html>

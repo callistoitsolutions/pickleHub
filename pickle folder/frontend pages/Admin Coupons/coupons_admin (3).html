@@ -1,0 +1,647 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Coupons | PickleHub Admin</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Poppins',sans-serif;background:#f0f2f5;}
+.topbar{background:#1a1a2e;padding:14px 24px;display:flex;align-items:center;justify-content:space-between;}
+.topbar h1{color:#ffd60a;font-size:18px;font-weight:700;}
+.btn{border:none;border-radius:10px;padding:10px 20px;font-weight:700;font-size:13px;cursor:pointer;font-family:'Poppins',sans-serif;transition:.2s;}
+.btn:hover{opacity:.88;}
+.btn-green{background:#2d6a4f;color:#fff;}
+.btn-purple{background:#6a0dad;color:#fff;}
+.btn-orange{background:#e85d04;color:#fff;}
+.btn-blue{background:#1565c0;color:#fff;}
+.btn-red{background:#c62828;color:#fff;}
+.btn-gray{background:#eee;color:#333;}
+.btn-sm{padding:6px 12px;font-size:11px;border-radius:8px;}
+
+/* STATS */
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;padding:20px 24px 0;}
+.stat{background:#fff;border-radius:14px;padding:16px 18px;box-shadow:0 2px 8px rgba(0,0,0,.06);display:flex;align-items:center;gap:12px;}
+.stat-ico{width:44px;height:44px;border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;}
+.stat-val{font-size:22px;font-weight:800;color:#1a1a2e;}
+.stat-lbl{font-size:11px;color:#aaa;}
+
+/* FILTER */
+.filterbar{background:#fff;border-radius:14px;margin:16px 24px 0;padding:14px 18px;display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap;box-shadow:0 2px 8px rgba(0,0,0,.05);}
+.fl{font-size:11px;font-weight:700;color:#888;margin-bottom:3px;display:block;}
+.fi{border-radius:9px;border:1.5px solid #ddd;padding:8px 12px;font-size:13px;font-family:'Poppins',sans-serif;outline:none;}
+.fi:focus{border-color:#e85d04;}
+
+/* GRID */
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px;padding:16px 24px;}
+.empty-box{grid-column:1/-1;background:#fff;border-radius:16px;padding:60px;text-align:center;box-shadow:0 2px 8px rgba(0,0,0,.05);}
+.empty-box .ei{font-size:52px;margin-bottom:10px;}
+.empty-box h3{font-size:17px;font-weight:700;color:#1a1a2e;margin-bottom:6px;}
+.empty-box p{font-size:13px;color:#aaa;}
+
+/* COUPON CARD */
+.card{background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 4px 14px rgba(0,0,0,.07);border:1.5px solid transparent;transition:.25s;}
+.card:hover{border-color:#e85d04;transform:translateY(-2px);}
+.card.paused{opacity:.55;}
+.ticket{padding:16px 20px;position:relative;overflow:hidden;}
+.ticket::before,.ticket::after{content:'';position:absolute;top:50%;width:22px;height:22px;background:#f0f2f5;border-radius:50%;transform:translateY(-50%);}
+.ticket::before{left:-11px;}
+.ticket::after{right:-11px;}
+.t-deco{position:absolute;font-size:72px;opacity:.07;right:-8px;top:-12px;pointer-events:none;}
+.t-code{font-size:20px;font-weight:800;color:#ffd60a;letter-spacing:3px;font-family:monospace;}
+.t-disc{font-size:24px;font-weight:800;color:#fff;margin-top:3px;}
+.t-sub{font-size:11px;color:rgba(255,255,255,.6);margin-top:2px;}
+.t-badge{position:absolute;top:10px;right:18px;font-size:10px;font-weight:700;padding:2px 10px;border-radius:50px;border:1px solid rgba(255,255,255,.3);background:rgba(255,255,255,.15);color:#fff;}
+.cbody{padding:14px 16px;}
+.c-name{font-weight:700;font-size:14px;color:#1a1a2e;margin-bottom:2px;}
+.c-desc{font-size:12px;color:#888;margin-bottom:10px;line-height:1.5;}
+.c-meta{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:10px;}
+.mi{background:#f8f9fa;border-radius:8px;padding:6px 10px;}
+.mi-l{font-size:10px;color:#bbb;font-weight:700;text-transform:uppercase;}
+.mi-v{font-size:12px;font-weight:700;color:#1a1a2e;margin-top:1px;}
+.ubarlbl{display:flex;justify-content:space-between;font-size:11px;color:#888;margin-bottom:3px;}
+.ubar{height:5px;background:#eee;border-radius:3px;margin-bottom:10px;}
+.ufill{height:100%;border-radius:3px;}
+.spill{display:inline-block;padding:3px 12px;border-radius:50px;font-size:11px;font-weight:700;}
+.sp-on{background:#d4edda;color:#155724;}
+.sp-off{background:#fff3cd;color:#856404;}
+.cactions{display:flex;gap:5px;padding:10px 14px;border-top:1px solid #f5f5f5;}
+.cactions .btn{flex:1;}
+
+/* LOG */
+.log-wrap{margin:0 24px 24px;background:#fff;border-radius:14px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,.05);}
+.log-head{padding:14px 18px;border-bottom:1px solid #f5f5f5;display:flex;justify-content:space-between;align-items:center;}
+.log-head h3{font-size:14px;font-weight:700;color:#1a1a2e;margin:0;}
+table{width:100%;border-collapse:collapse;font-size:13px;}
+th{background:#1a1a2e;color:rgba(255,255,255,.8);font-size:11px;text-transform:uppercase;letter-spacing:.5px;padding:11px 14px;font-weight:700;}
+td{padding:10px 14px;border-bottom:1px solid #f8f8f8;}
+tr:last-child td{border-bottom:none;}
+
+/* MODAL OVERLAY */
+.ov{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:1000;display:none;align-items:center;justify-content:center;padding:16px;}
+.ov.open{display:flex;}
+.mbox{background:#fff;border-radius:18px;width:100%;max-width:580px;max-height:94vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.3);}
+.mhead{background:linear-gradient(135deg,#1a1a2e,#0f3460);padding:16px 22px;border-radius:18px 18px 0 0;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;z-index:1;}
+.mhead-title{font-size:15px;font-weight:700;color:#ffd60a;}
+.mhead-close{background:rgba(255,255,255,.1);border:none;color:#fff;width:30px;height:30px;border-radius:50%;font-size:14px;cursor:pointer;}
+.mbody{padding:20px;}
+.lbl{font-size:12px;font-weight:700;color:#555;margin-bottom:4px;display:block;}
+.inp{width:100%;border-radius:9px;border:1.5px solid #ddd;padding:9px 13px;font-size:13px;font-family:'Poppins',sans-serif;outline:none;transition:.2s;}
+.inp:focus{border-color:#e85d04;box-shadow:0 0 0 3px rgba(232,93,4,.08);}
+.err-box{background:#fdecea;border-left:3px solid #e74c3c;border-radius:8px;padding:9px 13px;font-size:12px;color:#c62828;font-weight:600;margin-bottom:14px;display:none;}
+
+/* PREVIEW */
+.pv{border-radius:13px;padding:16px 20px;position:relative;overflow:hidden;margin-top:4px;}
+.pv::before{content:'';position:absolute;left:-11px;top:50%;transform:translateY(-50%);width:22px;height:22px;background:#fff;border-radius:50%;}
+.pv::after{content:'';position:absolute;right:-11px;top:50%;transform:translateY(-50%);width:22px;height:22px;background:#fff;border-radius:50%;}
+.pv-deco{position:absolute;font-size:64px;opacity:.08;right:-5px;top:-8px;pointer-events:none;}
+.pv-code{font-size:18px;font-weight:800;color:#ffd60a;letter-spacing:3px;font-family:monospace;}
+.pv-disc{font-size:20px;font-weight:800;color:#fff;margin-top:3px;}
+.pv-sub{font-size:11px;color:rgba(255,255,255,.55);margin-top:2px;}
+
+/* TOAST */
+.toastbar{position:fixed;bottom:22px;right:22px;background:#1a1a2e;color:#fff;border-radius:11px;padding:13px 18px;font-size:13px;font-weight:600;z-index:9999;box-shadow:0 8px 24px rgba(0,0,0,.2);transition:.3s;transform:translateY(80px);opacity:0;pointer-events:none;}
+.toastbar.show{transform:translateY(0);opacity:1;}
+.toastbar.ok{border-left:4px solid #52b788;}
+.toastbar.err{border-left:4px solid #e85d04;}
+.toastbar.info{border-left:4px solid #ffd60a;}
+@media(max-width:600px){.stats{grid-template-columns:repeat(2,1fr);}.grid{grid-template-columns:1fr;}}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <h1>🎟️ PickleHub — Coupons Management</h1>
+  <div style="display:flex;gap:8px;">
+    <button class="btn btn-purple" id="btnQuick">⚡ Quick Generate</button>
+    <button class="btn btn-green" id="btnAdd">+ Add Coupon</button>
+  </div>
+</div>
+
+<!-- STATS -->
+<div class="stats">
+  <div class="stat"><div class="stat-ico" style="background:#d4edda;">✅</div><div><div class="stat-val" id="stA">0</div><div class="stat-lbl">Active</div></div></div>
+  <div class="stat"><div class="stat-ico" style="background:#fff3cd;">📊</div><div><div class="stat-val" id="stU">0</div><div class="stat-lbl">Total Uses</div></div></div>
+  <div class="stat"><div class="stat-ico" style="background:#f8d7da;">⏸</div><div><div class="stat-val" id="stP">0</div><div class="stat-lbl">Paused</div></div></div>
+  <div class="stat"><div class="stat-ico" style="background:#e8e0ff;">💰</div><div><div class="stat-val" id="stD">₹0</div><div class="stat-lbl">Discount Given</div></div></div>
+</div>
+
+<!-- FILTER -->
+<div class="filterbar">
+  <div><label class="fl">Search</label><input class="fi" type="text" id="fsearch" placeholder="Code or name..." style="width:170px;"></div>
+  <div><label class="fl">Type</label>
+    <select class="fi" id="ftype">
+      <option value="">All Types</option>
+      <option value="percent">% Percentage</option>
+      <option value="flat">₹ Flat</option>
+      <option value="free_del">🚚 Free Delivery</option>
+    </select>
+  </div>
+  <div><label class="fl">Status</label>
+    <select class="fi" id="fstatus">
+      <option value="">All</option>
+      <option value="1">Active</option>
+      <option value="0">Paused</option>
+    </select>
+  </div>
+  <button class="btn btn-orange btn-sm" id="btnFilter">Filter</button>
+</div>
+
+<!-- GRID -->
+<div class="grid" id="cgrid"></div>
+
+<!-- LOG -->
+<div class="log-wrap">
+  <div class="log-head"><h3>📋 Usage Log</h3><span id="logCount" style="font-size:12px;color:#aaa;">0 entries</span></div>
+  <div style="overflow-x:auto;">
+    <table><thead><tr><th>Code</th><th>Customer</th><th>Order</th><th>Order Amt</th><th>Discount</th><th>Time</th></tr></thead>
+    <tbody id="logbody"></tbody></table>
+  </div>
+</div>
+
+<!-- MODAL -->
+<div class="ov" id="modal">
+  <div class="mbox">
+    <div class="mhead">
+      <span class="mhead-title" id="mtitle">Add New Coupon</span>
+      <button class="mhead-close" id="mclose">✕</button>
+    </div>
+    <div class="mbody">
+      <div class="err-box" id="errbox"></div>
+      <div class="row g-3">
+
+        <div class="col-12">
+          <label class="lbl">Coupon Code *</label>
+          <div style="display:flex;gap:8px;">
+            <input class="inp" id="mcode" type="text" placeholder="e.g. PICKLE20" maxlength="20"
+              style="text-transform:uppercase;font-weight:700;font-size:15px;letter-spacing:2px;">
+            <button class="btn btn-purple" type="button" id="mautobtn">⚡ Auto</button>
+          </div>
+        </div>
+
+        <div class="col-12">
+          <label class="lbl">Coupon Name / Label *</label>
+          <input class="inp" id="mname" type="text" placeholder="e.g. Holi Festival Offer" maxlength="80">
+        </div>
+
+        <div class="col-12">
+          <label class="lbl">Description (shown to customer)</label>
+          <textarea class="inp" id="mdesc" rows="2" placeholder="e.g. Get 20% off on orders above ₹299." maxlength="200" style="resize:vertical;"></textarea>
+        </div>
+
+        <div class="col-md-6">
+          <label class="lbl">Discount Type *</label>
+          <select class="inp" id="mtype" style="cursor:pointer;">
+            <option value="">Select...</option>
+            <option value="percent">% Percentage Off</option>
+            <option value="flat">₹ Flat Amount Off</option>
+            <option value="free_del">🚚 Free Delivery</option>
+          </select>
+        </div>
+
+        <div class="col-md-6" id="mvalwrap">
+          <label class="lbl" id="mvallbl">Discount Value *</label>
+          <input class="inp" id="mval" type="number" placeholder="e.g. 20" min="1">
+        </div>
+
+        <div class="col-md-6" id="mmaxwrap" style="display:none;">
+          <label class="lbl">Max Discount Cap (₹)</label>
+          <input class="inp" id="mmax" type="number" placeholder="e.g. 100 (blank = no cap)" min="1">
+        </div>
+
+        <div class="col-md-6">
+          <label class="lbl">Min Order Value (₹)</label>
+          <input class="inp" id="mmin" type="number" placeholder="0 = no minimum" min="0">
+        </div>
+
+        <div class="col-md-6">
+          <label class="lbl">Max Total Uses</label>
+          <input class="inp" id="mmaxuses" type="number" placeholder="Blank = unlimited" min="1">
+        </div>
+
+        <div class="col-md-6">
+          <label class="lbl">Uses Per Customer</label>
+          <select class="inp" id="mperuser" style="cursor:pointer;">
+            <option value="1">1 time only</option>
+            <option value="2">2 times</option>
+            <option value="3">3 times</option>
+            <option value="0">Unlimited</option>
+          </select>
+        </div>
+
+        <div class="col-md-6">
+          <label class="lbl">Start Date</label>
+          <input class="inp" id="mstart" type="date">
+        </div>
+        <div class="col-md-6">
+          <label class="lbl">Expiry Date</label>
+          <input class="inp" id="mend" type="date">
+        </div>
+
+        <div class="col-12">
+          <label class="lbl">Applies To</label>
+          <select class="inp" id="mapplies" style="cursor:pointer;">
+            <option value="all">All Products</option>
+            <option value="mango">Mango Pickles Only</option>
+            <option value="lemon">Lemon Pickles Only</option>
+            <option value="new_user">New Customers Only</option>
+          </select>
+        </div>
+
+        <div class="col-12" style="display:flex;gap:18px;flex-wrap:wrap;">
+          <label style="display:flex;align-items:center;gap:7px;font-size:13px;cursor:pointer;">
+            <input type="checkbox" id="mactive" checked style="accent-color:#2d6a4f;width:15px;height:15px;"> Active
+          </label>
+          <label style="display:flex;align-items:center;gap:7px;font-size:13px;cursor:pointer;">
+            <input type="checkbox" id="mpublic" checked style="accent-color:#e85d04;width:15px;height:15px;"> Show on website
+          </label>
+          <label style="display:flex;align-items:center;gap:7px;font-size:13px;cursor:pointer;">
+            <input type="checkbox" id="mfirst" style="accent-color:#6a0dad;width:15px;height:15px;"> First order only
+          </label>
+        </div>
+
+        <div class="col-12">
+          <label class="lbl">Live Preview</label>
+          <div class="pv" id="pvbox" style="background:linear-gradient(135deg,#1a1a2e,#0f3460);">
+            <div class="pv-deco" id="pvdeco">🎟️</div>
+            <div class="pv-code" id="pvcode">YOUR CODE</div>
+            <div class="pv-disc" id="pvdisc">Fill above to preview</div>
+            <div class="pv-sub"  id="pvsub">—</div>
+          </div>
+        </div>
+
+        <div class="col-12" style="display:flex;gap:10px;justify-content:flex-end;margin-top:4px;">
+          <button type="button" class="btn btn-gray" id="mcancel">Cancel</button>
+          <button type="button" class="btn btn-orange" id="msave">💾 Save Coupon</button>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="toastbar" id="tbar"></div>
+
+<script>
+var DB = [];
+var LOG = [];
+var EIDX = -1;
+
+var WORDS = ["PICKLE","ACHAAR","MANGO","SPICY","NAGPUR","FRESH","SAVE","DEAL","HOLI","SUMMER","FESTIVE","DIWALI"];
+var CNAMES = ["Priya D.","Rahul S.","Sunita K.","Amit P.","Meena J.","Vikram N."];
+var TYPE_LBL = {"percent":"% Percentage","flat":"Rs Flat","free_del":"Free Delivery"};
+var APP_LBL  = {"all":"All Products","mango":"Mango Pickles","lemon":"Lemon Pickles","new_user":"New Customers"};
+
+function uid(){ return Date.now() + Math.floor(Math.random()*9999); }
+function todayStr(){ return new Date().toISOString().split("T")[0]; }
+function fmtDate(d){ if(!d) return "No expiry"; var p=d.split("-"); return p[2]+"/"+p[1]+"/"+p[0]; }
+function money(n){ return "Rs "+(parseInt(n)||0).toLocaleString("en-IN"); }
+function randCode(){ return WORDS[Math.floor(Math.random()*WORDS.length)]+(Math.floor(Math.random()*50)+10); }
+
+function discStr(c){
+  if(c.type==="percent") return c.val+"% OFF";
+  if(c.type==="flat")    return "Rs "+c.val+" OFF";
+  if(c.type==="free_del") return "FREE DELIVERY";
+  return "—";
+}
+function tGrad(t){
+  if(t==="percent") return "linear-gradient(135deg,#1a1a2e,#0f3460)";
+  if(t==="flat")    return "linear-gradient(135deg,#2d6a4f,#52b788)";
+  return "linear-gradient(135deg,#1565c0,#1976d2)";
+}
+function tDeco(t){ return t==="flat"?"🥒":t==="free_del"?"🚚":"🎟️"; }
+function uFill(t){
+  if(t==="flat") return "#52b788";
+  if(t==="free_del") return "#42a5f5";
+  return "#e85d04";
+}
+
+/* TOAST */
+function toast(msg, type){
+  var el = document.getElementById("tbar");
+  el.textContent = msg;
+  el.className = "toastbar "+(type||"ok")+" show";
+  clearTimeout(el._t);
+  el._t = setTimeout(function(){ el.classList.remove("show"); }, 3000);
+}
+
+/* STATS */
+function updateStats(){
+  var a=0, p=0, u=0;
+  DB.forEach(function(c){ if(c.active) a++; else p++; u+=c.uses||0; });
+  var d=LOG.reduce(function(s,l){ return s+(l.disc||0); }, 0);
+  document.getElementById("stA").textContent = a;
+  document.getElementById("stP").textContent = p;
+  document.getElementById("stU").textContent = u;
+  document.getElementById("stD").textContent = money(d);
+}
+
+/* RENDER GRID */
+function renderGrid(){
+  var grid = document.getElementById("cgrid");
+  var q = document.getElementById("fsearch").value.trim().toLowerCase();
+  var tf = document.getElementById("ftype").value;
+  var sf = document.getElementById("fstatus").value;
+
+  var list = DB.filter(function(c){
+    if(q && c.code.toLowerCase().indexOf(q)<0 && c.name.toLowerCase().indexOf(q)<0) return false;
+    if(tf && c.type!==tf) return false;
+    if(sf==="1" && !c.active) return false;
+    if(sf==="0" && c.active) return false;
+    return true;
+  });
+
+  while(grid.firstChild) grid.removeChild(grid.firstChild);
+
+  if(list.length===0){
+    var em=document.createElement("div"); em.className="empty-box";
+    em.innerHTML="<div class='ei'>🎟️</div><h3>"+(DB.length===0?"No Coupons Yet":"No Results")+"</h3><p>"+(DB.length===0?"Click <b>Add Coupon</b> or <b>⚡ Quick Generate</b> to start.":"Try changing your filters.")+"</p>";
+    grid.appendChild(em);
+    updateStats(); return;
+  }
+
+  list.forEach(function(c){
+    var pct = c.maxUses ? Math.min(100,Math.round(((c.uses||0)/c.maxUses)*100)) : 0;
+    var useTxt = (c.uses||0)+" / "+(c.maxUses||"∞");
+
+    var card = document.createElement("div");
+    card.className = "card"+(c.active?"":" paused");
+    card.setAttribute("data-cid", c.id);
+
+    // ticket
+    var tk = document.createElement("div");
+    tk.className = "ticket";
+    tk.style.background = tGrad(c.type);
+
+    var deco=document.createElement("div"); deco.className="t-deco"; deco.textContent=tDeco(c.type); tk.appendChild(deco);
+    var badge=document.createElement("span"); badge.className="t-badge"; badge.textContent=TYPE_LBL[c.type]||c.type; tk.appendChild(badge);
+    var codeEl=document.createElement("div"); codeEl.className="t-code"; codeEl.textContent=c.code; tk.appendChild(codeEl);
+    var discEl=document.createElement("div"); discEl.className="t-disc"; discEl.textContent=discStr(c); tk.appendChild(discEl);
+    var subEl=document.createElement("div"); subEl.className="t-sub"; subEl.textContent="on "+(APP_LBL[c.applies]||"All"); tk.appendChild(subEl);
+    card.appendChild(tk);
+
+    // body
+    var body=document.createElement("div"); body.className="cbody";
+    var nameEl=document.createElement("div"); nameEl.className="c-name"; nameEl.textContent=c.name; body.appendChild(nameEl);
+    var descEl=document.createElement("div"); descEl.className="c-desc"; descEl.textContent=c.desc||""; body.appendChild(descEl);
+
+    var meta=document.createElement("div"); meta.className="c-meta";
+    meta.appendChild(mkMI("Min Order",c.minOrder?money(c.minOrder):"No min"));
+    meta.appendChild(mkMI("Max Disc",(c.type==="percent"&&c.maxDisc)?money(c.maxDisc):"—"));
+    meta.appendChild(mkMI("Expiry",fmtDate(c.end)));
+    meta.appendChild(mkMI("Per User",(c.perUser==="0"||c.perUser===0)?"Unlimited":c.perUser+"x"));
+    body.appendChild(meta);
+
+    var ublbl=document.createElement("div"); ublbl.className="ubarlbl";
+    var s1=document.createElement("span"); s1.textContent="Used: "+useTxt;
+    var s2=document.createElement("span"); s2.textContent=pct+"%"; s2.style.color="#e85d04"; s2.style.fontWeight="700";
+    ublbl.appendChild(s1); ublbl.appendChild(s2); body.appendChild(ublbl);
+
+    var ub=document.createElement("div"); ub.className="ubar";
+    var uf=document.createElement("div"); uf.className="ufill"; uf.style.width=pct+"%"; uf.style.background=uFill(c.type);
+    ub.appendChild(uf); body.appendChild(ub);
+
+    var pill=document.createElement("span"); pill.className="spill "+(c.active?"sp-on":"sp-off");
+    pill.textContent=c.active?"✅ Active":"⏸ Paused"; body.appendChild(pill);
+    card.appendChild(body);
+
+    // actions
+    var ac=document.createElement("div"); ac.className="cactions";
+    ac.appendChild(mkBtn("📋 Copy","btn-blue btn-sm",function(cid){ doCopy(cid); },c.id));
+    ac.appendChild(mkBtn("✏️ Edit","btn-orange btn-sm",function(cid){ doEdit(cid); },c.id));
+    ac.appendChild(mkBtn(c.active?"⏸ Pause":"▶ Resume","btn-purple btn-sm",function(cid){ doToggle(cid); },c.id));
+    ac.appendChild(mkBtn("🗑","btn-red btn-sm",function(cid){ doDel(cid); },c.id));
+    card.appendChild(ac);
+
+    grid.appendChild(card);
+  });
+  updateStats();
+}
+
+function mkMI(l,v){ var d=document.createElement("div"); d.className="mi"; d.innerHTML="<div class='mi-l'>"+l+"</div><div class='mi-v'>"+v+"</div>"; return d; }
+function mkBtn(lbl,cls,fn,cid){
+  var b=document.createElement("button"); b.type="button"; b.className="btn "+cls; b.textContent=lbl;
+  b.addEventListener("click", function(){ fn(cid); }); return b;
+}
+
+/* ACTIONS */
+function doCopy(cid){
+  var c=DB.find(function(x){ return x.id===cid; });
+  if(!c) return;
+  if(navigator.clipboard){
+    navigator.clipboard.writeText(c.code).then(function(){ toast("✅ Code copied: "+c.code,"ok"); });
+  } else {
+    var t=document.createElement("textarea"); t.value=c.code;
+    document.body.appendChild(t); t.select(); document.execCommand("copy"); document.body.removeChild(t);
+    toast("✅ Code copied: "+c.code,"ok");
+  }
+}
+function doEdit(cid){
+  var idx=DB.findIndex(function(x){ return x.id===cid; });
+  if(idx<0) return;
+  EIDX=idx; fillForm(DB[idx]);
+  document.getElementById("mtitle").textContent="✏️ Edit — "+DB[idx].code;
+  openModal();
+}
+function doToggle(cid){
+  var c=DB.find(function(x){ return x.id===cid; });
+  if(!c) return;
+  c.active=!c.active;
+  toast(c.active?"▶ Activated: "+c.code:"⏸ Paused: "+c.code,"info");
+  renderGrid();
+}
+function doDel(cid){
+  var idx=DB.findIndex(function(x){ return x.id===cid; });
+  if(idx<0) return;
+  var code=DB[idx].code;
+  DB.splice(idx,1);
+  toast("🗑 Deleted: "+code,"err");
+  renderGrid();
+}
+
+/* LOG */
+function renderLog(){
+  var tbody=document.getElementById("logbody");
+  document.getElementById("logCount").textContent=LOG.length+" entries";
+  if(LOG.length===0){
+    tbody.innerHTML="<tr><td colspan='6' style='text-align:center;padding:22px;color:#aaa;'>No usage yet. Create and use coupons to see logs.</td></tr>";
+    return;
+  }
+  var html="";
+  LOG.forEach(function(l){
+    html+="<tr><td><b style='color:#e85d04;'>"+l.code+"</b></td><td>"+l.cust+"</td><td>"+l.order+"</td><td>"+money(l.amt)+"</td><td style='color:#2d6a4f;font-weight:700;'>-"+money(l.disc)+"</td><td><small>"+l.dt+"</small></td></tr>";
+  });
+  tbody.innerHTML=html;
+}
+
+/* PREVIEW */
+function updatePreview(){
+  var code=document.getElementById("mcode").value.trim().toUpperCase()||"YOUR CODE";
+  var tp=document.getElementById("mtype").value;
+  var val=document.getElementById("mval").value;
+  var min=document.getElementById("mmin").value;
+  document.getElementById("pvcode").textContent=code;
+  document.getElementById("pvbox").style.background=tGrad(tp||"percent");
+  document.getElementById("pvdeco").textContent=tDeco(tp);
+  var ds="Fill above to preview";
+  if(tp==="percent"&&val) ds=val+"% OFF";
+  else if(tp==="flat"&&val) ds="Rs "+val+" OFF";
+  else if(tp==="free_del") ds="FREE DELIVERY";
+  document.getElementById("pvdisc").textContent=ds;
+  document.getElementById("pvsub").textContent=min?"Min order: Rs "+min:"No minimum";
+}
+
+/* TYPE CHANGE */
+function onTypeChange(){
+  var t=document.getElementById("mtype").value;
+  document.getElementById("mvalwrap").style.display=t==="free_del"?"none":"";
+  document.getElementById("mmaxwrap").style.display=t==="percent"?"":"none";
+  document.getElementById("mvallbl").textContent=t==="percent"?"Discount % *":t==="flat"?"Flat Amount (Rs) *":"Value";
+  updatePreview();
+}
+
+/* FORM FILL (for edit) */
+function fillForm(c){
+  document.getElementById("mcode").value=c.code;
+  document.getElementById("mname").value=c.name;
+  document.getElementById("mdesc").value=c.desc||"";
+  document.getElementById("mtype").value=c.type;
+  document.getElementById("mval").value=c.val||"";
+  document.getElementById("mmax").value=c.maxDisc||"";
+  document.getElementById("mmin").value=c.minOrder||"";
+  document.getElementById("mmaxuses").value=c.maxUses||"";
+  document.getElementById("mperuser").value=c.perUser||"1";
+  document.getElementById("mstart").value=c.start||"";
+  document.getElementById("mend").value=c.end||"";
+  document.getElementById("mapplies").value=c.applies||"all";
+  document.getElementById("mactive").checked=!!c.active;
+  document.getElementById("mpublic").checked=c.isPublic!==false;
+  document.getElementById("mfirst").checked=!!c.firstOnly;
+  onTypeChange(); updatePreview();
+}
+function resetForm(){
+  ["mcode","mname","mdesc","mval","mmax","mmin","mmaxuses","mend"].forEach(function(id){
+    document.getElementById(id).value="";
+  });
+  document.getElementById("mtype").value="";
+  document.getElementById("mperuser").value="1";
+  document.getElementById("mapplies").value="all";
+  document.getElementById("mstart").value=todayStr();
+  document.getElementById("mactive").checked=true;
+  document.getElementById("mpublic").checked=true;
+  document.getElementById("mfirst").checked=false;
+  document.getElementById("errbox").style.display="none";
+  onTypeChange(); updatePreview();
+}
+
+/* MODAL */
+function openModal(){ document.getElementById("modal").classList.add("open"); }
+function closeModal(){ document.getElementById("modal").classList.remove("open"); }
+
+document.getElementById("btnAdd").addEventListener("click",function(){
+  EIDX=-1;
+  document.getElementById("mtitle").textContent="🎟️ Add New Coupon";
+  resetForm();
+  openModal();
+  setTimeout(function(){ document.getElementById("mcode").focus(); },150);
+});
+document.getElementById("mclose").addEventListener("click", closeModal);
+document.getElementById("mcancel").addEventListener("click", closeModal);
+document.getElementById("modal").addEventListener("click",function(e){ if(e.target===this) closeModal(); });
+
+/* AUTO CODE */
+function autoCode(){ document.getElementById("mcode").value=randCode(); updatePreview(); }
+document.getElementById("mautobtn").addEventListener("click", autoCode);
+document.getElementById("btnQuick").addEventListener("click",function(){
+  EIDX=-1;
+  document.getElementById("mtitle").textContent="🎟️ Add New Coupon";
+  resetForm();
+  var types=["percent","flat","free_del"];
+  document.getElementById("mcode").value=randCode();
+  document.getElementById("mtype").value=types[Math.floor(Math.random()*types.length)];
+  document.getElementById("mval").value=[10,15,20,25,30,50][Math.floor(Math.random()*6)];
+  document.getElementById("mmin").value=[0,199,299,499][Math.floor(Math.random()*4)];
+  document.getElementById("mmaxuses").value=[50,100,200,500][Math.floor(Math.random()*4)];
+  onTypeChange(); updatePreview();
+  openModal();
+});
+
+/* INPUT EVENTS */
+document.getElementById("mcode").addEventListener("input",function(){ this.value=this.value.toUpperCase(); updatePreview(); });
+document.getElementById("mval").addEventListener("input", updatePreview);
+document.getElementById("mmin").addEventListener("input", updatePreview);
+document.getElementById("mtype").addEventListener("change", onTypeChange);
+
+/* SAVE */
+document.getElementById("msave").addEventListener("click",function(){
+  var errbox=document.getElementById("errbox");
+  errbox.style.display="none";
+
+  var code=document.getElementById("mcode").value.trim().toUpperCase();
+  var name=document.getElementById("mname").value.trim();
+  var type=document.getElementById("mtype").value;
+  var val =document.getElementById("mval").value.trim();
+
+  function showErr(m){ errbox.textContent="⚠ "+m; errbox.style.display="block"; }
+
+  if(!code){ showErr("Please enter a coupon code."); return; }
+  if(!name){ showErr("Please enter a coupon name."); return; }
+  if(!type){ showErr("Please select a discount type."); return; }
+  if(type!=="free_del"&&!val){ showErr("Please enter a discount value."); return; }
+
+  var dup=DB.findIndex(function(c,i){ return c.code===code && i!==EIDX; });
+  if(dup>=0){ showErr('Code "'+code+'" already exists. Use a different code.'); return; }
+
+  var obj={
+    id:        EIDX>=0 ? DB[EIDX].id : uid(),
+    code:      code, name:name,
+    desc:      document.getElementById("mdesc").value.trim(),
+    type:      type, val: val||0,
+    maxDisc:   document.getElementById("mmax").value||0,
+    minOrder:  document.getElementById("mmin").value||0,
+    maxUses:   document.getElementById("mmaxuses").value||0,
+    uses:      EIDX>=0 ? (DB[EIDX].uses||0) : 0,
+    perUser:   document.getElementById("mperuser").value,
+    start:     document.getElementById("mstart").value,
+    end:       document.getElementById("mend").value,
+    applies:   document.getElementById("mapplies").value||"all",
+    active:    document.getElementById("mactive").checked,
+    isPublic:  document.getElementById("mpublic").checked,
+    firstOnly: document.getElementById("mfirst").checked
+  };
+
+  if(EIDX>=0){
+    DB[EIDX]=obj;
+    toast("✅ Coupon updated: "+code,"ok");
+  } else {
+    DB.push(obj);
+    toast("🎉 Coupon created: "+code,"ok");
+    // Add 1-3 demo usage log entries
+    var rnd=Math.floor(Math.random()*3)+1;
+    for(var i=0;i<rnd;i++){
+      var amt=Math.floor(Math.random()*700)+200;
+      var disc=type==="percent"?Math.min(parseInt(obj.maxDisc)||9999,Math.round(amt*parseInt(val)/100)):type==="flat"?parseInt(val):40;
+      LOG.unshift({ code:code, cust:CNAMES[Math.floor(Math.random()*CNAMES.length)], order:"#PH-2026-0"+(800+Math.floor(Math.random()*99)), amt:amt, disc:disc, dt:new Date().toLocaleString("en-IN") });
+      DB[DB.length-1].uses=(DB[DB.length-1].uses||0)+1;
+    }
+    renderLog();
+  }
+
+  closeModal();
+  renderGrid();
+});
+
+/* FILTER */
+document.getElementById("btnFilter").addEventListener("click", renderGrid);
+document.getElementById("fsearch").addEventListener("input", renderGrid);
+document.getElementById("ftype").addEventListener("change", renderGrid);
+document.getElementById("fstatus").addEventListener("change", renderGrid);
+
+/* INIT */
+renderGrid();
+renderLog();
+</script>
+</body>
+</html>
