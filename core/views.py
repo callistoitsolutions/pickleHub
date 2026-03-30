@@ -1,5 +1,5 @@
 from django.shortcuts import render
-from .models import HeroSection
+from .models import HeroSection,FeaturesSection
 # Create your views here.
 import json
 from django.shortcuts import render, redirect
@@ -22,43 +22,74 @@ from django.views.decorators.csrf import csrf_exempt
 
 
 
+# views.py
+# PickleHub – Views for Hero + Features sections
+# NO forms.py used — all data via request.body JSON.
+
+
+
+
 # ──────────────────────────────────────────────
 # 1. PUBLIC HOME PAGE
 # ──────────────────────────────────────────────
 def index_view(request):
     """
-    Public-facing home page.
-    Passes the single HeroSection object to the template.
+    Public home page — passes both hero and features to the template.
     """
-    hero = HeroSection.get_or_create_default()
-    return render(request, 'core/index.html', {'hero': hero})
-
-
+    hero     = HeroSection.get_or_create_default()
+    features = FeaturesSection.get_or_create_default()
+    return render(request, 'core/index.html', {
+        'hero':     hero,
+        'features': features,
+    })
 
 
 # ──────────────────────────────────────────────
-# 3. SAVE HERO (AJAX POST from admin builder)
+# 2. ADMIN HOME PAGE
+# ──────────────────────────────────────────────
+
+
+# ──────────────────────────────────────────────
+# 3. SAVE HERO  (AJAX POST)
 # ──────────────────────────────────────────────
 @require_POST
 def save_hero(request):
+    try:
+        data = json.loads(request.body)
+    except (json.JSONDecodeError, ValueError):
+        return JsonResponse({'ok': False, 'error': 'Invalid JSON'}, status=400)
+
+    hero = HeroSection.get_or_create_default()
+    hero.badge_text        = data.get('badge_text',        hero.badge_text)
+    hero.title_line1       = data.get('title_line1',       hero.title_line1)
+    hero.title_highlight   = data.get('title_highlight',   hero.title_highlight)
+    hero.title_line2       = data.get('title_line2',       hero.title_line2)
+    hero.subtitle          = data.get('subtitle',          hero.subtitle)
+    hero.jar_emoji         = data.get('jar_emoji',         hero.jar_emoji)
+    hero.hero_image_url    = data.get('hero_image_url',    hero.hero_image_url)
+    hero.buttons_json      = data.get('buttons_json',      hero.buttons_json)
+    hero.stats_json        = data.get('stats_json',        hero.stats_json)
+    hero.float_badges_json = data.get('float_badges_json', hero.float_badges_json)
+    hero.is_visible        = data.get('is_visible',        hero.is_visible)
+    hero.save()
+
+    return JsonResponse({'ok': True, 'message': '✅ Hero section saved!'})
+
+
+# ──────────────────────────────────────────────
+# 4. SAVE FEATURES  (AJAX POST)  ← NEW
+# ──────────────────────────────────────────────
+@require_POST
+def save_features(request):
     """
-    Receives JSON from the admin builder's "Save & Publish" button.
-    Updates (or creates) the single HeroSection row.
+    Receives JSON from the admin builder's Features Strip tab.
 
     Expected JSON body:
     {
-        "badge_text": "...",
-        "title_line1": "...",
-        "title_highlight": "...",
-        "title_line2": "...",
-        "subtitle": "...",
-        "btn_primary_text": "...",
-        "btn_primary_url": "...",
-        "btn_secondary_text": "...",
-        "whatsapp_number": "...",
-        "jar_emoji": "...",
-        "stats_json": [...],
-        "float_badges_json": [...],
+        "items_json": [
+            {"ico": "🚚", "title": "Free Delivery", "sub": "Orders above ₹499"},
+            ...
+        ],
         "is_visible": true
     }
     """
@@ -67,55 +98,36 @@ def save_hero(request):
     except (json.JSONDecodeError, ValueError):
         return JsonResponse({'ok': False, 'error': 'Invalid JSON'}, status=400)
 
-    hero = HeroSection.get_or_create_default()
+    features = FeaturesSection.get_or_create_default()
+    features.items_json = data.get('items_json', features.items_json)
+    features.is_visible = data.get('is_visible', features.is_visible)
+    features.save()
 
-    # Update only fields that are present in the payload
-    hero.badge_text         = data.get('badge_text',         hero.badge_text)
-    hero.title_line1        = data.get('title_line1',        hero.title_line1)
-    hero.title_highlight    = data.get('title_highlight',    hero.title_highlight)
-    hero.title_line2        = data.get('title_line2',        hero.title_line2)
-    hero.subtitle           = data.get('subtitle',           hero.subtitle)
-    hero.btn_primary_text   = data.get('btn_primary_text',   hero.btn_primary_text)
-    hero.btn_primary_url    = data.get('btn_primary_url',    hero.btn_primary_url)
-    hero.btn_secondary_text = data.get('btn_secondary_text', hero.btn_secondary_text)
-    hero.whatsapp_number    = data.get('whatsapp_number',    hero.whatsapp_number)
-    hero.jar_emoji          = data.get('jar_emoji',          hero.jar_emoji)
-    hero.stats_json         = data.get('stats_json',         hero.stats_json)
-    hero.float_badges_json  = data.get('float_badges_json',  hero.float_badges_json)
-    hero.is_visible         = data.get('is_visible',         hero.is_visible)
-
-    hero.save()
-
-    return JsonResponse({'ok': True, 'message': '✅ Hero section saved!'})
+    return JsonResponse({'ok': True, 'message': '✅ Features section saved!'})
 
 
 # ──────────────────────────────────────────────
-# 4. LOAD HERO  (AJAX GET – optional, for page refresh without reload)
+# 5. LOAD HERO  (AJAX GET – optional)
 # ──────────────────────────────────────────────
 def load_hero(request):
-    """
-    Returns current hero data as JSON.
-    Useful if you want to reload data without page refresh.
-    """
     hero = HeroSection.get_or_create_default()
     return JsonResponse({
         'ok': True,
         'hero': {
-            'badge_text':         hero.badge_text,
-            'title_line1':        hero.title_line1,
-            'title_highlight':    hero.title_highlight,
-            'title_line2':        hero.title_line2,
-            'subtitle':           hero.subtitle,
-            'btn_primary_text':   hero.btn_primary_text,
-            'btn_primary_url':    hero.btn_primary_url,
-            'btn_secondary_text': hero.btn_secondary_text,
-            'whatsapp_number':    hero.whatsapp_number,
-            'jar_emoji':          hero.jar_emoji,
-            'stats_json':         hero.stats_json,
-            'float_badges_json':  hero.float_badges_json,
-            'is_visible':         hero.is_visible,
+            'badge_text':        hero.badge_text,
+            'title_line1':       hero.title_line1,
+            'title_highlight':   hero.title_highlight,
+            'title_line2':       hero.title_line2,
+            'subtitle':          hero.subtitle,
+            'jar_emoji':         hero.jar_emoji,
+            'hero_image_url':    hero.hero_image_url,
+            'buttons_json':      hero.buttons_json,
+            'stats_json':        hero.stats_json,
+            'float_badges_json': hero.float_badges_json,
+            'is_visible':        hero.is_visible,
         }
     })
+
 
 
 def products(request):

@@ -18,4 +18,5 @@ urlpatterns = [
     
     path('api/hero/save/',        views.save_hero,   name='save_hero'),
     path('api/hero/load/',        views.load_hero,   name='load_hero'),
+    path('api/features/save/',     views.save_features, name='save_features'),
 ]
