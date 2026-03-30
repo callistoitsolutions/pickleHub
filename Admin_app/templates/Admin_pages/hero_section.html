@@ -171,7 +171,7 @@ textarea.inp{resize:vertical;min-height:65px;}
 <!-- SECTION TABS -->
 <div class="sec-tabs">
   <div class="sec-tab on"  onclick="switchTab(0)">🦸 Hero</div>
-  <div class="sec-tab"     onclick="switchTab(1)">⭐ Features Strip</div>
+  <div class="sec-tab"     onclick="switchTab(1)" hidden>⭐ Features Strip</div>
   <div class="sec-tab"     onclick="switchTab(2)">📂 Categories</div>
   <div class="sec-tab"     onclick="switchTab(3)">🏷️ Offer Banner</div>
   <div class="sec-tab"     onclick="switchTab(4)">🔥 Best Sellers</div>
@@ -498,6 +498,8 @@ textarea.inp{resize:vertical;min-height:65px;}
 <div class="toast-wrap" id="toastWrap"></div>
 
 <script>
+  window.HERO_DATA     = {{ hero_json|safe }};
+  window.FEATURES_DATA = {{ features_json|safe }};
 /* ═══════════════════════════════════════
    STATE
 ═══════════════════════════════════════ */
@@ -943,19 +945,20 @@ function markUnsaved() {
 function saveAll() {
   var data = {
     hero: {
-      badge: document.getElementById('heroBadge').value,
-      title1: document.getElementById('heroTitle1').value,
-      highlight: document.getElementById('heroTitleHighlight').value,
-      title2: document.getElementById('heroTitle2').value,
+      badge_text: document.getElementById('heroBadge').value,
+      title_line1: document.getElementById('heroTitle1').value,
+      title_highlight: document.getElementById('heroTitleHighlight').value,
+      title_line2: document.getElementById('heroTitle2').value,
       subtitle: document.getElementById('heroSubtitle').value,
-      jar: document.getElementById('heroJar').value,
+      jar_emoji: document.getElementById('heroJar').value,
+      hero_image_url: STATE.heroImageUrl || '',
       imageUrl: STATE.heroImageUrl,
-      buttons: STATE.heroBtns,
-      stats: STATE.heroStats,
-      badges: STATE.heroFloatBadges,
+      buttons_json: STATE.heroBtns,
+      stats_json: STATE.heroStats,
+      float_badges_json: STATE.heroFloatBadges,
       visible: document.getElementById('tog-hero').classList.contains('on')
     },
-    feats:    {items: STATE.feats,       visible: document.getElementById('tog-feats').classList.contains('on')},
+    feats:    {items_json: STATE.feats, is_visible: document.getElementById('tog-feats').classList.contains('on')},
     cats:     {title: document.getElementById('catTitle').value, subtitle: document.getElementById('catSubtitle').value, items: STATE.cats, visible: document.getElementById('tog-cats').classList.contains('on')},
     offer:    {badge: document.getElementById('offerBadge').value, name: document.getElementById('offerName').value, desc: document.getElementById('offerDesc').value, price: document.getElementById('offerPrice').value, oldPrice: document.getElementById('offerOldPrice').value, discount: document.getElementById('offerDiscount').value, url: document.getElementById('offerUrl').value, potwEmoji: document.getElementById('potwEmoji').value, potwName: document.getElementById('potwName').value, potwWeight: document.getElementById('potwWeight').value, potwPrice: document.getElementById('potwPrice').value, potwOldPrice: document.getElementById('potwOldPrice').value, potwUrl: document.getElementById('potwUrl').value, countdown: document.getElementById('tog-countdown').classList.contains('on'), visible: document.getElementById('tog-offer').classList.contains('on')},
     bsProducts:{title: document.getElementById('bsTitle').value, subtitle: document.getElementById('bsSubtitle').value, items: STATE.bsProducts, visible: document.getElementById('tog-bs').classList.contains('on')},
@@ -963,14 +966,46 @@ function saveAll() {
     reviews:  {title: document.getElementById('reviewsTitle').value, subtitle: document.getElementById('reviewsSubtitle').value, items: STATE.reviews, visible: document.getElementById('tog-reviews').classList.contains('on')},
     newsletter:{heading: document.getElementById('newsHeading').value, desc: document.getElementById('newsDesc').value, placeholder: document.getElementById('newsPlaceholder').value, btn: document.getElementById('newsBtnText').value, privacy: document.getElementById('newsPrivacy').value, url: document.getElementById('newsUrl').value, visible: document.getElementById('tog-news').classList.contains('on')},
   };
+  // Save to localStorage as backup
   localStorage.setItem('picklehub_homepage_settings', JSON.stringify(data));
+
   toast('💾 Saving...', 'ok');
-  setTimeout(function() {
+  document.getElementById('saveStatus').textContent = '⏳ Saving…';
+  document.getElementById('saveStatus').className   = 's-pill sp-yellow';
+
+  // POST hero to Django
+  var heroPromise = fetch('/api/hero/save/', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json', 'X-CSRFToken': getCookie('csrftoken')},
+    body: JSON.stringify(data.hero),
+  }).then(function(r){ return r.json(); });
+
+  // POST features to Django
+  var featuresPromise = fetch('/api/features/save/', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json', 'X-CSRFToken': getCookie('csrftoken')},
+    body: JSON.stringify(data.feats),
+  }).then(function(r){ return r.json(); });
+
+  Promise.all([heroPromise, featuresPromise])
+  .then(function(results) {
+    var allOk = results.every(function(r){ return r.ok; });
+    if (allOk) {
+      unsaved = false;
+      document.getElementById('saveStatus').textContent = '✅ All Changes Saved';
+      document.getElementById('saveStatus').className   = 's-pill sp-green';
+      toast('✅ All sections saved & published!', 'ok');
+    } else {
+      toast('❌ One or more sections failed to save', 'err');
+      document.getElementById('saveStatus').textContent = '❌ Save failed';
+    }
+  })
+  .catch(function(err) {
+    toast('❌ Network error — saved locally only', 'err');
     unsaved = false;
-    document.getElementById('saveStatus').textContent = '✅ All Changes Saved';
+    document.getElementById('saveStatus').textContent = '✅ Saved locally';
     document.getElementById('saveStatus').className   = 's-pill sp-green';
-    toast('✅ Home page saved & published!', 'ok');
-  }, 600);
+  });
 }
 
 function resetAll() {
@@ -987,9 +1022,9 @@ function loadSaved() {
     if (d.hero) {
       var map = {heroBadge:'badge',heroTitle1:'title1',heroTitleHighlight:'highlight',heroTitle2:'title2',heroSubtitle:'subtitle',heroJar:'jar'};
       Object.keys(map).forEach(function(id) { if (d.hero[map[id]] !== undefined) document.getElementById(id).value = d.hero[map[id]]; });
-      if (d.hero.buttons) STATE.heroBtns       = d.hero.buttons;
-      if (d.hero.stats)   STATE.heroStats       = d.hero.stats;
-      if (d.hero.badges)  STATE.heroFloatBadges = d.hero.badges;
+      if (d.hero.buttons_json) STATE.heroBtns = d.hero.buttons_json;
+      if (d.hero.stats_json) STATE.heroStats = d.hero.stats_json;
+      if (d.hero.float_badges_json) STATE.heroFloatBadges = d.hero.float_badges_json;
       if (d.hero.imageUrl && d.hero.imageUrl) {
         STATE.heroImageUrl = d.hero.imageUrl;
         document.getElementById('imgThumb').src = d.hero.imageUrl;
@@ -997,7 +1032,7 @@ function loadSaved() {
         document.getElementById('uploadBox').style.display = 'none';
       }
     }
-    if (d.feats && d.feats.items)         STATE.feats       = d.feats.items;
+    if (d.feats && d.feats.items_json)    STATE.feats       = d.feats.items_json;
     if (d.cats)  { if (d.cats.items)      STATE.cats        = d.cats.items; if (d.cats.title) document.getElementById('catTitle').value=d.cats.title; if (d.cats.subtitle) document.getElementById('catSubtitle').value=d.cats.subtitle; }
     if (d.offer) { ['offerBadge','offerName','offerDesc','offerPrice','offerOldPrice','offerDiscount','offerUrl','potwEmoji','potwName','potwWeight','potwPrice','potwOldPrice','potwUrl'].forEach(function(f,i){var ks=['badge','name','desc','price','oldPrice','discount','url','potwEmoji','potwName','potwWeight','potwPrice','potwOldPrice','potwUrl'];if(d.offer[ks[i]]!==undefined)document.getElementById(f).value=d.offer[ks[i]];}); }
     if (d.bsProducts && d.bsProducts.items) STATE.bsProducts = d.bsProducts.items;
@@ -1021,6 +1056,14 @@ function toast(msg, type) {
 }
 
 /* ═══════════════════════════════════════
+   HELPER: CSRF cookie
+═══════════════════════════════════════ */
+function getCookie(name) {
+  var v = document.cookie.match('(^|;) ?' + name + '=([^;]*)(;|$)');
+  return v ? v[2] : '';
+}
+
+/* ═══════════════════════════════════════
    HELPER: escape HTML
 ═══════════════════════════════════════ */
 function esc(str) {
@@ -1031,6 +1074,51 @@ function esc(str) {
    INIT
 ═══════════════════════════════════════ */
 loadSaved();
+
+// ── Pre-fill from Django-injected data ──
+(function initFromDjango() {
+  // Hero
+  var hd = window.HERO_DATA || {};
+  if (hd.buttons_json)      STATE.heroBtns        = hd.buttons_json;
+  if (hd.stats_json)        STATE.heroStats        = hd.stats_json;
+  if (hd.float_badges_json) STATE.heroFloatBadges  = hd.float_badges_json;
+  if (hd.hero_image_url) {
+    STATE.heroImageUrl = hd.hero_image_url;
+    var thumb = document.getElementById('imgThumb');
+    var wrap  = document.getElementById('imgPreviewWrap');
+    var box   = document.getElementById('uploadBox');
+    if (thumb) thumb.src = hd.hero_image_url;
+    if (wrap)  wrap.style.display = 'flex';
+    if (box)   box.style.display  = 'none';
+  }
+  // Text fields
+  var fieldMap = {
+    heroBadge:'badge_text', heroTitle1:'title_line1', heroTitleHighlight:'title_highlight',
+    heroTitle2:'title_line2', heroSubtitle:'subtitle', heroJar:'jar_emoji'
+  };
+  Object.keys(fieldMap).forEach(function(id) {
+    var val = hd[fieldMap[id]];
+    var el  = document.getElementById(id);
+    if (val !== undefined && el) el.value = val;
+  });
+  if (hd.is_visible === false) {
+    var t = document.getElementById('tog-hero');
+    var l = document.getElementById('tog-hero-lbl');
+    if (t) t.classList.remove('on');
+    if (l) l.textContent = 'Hidden';
+  }
+
+  // Features
+  var fd = window.FEATURES_DATA || {};
+  if (fd.items_json) STATE.feats = fd.items_json;
+  if (fd.is_visible === false) {
+    var tf = document.getElementById('tog-feats');
+    var lf = document.getElementById('tog-feats-lbl');
+    if (tf) tf.classList.remove('on');
+    if (lf) lf.textContent = 'Hidden';
+  }
+})();
+
 renderHeroBtns();
 renderHeroStats();
 renderHeroBadges();

@@ -27,6 +27,22 @@
         .nav-item i{width:18px;text-align:center;font-size:14px;}
         .nav-badge{background:#e85d04;color:#fff;border-radius:50px;padding:1px 7px;font-size:10px;margin-left:auto;}
 
+        /* 💥 NEW: DROPDOWN STYLES 💥 */
+        .nav-item[data-bs-toggle="collapse"]::after {
+            content: '\f107'; /* FontAwesome Angle Down */
+            font-family: "Font Awesome 6 Free";
+            font-weight: 900;
+            margin-left: auto;
+            transition: transform 0.3s ease;
+        }
+        /* Rotate arrow when menu is open */
+        .nav-item[data-bs-toggle="collapse"][aria-expanded="true"]::after {
+            transform: rotate(180deg);
+        }
+        .nav-submenu { background: rgba(0,0,0,0.15); padding: 5px 0; border-left: 2px solid #e85d04; }
+        .nav-submenu .nav-item { font-size: 12px; padding: 8px 18px 8px 30px; border-left: none; }
+        .nav-submenu .nav-item i { font-size: 10px; width: 14px; opacity: 0.5; }
+
         /* MAIN */
         .main-wrap{margin-left:var(--sidebar);flex:1;display:flex;flex-direction:column;min-height:100vh;}
         .topbar{background:#fff;padding:14px 24px;display:flex;align-items:center;justify-content:space-between;box-shadow:0 2px 10px rgba(0,0,0,0.06);position:sticky;top:0;z-index:99;}
@@ -124,28 +140,44 @@
     </div>
 
     <div class="nav-section">Main</div>
-    <a class="nav-item active" href="#" aria-current="page"><i class="fa fa-tachometer-alt"></i> Dashboard</a>
+    <a class="nav-item {% block nav_dash %}{% endblock %}" href="#" aria-current="page"><i class="fa fa-tachometer-alt"></i> Dashboard</a>
 
     <div class="nav-section">Orders</div>
-    <a class="nav-item" href="picklehub_orders_report.html"><i class="fa fa-shopping-bag"></i> All Orders <span class="nav-badge">12</span></a>
+    <a class="nav-item {% block nav_orders %}{% endblock %}" href="picklehub_orders_report.html"><i class="fa fa-shopping-bag"></i> All Orders <span class="nav-badge">12</span></a>
     <a class="nav-item" href="#" onclick="showSection('paymentReview')"><i class="fa fa-clock"></i> Payment Review <span class="nav-badge" style="background:#1565c0;">5</span></a>
     <a class="nav-item" href="#"><i class="fa fa-truck"></i> Dispatched</a>
     <a class="nav-item" href="#"><i class="fa fa-check-circle"></i> Delivered</a>
 
     <div class="nav-section">Catalogue</div>
-    <a class="nav-item" href="#"><i class="fa fa-box"></i> Products</a>
-    <a class="nav-item" href="#"><i class="fa fa-tags"></i> Categories</a>
+    <a class="nav-item {% block nav_products %}{% endblock %}" href="#"><i class="fa fa-box"></i> Products</a>
+    <a class="nav-item {% block nav_cats %}{% endblock %}" href="#"><i class="fa fa-tags"></i> Categories</a>
     <a class="nav-item" href="#"><i class="fa fa-award"></i> Brands</a>
     <a class="nav-item" href="#"><i class="fa fa-star"></i> Reviews <span class="nav-badge" style="background:#f48c06;">8</span></a>
 
+    <div class="nav-section">Frontend Builders</div>
+    
+    <a class="nav-item {% block nav_builders_main %}{% endblock %}" data-bs-toggle="collapse" href="#homePageDropdown" role="button" aria-expanded="false" aria-controls="homePageDropdown">
+        <i class="fa fa-home"></i> Home Page
+    </a>
+    
+    <div class="collapse {% block nav_builders_show %}{% endblock %}" id="homePageDropdown">
+        <div class="nav-submenu">
+            <a class="nav-item {% block nav_build_hero %}{% endblock %}" href="{% url 'hero_section' %}"><i class="fa fa-circle"></i> Hero Section</a>
+            <a class="nav-item {% block nav_build_features %}{% endblock %}" href="{% url 'feature_section' %}"><i class="fa fa-circle"></i> Features Strip</a>
+            <a class="nav-item {% block nav_build_shopcat %}{% endblock %}" href="#"><i class="fa fa-circle"></i> Shop Categories</a>
+            <a class="nav-item {% block nav_build_offers %}{% endblock %}" href="#"><i class="fa fa-circle"></i> Offer Banners</a>
+            <a class="nav-item {% block nav_build_bestsellers %}{% endblock %}" href="#"><i class="fa fa-circle"></i> Best Sellers</a>
+        </div>
+    </div>
+
     <div class="nav-section">Reports</div>
-    <a class="nav-item" href="picklehub_reports.html"><i class="fa fa-chart-bar"></i> Sales Reports</a>
+    <a class="nav-item {% block nav_rep_sales %}{% endblock %}" href="picklehub_reports.html"><i class="fa fa-chart-bar"></i> Sales Reports</a>
     <a class="nav-item" href="picklehub_reports.html#products"><i class="fa fa-chart-pie"></i> Product Reports</a>
     <a class="nav-item" href="picklehub_reports.html#payments"><i class="fa fa-rupee-sign"></i> Payment Reports</a>
     <a class="nav-item" href="picklehub_reports.html#customers"><i class="fa fa-users"></i> Customer Reports</a>
 
     <div class="nav-section">Settings</div>
-    <a class="nav-item" href="#"><i class="fa fa-cog"></i> Site Settings</a>
+    <a class="nav-item {% block nav_settings %}{% endblock %}" href="#"><i class="fa fa-cog"></i> Site Settings</a>
     <a class="nav-item" href="#"><i class="fa fa-qrcode"></i> UPI / QR Code</a>
     <a class="nav-item" href="#"><i class="fa fa-tag"></i> Coupons</a>
     <a class="nav-item" href="#"><i class="fa fa-sign-out-alt"></i> Logout</a>
@@ -158,6 +190,7 @@
             <div class="topbar-title" id="pageTitle">{% block page_title %}📊 Dashboard Overview{% endblock %}</div>
         </div>
         <div class="topbar-right">
+            {% block topbar_actions %}{% endblock %}
             <span class="date" id="liveClock"></span>
             <span class="admin-pill">👨‍💼 Admin</span>
         </div>
@@ -166,7 +199,10 @@
     <div class="content">
         {% block content %}
         {% endblock %}
-    </div></div><script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
     // Live clock
     function tick(){ document.getElementById('liveClock').textContent = new Date().toLocaleString('en-IN',{weekday:'short',day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'}); }
