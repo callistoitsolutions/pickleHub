@@ -32,7 +32,7 @@ urlpatterns = [
     path('', include('core.urls')), 
     
     # Your other apps
-    path('Admin_panel', include('Admin_app.urls')), 
+    path('Admin_panel/', include('Admin_app.urls')), 
 ]
 
 if settings.DEBUG:

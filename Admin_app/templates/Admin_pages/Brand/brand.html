@@ -164,12 +164,12 @@ textarea.inp{resize:vertical;min-height:65px;}
   <div class="tbar-right">
     <span class="s-pill sp-green" id="saveStatus">✅ All Changes Saved</span>
     <button class="btn-s" onclick="resetAll()"><i class="fa fa-undo"></i> Reset</button>
-    <button class="btn-p" onclick="saveAll()"><i class="fa fa-save"></i> Save & Publish</button>
+    <button class="btn-p" onclick="saveBrands()"><i class="fa fa-save"></i> Save & Publish</button>
   </div>
 </div>
 
 <!-- SECTION TABS -->
-<div class="sec-tabs">
+{% comment %} <div class="sec-tabs">
   <div class="sec-tab on"  onclick="switchTab(0)">🦸 Hero</div>
   <div class="sec-tab"     onclick="switchTab(1)" hidden>⭐ Features Strip</div>
   <div class="sec-tab"     onclick="switchTab(2)">📂 Categories</div>
@@ -178,7 +178,7 @@ textarea.inp{resize:vertical;min-height:65px;}
   <div class="sec-tab"     onclick="switchTab(5)">🏷 Brands</div>
   <div class="sec-tab"     onclick="switchTab(6)">💬 Reviews</div>
   <div class="sec-tab"     onclick="switchTab(7)">📧 Newsletter</div>
-</div>
+</div> {% endcomment %}
 
 <div class="page">
 <div class="row g-4">
@@ -187,97 +187,27 @@ textarea.inp{resize:vertical;min-height:65px;}
 <div class="col-lg-7">
 
 <!-- ──────── PANEL 0: HERO ──────── -->
+
 <div class="sec-panel on" id="panel-0">
   <div class="card">
-    <div class="card-head">
-      <span class="ch-ico">🦸</span>
-      <span class="ch-title">Hero Section</span>
-      <span class="ch-sub">— main banner</span>
-      <div class="ch-right">
-        <div class="tog-row">
-          <div class="tog on" id="tog-hero" onclick="togSwitch(this,'tog-hero')"></div>
-          <span class="tog-lbl" id="tog-hero-lbl">Visible</span>
-        </div>
-      </div>
+    <div class="card-head"><span class="ch-ico">🏷</span><span class="ch-title">Pickle Brands</span><span class="ch-sub">— brand chips row</span>
+      <div class="ch-right"><div class="tog-row"><div class="tog on" id="tog-brands" onclick="togSwitch(this,'tog-brands')"></div><span class="tog-lbl" id="tog-brands-lbl">Visible</span></div></div>
     </div>
     <div class="card-body">
-
-      <!-- TEXT FIELDS -->
-      <div class="section-divider">📝 Text Content</div>
-      <div class="row g-3">
-        <div class="col-md-6">
-          <label class="lbl">Hero Badge Text <span class="req">*</span></label>
-          <input class="inp" id="heroBadge" value="🏆 Nagpur's #1 Pickle Store" oninput="updatePreview()">
-        </div>
-        <div class="col-md-6">
-          <label class="lbl">Hero Title Line 1</label>
-          <input class="inp" id="heroTitle1" value="Discover" oninput="updatePreview()">
-        </div>
-        <div class="col-md-6">
-          <label class="lbl">Hero Title Highlight <span class="lbl-hint">(yellow color)</span></label>
-          <input class="inp" id="heroTitleHighlight" value="Rare &amp; Exclusive" oninput="updatePreview()">
-        </div>
-        <div class="col-md-6">
-          <label class="lbl">Hero Title Line 2</label>
-          <input class="inp" id="heroTitle2" value="Pickle Brands" oninput="updatePreview()">
-        </div>
-        <div class="col-12">
-          <label class="lbl">Hero Subtitle / Description</label>
-          <textarea class="inp" id="heroSubtitle" oninput="updatePreview()">Handpicked regional pickles from Andhra, Rajasthan, Punjab &amp; more — not available in local stores. Order online with 24-hour delivery across Nagpur.</textarea>
-        </div>
+      <div class="row g-2 mb-3">
+        <div class="col-md-6"><label class="lbl">Section Title</label><input class="inp" id="brandsTitle" value="Our Pickle Brands" oninput="updatePreview()"></div>
+        <div class="col-md-6"><label class="lbl">Section Subtitle</label><input class="inp" id="brandsSubtitle" value="Handpicked exclusive brands from across India" oninput="updatePreview()"></div>
       </div>
+      <div id="brandsList"></div>
+      <button class="btn-add" onclick="addBrand()"><i class="fa fa-plus"></i> Add Brand</button>
+    </div>
+  </div>
+</div>
 
-      <hr style="margin:16px 0;border-color:#f0f0f0;">
 
-      <!-- ════ BUTTONS BUILDER ════ -->
-      <div class="section-divider">🔘 Hero Buttons <span style="font-size:10px;font-weight:400;color:#888;">— add, edit or remove buttons shown on hero</span></div>
-      <div id="heroBtnsList"></div>
-      <button class="btn-add" onclick="addHeroBtn()"><i class="fa fa-plus"></i> Add Button</button>
-
-      <hr style="margin:16px 0;border-color:#f0f0f0;">
-
-      <!-- ════ IMAGE / JAR SECTION ════ -->
-      <div class="section-divider">🖼️ Hero Right Side Image</div>
-      <div class="row g-3">
-        <div class="col-md-6">
-          <label class="lbl">Upload Image <span class="lbl-hint">(replaces emoji jar)</span></label>
-          <div class="img-upload-box" id="uploadBox">
-            <input type="file" accept="image/*" onchange="handleImageUpload(event)">
-            <div class="upload-icon">📁</div>
-            <div class="upload-text">Click to upload image<br><span style="font-size:10px;color:#bbb;">PNG, JPG, WEBP supported</span></div>
-          </div>
-          <div id="imgPreviewWrap" style="display:none;margin-top:8px;display:flex;align-items:center;gap:10px;">
-            <img id="imgThumb" class="img-preview-thumb" src="" alt="Preview">
-            <button class="btn-danger" onclick="removeImage()" style="height:fit-content;"><i class="fa fa-trash"></i> Remove</button>
-          </div>
-        </div>
-        <div class="col-md-6">
-          <label class="lbl">OR use Emoji Jar <span class="lbl-hint">(if no image uploaded)</span></label>
-          <input class="inp" id="heroJar" value="🫙" maxlength="4" oninput="updatePreview()" style="font-size:24px;text-align:center;padding:12px;">
-          <div style="font-size:10px;color:#aaa;margin-top:5px;">💡 If image is uploaded, emoji is hidden automatically</div>
-        </div>
-      </div>
-
-      <hr style="margin:16px 0;border-color:#f0f0f0;">
-
-      <!-- ════ STATS ════ -->
-      <div class="section-divider">📊 Hero Stats <span style="font-size:10px;font-weight:400;color:#888;">— stat boxes below buttons</span></div>
-      <div id="heroStatsList"></div>
-      <button class="btn-add" onclick="addHeroStat()"><i class="fa fa-plus"></i> Add Stat</button>
-
-      <hr style="margin:16px 0;border-color:#f0f0f0;">
-
-      <!-- ════ FLOATING BADGES ════ -->
-      <div class="section-divider">🎈 Floating Badges <span style="font-size:10px;font-weight:400;color:#888;">— animated badges on image</span></div>
-      <div id="heroBadgesList"></div>
-      <button class="btn-add" onclick="addFloatBadge()"><i class="fa fa-plus"></i> Add Badge</button>
-
-    </div><!-- /card-body -->
-  </div><!-- /card -->
-</div><!-- /panel-0 -->
 
 <!-- ──────── PANEL 1: FEATURES ──────── -->
-<div class="sec-panel" id="panel-1">
+{% comment %} <div class="sec-panel" id="panel-1">
   <div class="card">
     <div class="card-head"><span class="ch-ico">⭐</span><span class="ch-title">Features Strip</span><span class="ch-sub">— dark strip below hero</span>
       <div class="ch-right"><div class="tog-row"><div class="tog on" id="tog-feats" onclick="togSwitch(this,'tog-feats')"></div><span class="tog-lbl" id="tog-feats-lbl">Visible</span></div></div>
@@ -287,10 +217,10 @@ textarea.inp{resize:vertical;min-height:65px;}
       <button class="btn-add" onclick="addFeat()"><i class="fa fa-plus"></i> Add Feature</button>
     </div>
   </div>
-</div>
+</div> {% endcomment %}
 
 <!-- ──────── PANEL 2: CATEGORIES ──────── -->
-<div class="sec-panel" id="panel-2">
+{% comment %} <div class="sec-panel" id="panel-2">
   <div class="card">
     <div class="card-head"><span class="ch-ico">📂</span><span class="ch-title">Shop by Category</span><span class="ch-sub">— category cards grid</span>
       <div class="ch-right"><div class="tog-row"><div class="tog on" id="tog-cats" onclick="togSwitch(this,'tog-cats')"></div><span class="tog-lbl" id="tog-cats-lbl">Visible</span></div></div>
@@ -304,10 +234,10 @@ textarea.inp{resize:vertical;min-height:65px;}
       <button class="btn-add" onclick="addCat()"><i class="fa fa-plus"></i> Add Category</button>
     </div>
   </div>
-</div>
+</div> {% endcomment %}
 
 <!-- ──────── PANEL 3: OFFER BANNER ──────── -->
-<div class="sec-panel" id="panel-3">
+{% comment %} <div class="sec-panel" id="panel-3">
   <div class="card">
     <div class="card-head"><span class="ch-ico">🏷️</span><span class="ch-title">Offer Banner</span><span class="ch-sub">— green offer + Pickle of the Week</span>
       <div class="ch-right"><div class="tog-row"><div class="tog on" id="tog-offer" onclick="togSwitch(this,'tog-offer')"></div><span class="tog-lbl" id="tog-offer-lbl">Visible</span></div></div>
@@ -342,7 +272,7 @@ textarea.inp{resize:vertical;min-height:65px;}
       </div>
     </div>
   </div>
-</div>
+</div> {% endcomment %}
 
 <!-- ──────── PANEL 4: BEST SELLERS ──────── -->
 <div class="sec-panel" id="panel-4">
@@ -365,7 +295,6 @@ textarea.inp{resize:vertical;min-height:65px;}
 </div>
 
 <!-- ──────── PANEL 5: BRANDS ──────── -->
- 
 <div class="sec-panel" id="panel-5">
   <div class="card">
     <div class="card-head"><span class="ch-ico">🏷</span><span class="ch-title">Pickle Brands</span><span class="ch-sub">— brand chips row</span>
@@ -426,59 +355,34 @@ textarea.inp{resize:vertical;min-height:65px;}
     <div class="prev-lbl">👁️ Live Home Page Preview</div>
     <div class="pv-box">
 
-      <!-- HERO PREVIEW -->
-      <div class="pv-hero" id="pv-hero">
+      {% comment %} <div class="pv-hero" id="pv-hero">
         <div class="pv-badge" id="pv-heroBadge">🏆 Nagpur's #1 Pickle Store</div>
         <div class="pv-title" id="pv-heroTitle">Discover <span id="pv-heroHL">Rare &amp; Exclusive</span><br>Pickle Brands</div>
         <div class="pv-sub" id="pv-heroSub">Handpicked regional pickles from Andhra, Rajasthan &amp; more</div>
-        <!-- DYNAMIC BUTTONS PREVIEW -->
         <div class="pv-btns" id="pv-heroBtns"></div>
-        <!-- STATS -->
         <div class="pv-stats" id="pv-heroStats"></div>
-        <!-- IMAGE / JAR -->
         <div class="pv-hero-img-wrap">
           <img id="pv-heroImg" class="pv-hero-img" src="" alt="Hero Image" style="display:none;">
           <span id="pv-heroEmoji" class="pv-hero-emoji">🫙</span>
         </div>
-        <!-- FLOATING BADGES -->
         <div class="pv-float-badges" id="pv-floatBadges"></div>
-      </div>
+      </div> {% endcomment %}
 
-      <!-- FEATURES -->
       <div class="pv-feats" id="pv-feats"></div>
 
-      <!-- CATEGORIES -->
       <div class="pv-cats" id="pv-cats"></div>
 
-      <!-- OFFER -->
-      <div class="pv-offer" id="pv-offer">
-        <div class="pv-o-badge" id="pv-offerBadge">🔥 LIMITED STOCK</div>
-        <div class="pv-o-name" id="pv-offerName">Andhra Avakaya Mango Pickle</div>
-        <div id="pv-offerDesc" style="font-size:10px;opacity:.8;margin-bottom:4px;"></div>
-        <div><span class="pv-o-price" id="pv-offerPrice">₹299</span> <span style="text-decoration:line-through;opacity:.5;font-size:12px;" id="pv-offerOldPrice">₹450</span> <span style="background:#ffd60a;color:#1a1a2e;padding:2px 8px;border-radius:50px;font-size:9px;font-weight:800;" id="pv-offerDiscount">33% OFF</span></div>
-      </div>
-      <div class="pv-potw" id="pv-potw">
-        <div class="pv-potw-badge">⭐ Pickle of the Week</div>
-        <div style="font-size:28px;" id="pv-potwEmoji">🧄</div>
-        <div style="font-size:12px;font-weight:800;" id="pv-potwName">Rajasthani Garlic Pickle</div>
-        <div style="font-size:10px;opacity:.8;" id="pv-potwWeight">500g | Traditional Recipe</div>
-        <div style="margin-top:4px;"><span style="font-size:16px;font-weight:800;color:#ffd60a;" id="pv-potwPrice">₹199</span> <span style="text-decoration:line-through;opacity:.5;font-size:11px;" id="pv-potwOldPrice">₹350</span></div>
-      </div>
+      <div id="right-offer-preview-box"></div>
 
-      <!-- BRANDS -->
       <div class="pv-brands" id="pv-brands"></div>
 
-      <!-- NEWSLETTER -->
-      <div class="pv-news" id="pv-news">
+      {% comment %} <div class="pv-news" id="pv-news">
         <h4 id="pv-newsHeading">🎁 Get 15% OFF Your First Order!</h4>
         <p id="pv-newsDesc">Subscribe for exclusive deals straight to your inbox.</p>
         <input class="pv-news-inp" placeholder="Enter your email..." disabled>
-      </div>
+      </div> {% endcomment %}
 
-    </div><!-- /pv-box -->
-
-    <!-- HOW IT WORKS -->
-    <div style="background:#fff;border-radius:12px;padding:14px 16px;margin-top:14px;border:1.5px solid #f0f0f0;">
+    </div><div style="background:#fff;border-radius:12px;padding:14px 16px;margin-top:14px;border:1.5px solid #f0f0f0;">
       <div style="font-size:12px;font-weight:800;color:#1a1a2e;margin-bottom:6px;">📋 How it works</div>
       <div style="font-size:11px;color:#888;line-height:2;">
         ① Switch tabs to edit each section<br>
@@ -491,6 +395,9 @@ textarea.inp{resize:vertical;min-height:65px;}
   </div>
 </div>
 
+</div></div></div></div>```
+
+
 </div><!-- /row -->
 </div><!-- /page -->
 </div><!-- /main -->
@@ -498,7 +405,222 @@ textarea.inp{resize:vertical;min-height:65px;}
 
 <div class="toast-wrap" id="toastWrap"></div>
 
+{{ brands_list|json_script:"initial-brands-data" }}
+
 <script>
+    // Helper to safely escape HTML if it isn't already declared in your file
+    function esc(str) {
+        if (!str) return '';
+        return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#039;');
+    }
+
+    // Helper to switch the UI state to "Unsaved" when someone types
+    function markUnsaved() {
+        unsaved = true;
+        var saveStatusEl = document.getElementById('saveStatus');
+        if (saveStatusEl) {
+            saveStatusEl.textContent = '⚠️ Unsaved Changes';
+            saveStatusEl.className = 's-pill sp-yellow';
+        }
+    }
+
+    function markSaved() {
+    unsaved = false;
+    var el = document.getElementById('saveStatus');
+    if (el) {
+        el.textContent = '✅ All Changes Saved';
+        el.className = 's-pill sp-green';
+    }
+}
+
+    /* ═══════════════════════════════════════
+       RENDER: BRANDS
+    ═══════════════════════════════════════ */
+
+    window.STATE = window.STATE || {};
+    window.STATE.brands = window.STATE.brands || []; // Fallback
+    
+    // Initialize Brands from Django
+    // 👇 NEW: Initialize Brands
+    const brandsDataElement = document.getElementById('initial-brands-data');
+    if (brandsDataElement) {
+        window.STATE.brands = JSON.parse(brandsDataElement.textContent);
+    } else {
+        window.STATE.brands = []; 
+    } 
+    
+    function renderBrands() {
+        var el = document.getElementById('brandsList'); 
+        if (!el) return;
+        el.innerHTML = '';
+        
+        window.STATE.brands.forEach(function(b, i) {
+            var d = document.createElement('div'); 
+            d.className = 'brand-row';
+            d.style.display = 'flex'; // Ensure alignment is perfect
+            d.style.gap = '8px';
+            d.style.marginBottom = '10px';
+            
+            d.innerHTML =
+                '<span class="si" style="cursor:grab;"><i class="fa fa-grip-vertical"></i></span>' +
+                '<input class="inp-sm inp-w80" value="' + esc(b.emoji) + '" maxlength="4" style="font-size:18px;text-align:center;" oninput="window.STATE.brands[' + i + '].emoji=this.value; updatePreview(); markUnsaved();">' +
+                '<input class="inp-sm inp-w140" value="' + esc(b.name) + '" placeholder="Brand name" oninput="window.STATE.brands[' + i + '].name=this.value; updatePreview(); markUnsaved();">' +
+                '<input class="inp-sm inp-flex" value="' + esc(b.url) + '" placeholder="/brand/url/" oninput="window.STATE.brands[' + i + '].url=this.value; updatePreview(); markUnsaved();">' +
+                '<button class="btn-danger" style="cursor:pointer;" onclick="window.STATE.brands.splice(' + i + ',1); renderBrands(); updatePreview(); markUnsaved();"><i class="fa fa-trash"></i></button>';
+            
+            el.appendChild(d);
+        });
+    }
+
+    function addBrand() { 
+        window.STATE.brands.push({ emoji: '🏷️', name: 'New Brand', url: '' }); 
+        renderBrands(); 
+        if (typeof updatePreview === 'function') updatePreview(); 
+        markUnsaved();
+        if (typeof toast === 'function') toast('✅ Brand added', 'ok'); 
+    }
+
+    /* ═══════════════════════════════════════
+       RESET UI STATE (Run this on initial page load only)
+    ═══════════════════════════════════════ */
+
+   
+</script>
+
+<script>
+
+    /* ═══════════════════════════════════════
+   LIVE PREVIEW: BRANDS
+═══════════════════════════════════════ */
+function updateBrandsPreview() {
+    var previewEl = document.getElementById('pv-brands');
+    
+    if (!previewEl) return;
+    
+    // 1. Force it to be visible just in case CSS hid it
+    previewEl.style.display = 'block'; 
+    previewEl.innerHTML = ''; 
+    
+    window.STATE.brands = window.STATE.brands || [];
+    
+
+    // 2. Grab the texts
+    var titleInput = document.getElementById('brandsTitle');
+    var subtitleInput = document.getElementById('brandsSubtitle');
+    var titleText = titleInput ? titleInput.value : 'Featured Brands';
+    var subtitleText = subtitleInput ? subtitleInput.value : 'Discover our premium selection of authentic pickles';
+
+    // 3. ALWAYS build the Header, even if there are no brands yet
+    var htmlStr = 
+        '<div style="text-align:center; margin: 30px 0 20px;">' +
+            '<h3 style="font-size:22px; font-weight:800; color:#1a1a2e; margin:0 0 6px 0; text-transform:uppercase; letter-spacing:1px;">' + esc(titleText) + '</h3>' +
+            '<p style="font-size:13px; color:#666; margin:0;">' + esc(subtitleText) + '</p>' +
+        '</div>';
+    
+    htmlStr += '<div style="display:flex; flex-wrap:wrap; gap:10px; justify-content:center; margin-bottom:20px;">';
+    
+    // 4. If empty, show a placeholder. If full, show the brands.
+    if (window.STATE.brands.length === 0) {
+        htmlStr += '<div style="font-size:12px; color:#999; border:1px dashed #ccc; padding:10px 20px; border-radius:20px;">No brands added yet. Click "+ Add Brand" on the left.</div>';
+    } else {
+        window.STATE.brands.forEach(function(b) {
+            htmlStr += 
+                '<div style="background:#ffffff; border:1px solid #e0e0e0; border-radius:50px; padding:6px 16px; display:flex; align-items:center; gap:8px; box-shadow:0 2px 4px rgba(0,0,0,0.03);">' +
+                    '<span style="font-size:18px;">' + (esc(b.emoji) || '🏷️') + '</span>' +
+                    '<span style="font-size:13px; font-weight:700; color:#333;">' + (esc(b.name) || 'Brand Name') + '</span>' +
+                '</div>';
+        });
+    }
+    
+    htmlStr += '</div>';
+    previewEl.innerHTML = htmlStr;
+    
+}
+
+
+/* ═══════════════════════════════════════
+   MASTER PREVIEW UPDATER
+═══════════════════════════════════════ */
+// If you already have this function, just add the updateBrandsPreview() line inside it.
+// If you don't have it, paste this whole block!
+function updatePreview() {
+    // Update the Offers Preview
+    if (typeof updateOfferPreview === 'function') updateOfferPreview();
+    
+    // Update the Brands Preview
+    if (typeof updateBrandsPreview === 'function') updateBrandsPreview();
+    
+    // Add any other preview functions here later (like Categories, Hero section, etc.)
+}
+</script>
+
+<script>
+
+    // The main save function
+function saveBrands() {
+    const saveBtn = document.getElementById('btn-save-brands'); // Add this ID to your save button
+    
+    if (saveBtn) saveBtn.innerText = 'Saving...';
+
+    fetch('{% url "Save_Brand_Ajax" %}', { // Update with your actual URL
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            
+        },
+        body: JSON.stringify(window.STATE.brands)
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.status === 'success') {
+            // Set UI to "Saved" state
+            if (saveBtn) saveBtn.innerText = 'Save & Publish';
+            markSaved();
+            unsaved = false; 
+        } else {
+            alert('Error saving: ' + data.message);
+            if (saveBtn) saveBtn.innerText = 'Save & Publish';
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        if (saveBtn) saveBtn.innerText = 'Save & Publish';
+    });
+}
+
+</script>
+
+<script>
+
+    /* ═══════════════════════════════════════
+   PAGE INITIALIZATION (DOM Content Loaded)
+═══════════════════════════════════════ */
+document.addEventListener("DOMContentLoaded", function() {
+    
+    // 1. Draw the Left-Side Admin Panels
+    if (typeof renderOffers === 'function') renderOffers();
+    if (typeof renderBrands === 'function') renderBrands();
+
+    // 2. Draw the Right-Side Live Previews
+    if (typeof updatePreview === 'function') updatePreview();
+
+    markSaved();
+
+    // 3. Reset the Unsaved UI status
+    unsaved = false; 
+    var saveStatusEl = document.getElementById('saveStatus');
+    if (saveStatusEl) {
+        saveStatusEl.textContent = '✅ All Changes Saved';
+        saveStatusEl.className   = 's-pill sp-green';
+    }
+    
+});
+
+</script>
+
+
+
+{% comment %} <script>
   window.HERO_DATA     = {{ hero_json|safe }};
   window.FEATURES_DATA = {{ features_json|safe }};
 /* ═══════════════════════════════════════
@@ -1132,6 +1254,6 @@ updatePreview();
 unsaved = false; // reset after init
 document.getElementById('saveStatus').textContent = '✅ All Changes Saved';
 document.getElementById('saveStatus').className   = 's-pill sp-green';
-</script>
+</script> {% endcomment %}
 </body>
 </html>

@@ -811,47 +811,74 @@
     </div>
 </section>
 
-<section class="py-3" aria-label="Special Offers">
-    <div class="container">
-        <div class="row g-4">
-            <div class="col-md-8">
-                <div class="offer-banner">
-                    <div class="offer-badge">🔥 LIMITED STOCK</div>
-                    <h3 style="font-size:24px; font-weight:800;">Andhra Avakaya<br>Mango Pickle</h3>
-                    <p style="font-size:13px; opacity:0.8; margin:8px 0;">Traditional spicy recipe with mustard oil &amp; red chillies</p>
-                    <div style="display:flex; align-items:center; gap:12px; flex-wrap:wrap;">
-                        <span style="font-size:32px; font-weight:800; color:#ffd60a;">₹299</span>
-                        <span style="text-decoration:line-through; opacity:0.5; font-size:18px;">₹450</span>
-                        <span style="background:#ffd60a; color:#1a1a2e; padding:4px 12px; border-radius:50px; font-weight:700; font-size:13px;">33% OFF</span>
+{% if banner_pairs %}
+  {% for pair in banner_pairs %}
+    <section class="py-3" aria-label="Special Offers">
+        <div class="container">
+            <div class="row g-4">
+                
+                {% if pair.main %}
+                <div class="col-md-8">
+                    <div class="offer-banner">
+                        <div class="offer-badge">{{ pair.main.badge|default:"🔥 LIMITED STOCK" }}</div>
+                        <h3 style="font-size:24px; font-weight:800;">{{ pair.main.name|linebreaksbr }}</h3>
+                        <p style="font-size:13px; opacity:0.8; margin:8px 0;">{{ pair.main.description }}</p>
+                        
+                        <div style="display:flex; align-items:center; gap:12px; flex-wrap:wrap;">
+                            <span style="font-size:32px; font-weight:800; color:#ffd60a;">₹{{ pair.main.price }}</span>
+                            {% if pair.main.old_price %}
+                            <span style="text-decoration:line-through; opacity:0.5; font-size:18px;">₹{{ pair.main.old_price }}</span>
+                            {% endif %}
+                            
+                            {% if pair.main.discount_label %}
+                            <span style="background:#ffd60a; color:#1a1a2e; padding:4px 12px; border-radius:50px; font-weight:700; font-size:13px;">{{ pair.main.discount_label }}</span>
+                            {% endif %}
+                        </div>
+                        
+                        {% if pair.main.url %}
+                        <a href="{{ pair.main.url }}" class="btn-hero-primary d-inline-flex mt-3" style="font-size:14px; padding:10px 24px;">
+                            Buy Now <i class="fa fa-arrow-right ms-2"></i>
+                        </a>
+                        {% endif %}
                     </div>
-                    <a href="/product/andhra-avakaya-mango-pickle/" class="btn-hero-primary d-inline-flex mt-3" style="font-size:14px; padding:10px 24px;">
-                        Buy Now <i class="fa fa-arrow-right ms-2"></i>
-                    </a>
                 </div>
-            </div>
-            <div class="col-md-4">
-                <div class="potw-card h-100">
-                    <div class="potw-badge">⭐ Pickle of the Week</div>
-                    <div style="font-size:50px; margin-bottom:10px;" aria-hidden="true">🧄</div>
-                    <h4 style="font-weight:800;">Rajasthani Garlic Pickle</h4>
-                    <p style="font-size:12px; opacity:0.8;">500g | Traditional Recipe</p>
-                    <div class="d-flex align-items-center gap-2">
-                        <span class="potw-price">₹199</span>
-                        <span class="potw-old-price">₹350</span>
+                {% endif %}
+
+                {% if pair.potw %}
+                <div class="col-md-4">
+                    <div class="potw-card h-100">
+                        <div class="potw-badge">⭐ Pickle of the Week</div>
+                        <div style="font-size:50px; margin-bottom:10px;" aria-hidden="true">{{ pair.potw.emoji|default:"🧄" }}</div>
+                        <h4 style="font-weight:800;">{{ pair.potw.name }}</h4>
+                        <p style="font-size:12px; opacity:0.8;">{{ pair.potw.weight_type }}</p>
+                        
+                        <div class="d-flex align-items-center gap-2">
+                            <span class="potw-price">₹{{ pair.potw.price }}</span>
+                            {% if pair.potw.old_price %}
+                            <span class="potw-old-price">₹{{ pair.potw.old_price }}</span>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="countdown" aria-label="Deal countdown timer">
+                            <div class="countdown-item"><span class="num" id="hours_{{ forloop.counter }}">08</span><span class="lbl">Hours</span></div>
+                            <div class="countdown-item"><span class="num" id="mins_{{ forloop.counter }}">42</span><span class="lbl">Mins</span></div>
+                            <div class="countdown-item"><span class="num" id="secs_{{ forloop.counter }}">30</span><span class="lbl">Secs</span></div>
+                        </div>
+                        
+                        {% if pair.potw.url %}
+                        <a href="{{ pair.potw.url }}" class="btn-add-cart d-flex mt-3" style="text-decoration:none;">
+                            <i class="fa fa-cart-plus"></i> Add to Cart
+                        </a>
+                        {% endif %}
                     </div>
-                    <div class="countdown" aria-label="Deal countdown timer">
-                        <div class="countdown-item"><span class="num" id="hours">08</span><span class="lbl">Hours</span></div>
-                        <div class="countdown-item"><span class="num" id="mins">42</span><span class="lbl">Mins</span></div>
-                        <div class="countdown-item"><span class="num" id="secs">30</span><span class="lbl">Secs</span></div>
-                    </div>
-                    <a href="/product/rajasthani-garlic-pickle/" class="btn-add-cart d-flex mt-3" style="text-decoration:none;">
-                        <i class="fa fa-cart-plus"></i> Add to Cart
-                    </a>
                 </div>
+                {% endif %}
+                
             </div>
         </div>
-    </div>
-</section>
+    </section>
+  {% endfor %}
+{% endif %}
 
 <section class="py-5 bg-light" aria-labelledby="featured-heading">
     <div class="container">
@@ -996,25 +1023,32 @@
     </div>
 </section>
 
+{% if brands %}
 <section class="py-5" aria-labelledby="brands-heading">
     <div class="container">
+        
         <div class="text-center mb-4">
-            <h2 class="section-title" id="brands-heading">Our <span>Pickle Brands</span></h2>
-            <p class="text-muted">Handpicked exclusive brands from across India</p>
+            <h2 class="section-title" id="brands-heading">
+                {{ brand_settings.title|default:"Featured Brands" }}
+            </h2>
+            <p class="text-muted">
+                {{ brand_settings.subtitle|default:"Discover our premium selection of authentic pickles" }}
+            </p>
             <div class="section-divider mx-auto"></div>
         </div>
+        
         <div class="d-flex flex-wrap justify-content-center gap-3" role="list">
-            <a href="/brand/rajasthani-pickles/" class="brand-chip" role="listitem" aria-label="Rajasthani Pickles brand">🏜️ Rajasthani Pickles</a>
-            <a href="/brand/andhra-heritage/" class="brand-chip" role="listitem" aria-label="Andhra Heritage brand">🌶️ Andhra Heritage</a>
-            <a href="/brand/punjabi-tadka/" class="brand-chip" role="listitem" aria-label="Punjabi Tadka brand">🌾 Punjabi Tadka</a>
-            <a href="/brand/gujarat-flavours/" class="brand-chip" role="listitem" aria-label="Gujarat Flavours brand">🫙 Gujarat Flavours</a>
-            <a href="/brand/kerala-spice/" class="brand-chip" role="listitem" aria-label="Kerala Spice brand">🌴 Kerala Spice</a>
-            <a href="/brand/nagpur-specials/" class="brand-chip" role="listitem" aria-label="Nagpur Specials brand">🍊 Nagpur Specials</a>
-            <a href="/brand/bengal-achar/" class="brand-chip" role="listitem" aria-label="Bengal Achar brand">🐟 Bengal Achar</a>
-            <a href="/brand/kashmiri-delight/" class="brand-chip" role="listitem" aria-label="Kashmiri Delight brand">❄️ Kashmiri Delight</a>
+            
+            {% for brand in brands %}
+            <a href="{{ brand.url|default:'#' }}" class="brand-chip" role="listitem" aria-label="{{ brand.name }} brand">
+                {{ brand.emoji }} {{ brand.name }}
+            </a>
+            {% endfor %}
+            
         </div>
     </div>
 </section>
+{% endif %}
 
 <section class="py-5" style="background:#fff3e0;" aria-labelledby="reviews-heading">
     <div class="container">

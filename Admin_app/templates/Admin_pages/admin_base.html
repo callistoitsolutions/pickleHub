@@ -164,9 +164,11 @@
         <div class="nav-submenu">
             <a class="nav-item {% block nav_build_hero %}{% endblock %}" href="{% url 'hero_section' %}"><i class="fa fa-circle"></i> Hero Section</a>
             <a class="nav-item {% block nav_build_features %}{% endblock %}" href="{% url 'feature_section' %}"><i class="fa fa-circle"></i> Features Strip</a>
-            <a class="nav-item {% block nav_build_shopcat %}{% endblock %}" href="#"><i class="fa fa-circle"></i> Shop Categories</a>
-            <a class="nav-item {% block nav_build_offers %}{% endblock %}" href="#"><i class="fa fa-circle"></i> Offer Banners</a>
-            <a class="nav-item {% block nav_build_bestsellers %}{% endblock %}" href="#"><i class="fa fa-circle"></i> Best Sellers</a>
+            <a class="nav-item {% block nav_build_shopcat %}{% endblock %}" href="#"><i class="fa fa-circle"></i> Categories</a>
+            <a class="nav-item {% block nav_build_offers %}{% endblock %}" href="{% url "Offer_Banner_Section" %}"><i class="fa fa-circle"></i> Offer Banners</a>
+            <a class="nav-item {% block nav_build_brands %}{% endblock %}" href="{% url "Brand_Section" %}"><i class="fa fa-circle"></i>Brands</a>
+            <a class="nav-item {% block nav_build_reviews%}{% endblock %}" href="#"><i class="fa fa-circle"></i>Reviews</a>
+            <a class="nav-item {% block nav_build_newsletters %}{% endblock %}" href="#"><i class="fa fa-circle"></i>Newsletters</a>
         </div>
     </div>
 

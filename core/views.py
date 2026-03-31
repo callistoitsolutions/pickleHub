@@ -6,6 +6,7 @@ from django.shortcuts import render, redirect
 from django.http import JsonResponse
 from django.views.decorators.http import require_POST
 from django.views.decorators.csrf import csrf_exempt
+from Admin_app.models import *
 
 
 
@@ -36,12 +37,55 @@ def index_view(request):
     """
     Public home page — passes both hero and features to the template.
     """
+
+    active_banners = OfferBanner.objects.filter(is_active=True).order_by('order')
+    
+    # We need to group them into pairs (one main, one potw) for your layout
+    # We will assume they are saved sequentially in the admin panel (main, then potw)
+    banner_pairs = []
+    
+    # Process them in chunks of 2
+    for i in range(0, len(active_banners), 2):
+        pair = {
+            'main': None,
+            'potw': None
+        }
+        
+        # Grab the first item in the pair (should be 'main')
+        if i < len(active_banners):
+            banner1 = active_banners[i]
+            if banner1.offer_type == 'main':
+                pair['main'] = banner1
+            elif banner1.offer_type == 'potw':
+                pair['potw'] = banner1
+
+        # Grab the second item in the pair (should be 'potw')
+        if i + 1 < len(active_banners):
+            banner2 = active_banners[i+1]
+            if banner2.offer_type == 'main':
+                pair['main'] = banner2
+            elif banner2.offer_type == 'potw':
+                pair['potw'] = banner2
+        
+        # Only add the pair if at least one banner exists
+        if pair['main'] or pair['potw']:
+            banner_pairs.append(pair)
+
+    
+
     hero     = HeroSection.get_or_create_default()
     features = FeaturesSection.get_or_create_default()
-    return render(request, 'core/index.html', {
-        'hero':     hero,
-        'features': features,
-    })
+    
+    # 2. Grab all active brands, ordered by the exact sequence set in the admin
+    active_brands = Brand.objects.filter(is_active=True).order_by('order')
+
+    context = {
+        'banner_pairs': banner_pairs,
+        'hero':hero,
+        'features':features,
+        'brands': active_brands,
+    }
+    return render(request, 'core/index.html',context)
 
 
 # ──────────────────────────────────────────────
