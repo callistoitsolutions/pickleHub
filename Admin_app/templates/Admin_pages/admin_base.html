@@ -27,7 +27,7 @@
         .nav-item i{width:18px;text-align:center;font-size:14px;}
         .nav-badge{background:#e85d04;color:#fff;border-radius:50px;padding:1px 7px;font-size:10px;margin-left:auto;}
 
-        /* 💥 NEW: DROPDOWN STYLES 💥 */
+        /* 💥 DROPDOWN STYLES 💥 */
         .nav-item[data-bs-toggle="collapse"]::after {
             content: '\f107'; /* FontAwesome Angle Down */
             font-family: "Font Awesome 6 Free";
@@ -149,10 +149,24 @@
     <a class="nav-item" href="#"><i class="fa fa-check-circle"></i> Delivered</a>
 
     <div class="nav-section">Catalogue</div>
-    <a class="nav-item {% block nav_products %}{% endblock %}" href="#"><i class="fa fa-box"></i> Products</a>
-    <a class="nav-item {% block nav_cats %}{% endblock %}" href="#"><i class="fa fa-tags"></i> Categories</a>
-    <a class="nav-item" href="#"><i class="fa fa-award"></i> Brands</a>
-    <a class="nav-item" href="#"><i class="fa fa-star"></i> Reviews <span class="nav-badge" style="background:#f48c06;">8</span></a>
+    
+    <a class="nav-item {% block nav_prod_main %}{% endblock %}" data-bs-toggle="collapse" href="#productsDropdown" role="button" aria-expanded="false" aria-controls="productsDropdown">
+        <i class="fa fa-box"></i> Products
+    </a>
+    
+    <div class="collapse {% block nav_prod_show %}{% endblock %}" id="productsDropdown">
+        <div class="nav-submenu">
+           
+         <a class="nav-item {% block nav_prod_add %}{% endblock %}" 
+   href="{% url 'product_builder' %}">
+   <i class="fa fa-circle"></i> Add New Product
+</a> 
+
+            <a class="nav-item {% block nav_prod_inventory %}{% endblock %}" href="{% url 'product_filter_builder' %}"><i class="fa fa-circle"></i> Product Page Filter Builder</a>
+        </div>
+    </div>
+
+    
 
     <div class="nav-section">Frontend Builders</div>
     
@@ -164,11 +178,16 @@
         <div class="nav-submenu">
             <a class="nav-item {% block nav_build_hero %}{% endblock %}" href="{% url 'hero_section' %}"><i class="fa fa-circle"></i> Hero Section</a>
             <a class="nav-item {% block nav_build_features %}{% endblock %}" href="{% url 'feature_section' %}"><i class="fa fa-circle"></i> Features Strip</a>
-            <a class="nav-item {% block nav_build_shopcat %}{% endblock %}" href="#"><i class="fa fa-circle"></i> Categories</a>
+
             <a class="nav-item {% block nav_build_offers %}{% endblock %}" href="{% url "Offer_Banner_Section" %}"><i class="fa fa-circle"></i> Offer Banners</a>
             <a class="nav-item {% block nav_build_brands %}{% endblock %}" href="{% url "Brand_Section" %}"><i class="fa fa-circle"></i>Brands</a>
             <a class="nav-item {% block nav_build_reviews%}{% endblock %}" href="{% url "Review_Section" %}"><i class="fa fa-circle"></i>Reviews</a>
             <a class="nav-item {% block nav_build_newsletters %}{% endblock %}" href="{% url "Newsletter_Section" %}"><i class="fa fa-circle"></i>Newsletters</a>
+          
+
+            <a class="nav-item {% block nav_build_shopcat %}{% endblock %}" href="{% url 'category_section' %}"><i class="fa fa-circle"></i> Shop Categories</a>
+
+
         </div>
     </div>
 

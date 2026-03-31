@@ -86,30 +86,78 @@ class OfferBanner(models.Model):
 
 ############# Brand Modal Starts Here #################################
 
+
+
+from django.db import models
+from django.utils.text import slugify
+
+
 class Brand(models.Model):
-    emoji = models.CharField(max_length=10, default="")
-    name = models.CharField(max_length=100)
-    url = models.CharField(max_length=255, blank=True, null=True)
+    """
+    Used for:
+    - Product filter sidebar
+    - Home page brand section
+    """
+
+    # Core Fields
+    emoji = models.CharField(max_length=10, default='🏷️')
+    name = models.CharField(max_length=200)
     
-    # Management Fields
-    order = models.PositiveIntegerField(default=0)
+    # ✅ FIXED slug (important change)
+    slug = models.SlugField(max_length=200, unique=True, blank=True)
+
+    url = models.CharField(max_length=300, default='/', blank=True, null=True)
+
+    # Extra Fields
+    product_count = models.PositiveIntegerField(
+        default=0,
+        help_text='Shown as count badge in filter sidebar'
+    )
+
+    order = models.PositiveIntegerField(
+        default=0,
+        help_text='Controls display order'
+    )
+
     is_active = models.BooleanField(default=True)
+
+    # Timestamps
     created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
-        ordering = ['order', '-created_at']
+        verbose_name = 'Brand'
+        verbose_name_plural = 'Brands'
+        ordering = ['order', 'name']
 
     def __str__(self):
         return f"{self.emoji} {self.name}"
+
+    # ✅ AUTO GENERATE SLUG
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            base_slug = slugify(self.name)
+            slug = base_slug
+            counter = 1
+
+            # Ensure unique slug
+            while Brand.objects.filter(slug=slug).exclude(id=self.id).exists():
+                slug = f"{base_slug}-{counter}"
+                counter += 1
+
+            self.slug = slug
+
+        super().save(*args, **kwargs)
 
     def to_dict(self):
         return {
             'id': self.id,
             'emoji': self.emoji,
             'name': self.name,
-            'url': self.url or ''
+            'url': self.url or '',
+            'slug': self.slug,
+            'product_count': self.product_count
         }
-    
 ############ Brand Modal Ends Here #################################
 
 
@@ -159,3 +207,153 @@ class NewsletterSetting(models.Model):
         return "Global Newsletter Settings"
     
 ############ Newsletter Modal Ends Here #################################
+
+class HeroSection(models.Model):
+    badge_text        = models.CharField(max_length=200, default="🏆 Nagpur's #1 Pickle Store")
+    title_line1       = models.CharField(max_length=200, default="Discover")
+    title_highlight   = models.CharField(max_length=200, default="Rare & Exclusive")
+    title_line2       = models.CharField(max_length=200, default="Pickle Brands")
+    subtitle          = models.TextField(
+        default="Handpicked regional pickles from Andhra, Rajasthan, Punjab & more — "
+                "not available in local stores. Order online with 24-hour delivery across Nagpur."
+    )
+    jar_emoji         = models.CharField(max_length=10, default="🫙")
+    hero_image_url    = models.TextField(blank=True, default="")
+
+    # Dynamic lists
+    buttons_json      = models.JSONField(default=list)   # [{icon, text, url, type}, ...]
+    stats_json        = models.JSONField(default=list)   # [{num, lbl}, ...]
+    float_badges_json = models.JSONField(default=list)   # ["🌶️ Extra Spicy", ...]
+
+    is_visible        = models.BooleanField(default=True)
+    updated_at        = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name        = "Hero Section"
+        verbose_name_plural = "Hero Section"
+
+    def __str__(self):
+        return f"Hero Section (updated {self.updated_at.strftime('%d %b %Y %H:%M')})"
+
+    @classmethod
+    def get_or_create_default(cls):
+        obj = cls.objects.first()
+        if obj is None:
+            obj = cls.objects.create(
+                buttons_json=[
+                    {"icon": "fa-shopping-bag", "text": "Shop Now",          "url": "/products/",                 "type": "primary"},
+                    {"icon": "fa-whatsapp",     "text": "Order on WhatsApp", "url": "https://wa.me/919876543210", "type": "secondary"},
+                ],
+                stats_json=[
+                    {"num": "50+",   "lbl": "Pickle Brands"},
+                    {"num": "200+",  "lbl": "Products"},
+                    {"num": "5000+", "lbl": "Happy Customers"},
+                    {"num": "24Hr",  "lbl": "Delivery"},
+                ],
+                float_badges_json=["🌶️ Extra Spicy", "✅ 100% Natural", "🚚 Free Delivery"],
+            )
+        return obj
+
+
+# ══════════════════════════════════════════════════════
+# 2. FEATURES SECTION  (NEW)
+# ══════════════════════════════════════════════════════
+class FeaturesSection(models.Model):
+    """
+    Stores the Features Strip section shown below the hero.
+    items_json holds the list of feature cards — each card has:
+        {
+            "ico":   "🚚",
+            "title": "Free Delivery",
+            "sub":   "Orders above ₹499"
+        }
+    Admin can add / edit / remove / reorder these from the builder.
+    """
+    # Dynamic list of feature cards
+    items_json = models.JSONField(
+        default=list,
+        help_text='List of feature cards: [{"ico":"🚚","title":"Free Delivery","sub":"Orders above ₹499"}, ...]'
+    )
+
+    is_visible = models.BooleanField(default=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name        = "Features Section"
+        verbose_name_plural = "Features Section"
+
+    def __str__(self):
+        return f"Features Section (updated {self.updated_at.strftime('%d %b %Y %H:%M')})"
+
+    @classmethod
+    def get_or_create_default(cls):
+        obj = cls.objects.first()
+        if obj is None:
+            obj = cls.objects.create(
+                items_json=[
+                    {"ico": "🚚", "title": "Free Delivery",  "sub": "Orders above ₹499"},
+                    {"ico": "🌿", "title": "100% Natural",   "sub": "No preservatives"},
+                    {"ico": "🔄", "title": "Easy Returns",   "sub": "7-day return policy"},
+                    {"ico": "🔒", "title": "Secure Payment", "sub": "UPI / Razorpay / COD"},
+                ]
+            )
+        return obj
+
+
+
+class CategorySection(models.Model):
+    """
+    Stores the 'Shop by Category' section shown on the home page.
+
+    section_title   — heading shown above the grid
+    section_subtitle— subheading shown below the title
+    items_json      — list of category cards, each card:
+        {
+            "emoji":       "🥭",
+            "name":        "Mango Pickle",
+            "count":       "32 products",
+            "url":         "/category/mango/",
+            "bg_gradient": "linear-gradient(135deg, #fff3e0, #ffcc80)"
+        }
+    is_visible      — show/hide the whole section on the home page
+    """
+
+    section_title    = models.CharField(max_length=200, default="Shop by Category")
+    section_subtitle = models.CharField(
+        max_length=300,
+        default="Browse our wide range of authentic pickle varieties"
+    )
+    items_json = models.JSONField(
+        default=list,
+        help_text='List of category cards: [{"emoji":"🥭","name":"Mango Pickle","count":"32 products","url":"/category/mango/","bg_gradient":"linear-gradient(135deg,#fff3e0,#ffcc80)"}, ...]'
+    )
+    is_visible = models.BooleanField(default=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name        = "Category Section"
+        verbose_name_plural = "Category Section"
+
+    def __str__(self):
+        return f"Category Section (updated {self.updated_at.strftime('%d %b %Y %H:%M')})"
+
+    @classmethod
+    def get_or_create_default(cls):
+        obj = cls.objects.first()
+        if obj is None:
+            obj = cls.objects.create(
+                items_json=[
+                    {"emoji": "🥭", "name": "Mango Pickle",      "count": "32 products", "url": "/category/mango/",    "bg_gradient": "linear-gradient(135deg,#fff3e0,#ffcc80)"},
+                    {"emoji": "🧄", "name": "Garlic Pickle",     "count": "18 products", "url": "/category/garlic/",   "bg_gradient": "linear-gradient(135deg,#fce4ec,#f8bbd9)"},
+                    {"emoji": "🍋", "name": "Lemon Pickle",      "count": "24 products", "url": "/category/lemon/",    "bg_gradient": "linear-gradient(135deg,#f9fbe7,#f0f4c3)"},
+                    {"emoji": "🌶️","name": "Chilli Pickle",     "count": "15 products", "url": "/category/chilli/",   "bg_gradient": "linear-gradient(135deg,#fce4ec,#ffcdd2)"},
+                    {"emoji": "🫙", "name": "Mixed Pickle",      "count": "20 products", "url": "/category/mixed/",    "bg_gradient": "linear-gradient(135deg,#e8f5e9,#c8e6c9)"},
+                    {"emoji": "🗺️","name": "Regional Specials", "count": "40 products", "url": "/category/regional/", "bg_gradient": "linear-gradient(135deg,#e3f2fd,#bbdefb)"},
+                ]
+            )
+        return obj
+    
+    
+    
+    
+    

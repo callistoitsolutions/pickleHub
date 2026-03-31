@@ -33,6 +33,7 @@ urlpatterns = [
     
     # Your other apps
     path('Admin_panel/', include('Admin_app.urls')), 
+    path('products/', include('products.urls')), 
 ]
 
 if settings.DEBUG:
