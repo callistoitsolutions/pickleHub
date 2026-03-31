@@ -78,12 +78,16 @@ def index_view(request):
     
     # 2. Grab all active brands, ordered by the exact sequence set in the admin
     active_brands = Brand.objects.filter(is_active=True).order_by('order')
+    active_reviews = Review.objects.filter(is_active=True).order_by('order')
+    newsletter = NewsletterSetting.objects.all().last()
 
     context = {
         'banner_pairs': banner_pairs,
         'hero':hero,
         'features':features,
         'brands': active_brands,
+        'reviews': active_reviews,
+        'newsletter':newsletter
     }
     return render(request, 'core/index.html',context)
 

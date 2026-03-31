@@ -54,6 +54,14 @@ def dashboard(request):
 # ──────────────────────────────────────────────
 
 
+############## Views start for admin login #####################
+
+def Admin_Login(request):
+    return render(request,'Admin_pages/admin_login.html')
+
+########## Views end for admin login ########################
+
+
 ############### Views start for offer banner section ######################
 
 def Offer_Banner_Section(request):
@@ -187,6 +195,103 @@ def Save_Brand_Ajax(request):
 
 ############# Views end for ajax for save brands ########################
 
+
+############## Views start for review section #######################
+
+def Review_Section(request):
+    active_reviews = Review.objects.filter(is_active=True).order_by('order')
+    reviews_list = [review.to_dict() for review in active_reviews]
+
+    # # 2. DO NOT use json.dumps(banners_list) here! 
+    # # Just pass the raw Python list directly into the context.
+    context = {
+        'reviews_list': reviews_list, 
+    }
+
+    return render(request,'Admin_pages/Review/review.html',context)
+
+########### Views end for review section ###########################
+
+
+############## Views start for ajax for save reviews #######################
+
+@csrf_exempt
+def Save_Review_Ajax(request):
+    try:
+        data = json.loads(request.body)
+
+        with transaction.atomic():
+            # 1. Get IDs of kept reviews
+            incoming_ids = [review.get('id') for review in data if review.get('id')]
+            
+            # 2. Delete removed reviews (Targeted Delete)
+            Review.objects.exclude(id__in=incoming_ids).delete()
+            
+            # 3. Update or Create existing reviews
+            for index, review in enumerate(data):
+                review_id = review.get('id')
+                defaults = {
+                    'avatar': review.get('avatar', '👤'),
+                    'name': review.get('name', ''),
+                    'city': review.get('city', ''),
+                    'rating': int(review.get('rating', 5)), # Ensure this is an integer!
+                    'text': review.get('text', ''),
+                    'order': index,
+                    'is_active': True
+                }
+                
+                if review_id:
+                    Review.objects.filter(id=review_id).update(**defaults)
+                else:
+                    Review.objects.create(**defaults)
+                    
+        return JsonResponse({"status": "success", "message": "Reviews synced!"})
+        
+    except Exception as e:
+        return JsonResponse({"status": "error", "message": str(e)}, status=400)
+
+############# Views end for ajax for save reviews #########################
+
+
+############# Views start for newsletter section ############################
+
+def Newsletter_Section(request):
+    newsletter = NewsletterSetting.objects.first()
+
+    context={
+        'newsletter':newsletter
+    }
+
+    return render(request,'Admin_pages/Newsletter/newsletter.html',context)
+
+############### Views end for newsletter section #############################
+
+
+########### Views start for ajax for save newsletter #######################
+
+@csrf_exempt
+def Save_Newsletter_Ajax(request):
+    try:
+        data = json.loads(request.body)
+        
+        # Grab the one row, update it, and save it
+        settings, created = NewsletterSetting.objects.get_or_create(id=1)
+        
+        settings.heading = data.get('heading', '')
+        settings.description = data.get('desc', '')
+        settings.placeholder = data.get('placeholder', '')
+        settings.btn_text = data.get('btnText', '')
+        settings.privacy_note = data.get('privacy', '')
+        settings.url = data.get('url', '')
+        settings.save()
+        
+        # 👇 THIS is what JavaScript is looking for!
+        return JsonResponse({"status": "success", "message": "Newsletter saved!"})
+        
+    except Exception as e:
+        return JsonResponse({"status": "error", "message": str(e)}, status=400)
+
+########### Views end for ajax for save newsletter ############################
 
 def hero_section(request):
     """
