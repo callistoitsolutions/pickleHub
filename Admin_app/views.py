@@ -1,53 +1,38 @@
-# views.py
-# PickleHub – Hero Section Views
-# UPDATED: buttons_json replaces fixed btn_primary/secondary/whatsapp fields.
-# NO forms.py used — data read directly from request.body (JSON).
+
 
 import json
 from django.shortcuts import render,HttpResponse
 from django.http import JsonResponse
 from django.views.decorators.http import require_POST
 
-from core.models import HeroSection,FeaturesSection
+
 from django.db import transaction
 from Admin_app.models import *
 from django.views.decorators.csrf import csrf_exempt
+from Admin_app.models import *
+from products.models import *
 
 
-# ──────────────────────────────────────────────
-# 1. PUBLIC HOME PAGE
-# ──────────────────────────────────────────────
+
+from products.product_utils  import _product_page_data
+
+
+
+
 
 def dashboard(request):
     """
     Admin dashboard page.
-    Passes hero_json and features_json as JS-injectable strings.
+    Passes hero_json, features_json and category_json as JS-injectable strings.
     """
     hero     = HeroSection.get_or_create_default()
     features = FeaturesSection.get_or_create_default()
-
-    hero_data = {
-        'badge_text':        hero.badge_text,
-        'title_line1':       hero.title_line1,
-        'title_highlight':   hero.title_highlight,
-        'title_line2':       hero.title_line2,
-        'subtitle':          hero.subtitle,
-        'jar_emoji':         hero.jar_emoji,
-        'hero_image_url':    hero.hero_image_url,
-        'buttons_json':      hero.buttons_json,
-        'stats_json':        hero.stats_json,
-        'float_badges_json': hero.float_badges_json,
-        'is_visible':        hero.is_visible,
-    }
-
-    features_data = {
-        'items_json': features.items_json,
-        'is_visible': features.is_visible,
-    }
-
+    category = CategorySection.get_or_create_default()          # ← NEW
+ 
     return render(request, 'Admin_pages/dashboard.html', {
-        'hero_json':     json.dumps(hero_data),
-        'features_json': json.dumps(features_data),
+        'hero_json':     json.dumps(_hero_data(hero)),
+        'features_json': json.dumps(_features_data(features)),
+        'category_json': json.dumps(_category_data(category)),  # ← NEW
     })
 # ──────────────────────────────────────────────
 # 2. ADMIN HOME PAGE
@@ -295,47 +280,49 @@ def Save_Newsletter_Ajax(request):
 
 def hero_section(request):
     """
-    Admin builder page.
-    Passes hero_json and features_json as JS-injectable strings.
+    Dedicated admin builder page for the Hero Section.
     """
     hero     = HeroSection.get_or_create_default()
     features = FeaturesSection.get_or_create_default()
-
-    hero_data = {
-        'badge_text':        hero.badge_text,
-        'title_line1':       hero.title_line1,
-        'title_highlight':   hero.title_highlight,
-        'title_line2':       hero.title_line2,
-        'subtitle':          hero.subtitle,
-        'jar_emoji':         hero.jar_emoji,
-        'hero_image_url':    hero.hero_image_url,
-        'buttons_json':      hero.buttons_json,
-        'stats_json':        hero.stats_json,
-        'float_badges_json': hero.float_badges_json,
-        'is_visible':        hero.is_visible,
-    }
-
-    features_data = {
-        'items_json': features.items_json,
-        'is_visible': features.is_visible,
-    }
-
+    category = CategorySection.get_or_create_default()          # ← NEW
+ 
     return render(request, 'Admin_pages/hero_section.html', {
-        'hero_json':     json.dumps(hero_data),
-        'features_json': json.dumps(features_data),
+        'hero_json':     json.dumps(_hero_data(hero)),
+        'features_json': json.dumps(_features_data(features)),
+        'category_json': json.dumps(_category_data(category)),  # ← NEW
     })
 
 
 
 def feature_section(request):
     """
-    Admin builder page.
-    Passes hero_json and features_json as JS-injectable strings.
+    Dedicated admin builder page for the Features Strip.
     """
     hero     = HeroSection.get_or_create_default()
     features = FeaturesSection.get_or_create_default()
+    category = CategorySection.get_or_create_default()          # ← NEW
+ 
+    return render(request, 'Admin_pages/feature_section.html', {
+        'hero_json':     json.dumps(_hero_data(hero)),
+        'features_json': json.dumps(_features_data(features)),
+        'category_json': json.dumps(_category_data(category)),  # ← NEW
+    })
+    
+    
+def category_section(request):
+    """
+    Dedicated admin builder page for the Category Section.
+    Only passes category_json — this page only edits categories.
+    """
+    category = CategorySection.get_or_create_default()
+ 
+    return render(request, 'Admin_pages/category_section.html', {
+        'category_json': json.dumps(_category_data(category)),
+    })
 
-    hero_data = {
+
+def _hero_data(hero):
+    return {
         'badge_text':        hero.badge_text,
         'title_line1':       hero.title_line1,
         'title_highlight':   hero.title_highlight,
@@ -348,13 +335,123 @@ def feature_section(request):
         'float_badges_json': hero.float_badges_json,
         'is_visible':        hero.is_visible,
     }
-
-    features_data = {
+ 
+def _features_data(features):
+    return {
         'items_json': features.items_json,
         'is_visible': features.is_visible,
     }
+ 
+def _category_data(category):                        # ← NEW helper
+    return {
+        'section_title':    category.section_title,
+        'section_subtitle': category.section_subtitle,
+        'items_json':       category.items_json,
+        'is_visible':       category.is_visible,
+    }
+ 
+ 
+ 
+ 
+def product_builder(request):
+    """
+    Admin page to add / edit / delete products.
+    """
+    products   = Product.objects.all().select_related('brand', 'category').order_by('sort_order', '-created_at')
+    brands     = Brand.objects.filter(is_active=True).order_by('order', 'name')
+    categories = CategorySection.get_or_create_default()
+ 
+    products_data = [
+        {
+            'id':               p.id,
+            'emoji':            p.emoji,
+            'image_url':        p.image.url if p.image else '',
+            'name':             p.name,
+            'slug':             p.slug,
+            'brand_id':         p.brand_id,
+            'brand_name':       p.brand.name if p.brand else '',
+            'category_id':      p.category_id,
+            'weight':           p.weight,
+            'oil_type':         p.oil_type,
+            'region':           p.region,
+            'badge':            p.badge,
+            'badge_color':      p.badge_color,
+            'card_bg':          p.card_bg,
+            'price':            p.price,
+            'old_price':        p.old_price,
+            # ✅ FIX 1: serialize the raw DB field `discount`, NOT the @property `discount_label`
+            #    The JS edit form reads p.discount to pre-fill the input, so it must be the raw value.
+            'discount':         p.discount,
+            'stock':            p.stock,
+            'low_stock_label':  p.low_stock_label,
+            'rating':           str(p.rating),
+            'review_count':     p.review_count,
+            'whatsapp_number':  p.whatsapp_number,
+            'is_active':        p.is_active,
+            'is_featured':      p.is_featured,
+            'sort_order':       p.sort_order,
+        }
+        for p in products
+    ]
+ 
+    brands_data = [
+        {'id': b.id, 'name': b.name, 'emoji': b.emoji}
+        for b in brands
+    ]
+ 
+    categories_data = categories.items_json
+ 
+    return render(request, 'products_panel/product_builder.html', {
+        'products_json':   json.dumps(products_data),
+        'brands_json':     json.dumps(brands_data),
+        'categories_json': json.dumps(categories_data),
+    })
 
-    return render(request, 'Admin_pages/feature_section.html', {
-        'hero_json':     json.dumps(hero_data),
-        'features_json': json.dumps(features_data),
+
+def brand_builder(request):
+    """
+    Admin page to add / edit / delete brands.
+    Brands are used in: filter sidebar + home page brand strip.
+    """
+    brands = Brand.objects.all().order_by('sort_order', 'name')
+    brands_data = [
+        {
+            'id':            b.id,
+            'emoji':         b.emoji,
+            'name':          b.name,
+            'slug':          b.slug,
+            'url':           b.url,
+            'product_count': b.product_count,
+            'is_active':     b.is_active,
+            'sort_order':    b.sort_order,
+        }
+        for b in brands
+    ]
+    return render(request, 'products_panel/brand_builder.html', {
+        'brands_json': json.dumps(brands_data),
+    })
+    
+    
+    
+def product_filter_builder(request):
+    """
+    Admin page to configure the filter sidebar on the public products page.
+    Controls which filters show, price range, region list, weight list.
+    """
+    settings   = ProductPageSettings.get_or_create_default()
+    categories = CategorySection.get_or_create_default()
+    brands = Brand.objects.filter(is_active=True).order_by('order', 'name')
+
+    return render(request, 'products_panel/product_filter_builder.html', {
+        'settings_json':   json.dumps(_product_page_data(settings)),
+        'categories_json': json.dumps({
+            'section_title':    categories.section_title,
+            'section_subtitle': categories.section_subtitle,
+            'items_json':       categories.items_json,
+            'is_visible':       categories.is_visible,
+        }),
+        'brands_json': json.dumps([
+            {'id': b.id, 'emoji': b.emoji, 'name': b.name, 'product_count': b.product_count}
+            for b in brands
+        ]),
     })

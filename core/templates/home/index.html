@@ -1,4 +1,4 @@
-{% extends 'core/base.html' %}
+{% extends 'home/base.html' %}
 
 {% block title %}PickleHub Nagpur | Home - Exclusive Pickle Brands{% endblock %}
 
@@ -750,66 +750,67 @@
 
 
 
+{# ─────────────────────────────────────────────────────────────────────────── #}
+{# PASTE THIS INTO YOUR core/index.html where the category section should live #}
+{# The view passes `category` as a CategorySection model instance.             #}
+{# ─────────────────────────────────────────────────────────────────────────── #}
 
-
-
-
-
-
-
+{% if category.is_visible %}
 <section class="py-5" aria-labelledby="categories-heading">
     <div class="container">
         <div class="text-center mb-4">
-            <h2 class="section-title" id="categories-heading">Shop by <span>Category</span></h2>
-            <p class="text-muted mt-2">Browse our wide range of authentic pickle varieties</p>
+            <h2 class="section-title" id="categories-heading">{{ category.section_title }}</h2>
+            <p class="text-muted mt-2">{{ category.section_subtitle }}</p>
             <div class="section-divider mx-auto"></div>
         </div>
         <div class="row g-3">
+            {% for cat in category.items_json %}
             <div class="col-6 col-md-4 col-lg-2">
-                <a href="/category/mango/" class="category-card" aria-label="Mango Pickles">
-                    <div class="cat-icon" style="background: linear-gradient(135deg, #fff3e0, #ffcc80);" aria-hidden="true">🥭</div>
-                    <div class="cat-name">Mango Pickle</div>
-                    <div class="cat-count">32 products</div>
+                <a href="{{ cat.url }}" class="category-card" aria-label="{{ cat.name }}">
+                    <div class="cat-icon" style="background: {{ cat.bg_gradient }};" aria-hidden="true">
+                        {{ cat.emoji }}
+                    </div>
+                    <div class="cat-name">{{ cat.name }}</div>
+                    <div class="cat-count">{{ cat.count }}</div>
                 </a>
             </div>
-            <div class="col-6 col-md-4 col-lg-2">
-                <a href="/category/garlic/" class="category-card" aria-label="Garlic Pickles">
-                    <div class="cat-icon" style="background: linear-gradient(135deg, #fce4ec, #f8bbd9);" aria-hidden="true">🧄</div>
-                    <div class="cat-name">Garlic Pickle</div>
-                    <div class="cat-count">18 products</div>
-                </a>
-            </div>
-            <div class="col-6 col-md-4 col-lg-2">
-                <a href="/category/lemon/" class="category-card" aria-label="Lemon Pickles">
-                    <div class="cat-icon" style="background: linear-gradient(135deg, #f9fbe7, #f0f4c3);" aria-hidden="true">🍋</div>
-                    <div class="cat-name">Lemon Pickle</div>
-                    <div class="cat-count">24 products</div>
-                </a>
-            </div>
-            <div class="col-6 col-md-4 col-lg-2">
-                <a href="/category/chilli/" class="category-card" aria-label="Chilli Pickles">
-                    <div class="cat-icon" style="background: linear-gradient(135deg, #fce4ec, #ffcdd2);" aria-hidden="true">🌶️</div>
-                    <div class="cat-name">Chilli Pickle</div>
-                    <div class="cat-count">15 products</div>
-                </a>
-            </div>
-            <div class="col-6 col-md-4 col-lg-2">
-                <a href="/category/mixed/" class="category-card" aria-label="Mixed Pickles">
-                    <div class="cat-icon" style="background: linear-gradient(135deg, #e8f5e9, #c8e6c9);" aria-hidden="true">🫙</div>
-                    <div class="cat-name">Mixed Pickle</div>
-                    <div class="cat-count">20 products</div>
-                </a>
-            </div>
-            <div class="col-6 col-md-4 col-lg-2">
-                <a href="/category/regional/" class="category-card" aria-label="Regional Specialties">
-                    <div class="cat-icon" style="background: linear-gradient(135deg, #e3f2fd, #bbdefb);" aria-hidden="true">🗺️</div>
-                    <div class="cat-name">Regional Specials</div>
-                    <div class="cat-count">40 products</div>
-                </a>
-            </div>
+            {% endfor %}
         </div>
     </div>
 </section>
+{% endif %}
+
+
+{# ─────────────────────────────────────────────────────────────────────────── #}
+{# OPTIONAL: if you want the title to support **highlighted** word syntax      #}
+{# you can use a custom template filter instead of the plain {{ }} tag above.  #}
+{#                                                                             #}
+{# 1. In your templatetags/custom_filters.py add:                             #}
+{#                                                                             #}
+{#    from django import template                                              #}
+{#    from django.utils.html import format_html                               #}
+{#    import re                                                                #}
+{#                                                                             #}
+{#    register = template.Library()                                           #}
+{#                                                                             #}
+{#    @register.filter                                                         #}
+{#    def highlight_title(value):                                              #}
+{#        """Wraps **word** in <span class='highlight'>word</span>"""          #}
+{#        result = re.sub(r'\*\*(.+?)\*\*',                                   #}
+{#                        r'<span class="highlight">\1</span>',                #}
+{#                        str(value))                                          #}
+{#        return format_html(result)                                           #}
+{#                                                                             #}
+{# 2. Then in this template use:                                               #}
+{#    {% load custom_filters %}                                                #}
+{#    <h2>{{ category.section_title|highlight_title }}</h2>                   #}
+{# ─────────────────────────────────────────────────────────────────────────── #}
+
+
+
+
+
+
 
 {% if banner_pairs %}
   {% for pair in banner_pairs %}
@@ -880,148 +881,136 @@
   {% endfor %}
 {% endif %}
 
+
+
+<!-- 🔥 Best Selling Pickles Section -->
 <section class="py-5 bg-light" aria-labelledby="featured-heading">
+
     <div class="container">
+
+        <!-- Title -->
         <div class="text-center mb-4">
-            <h2 class="section-title" id="featured-heading">🔥 Best Selling <span>Pickles</span></h2>
+            <h2 class="section-title" id="featured-heading">
+                🔥 Best Selling <span>Pickles</span>
+            </h2>
             <p class="text-muted">Most loved by our Nagpur customers</p>
             <div class="section-divider mx-auto"></div>
         </div>
 
-        <div class="d-flex justify-content-center flex-wrap gap-2 mb-4" role="tablist" aria-label="Product filter">
-            <button class="btn btn-sm btn-warning fw-bold px-4 rounded-pill active" role="tab" aria-selected="true">All</button>
-            <button class="btn btn-sm btn-outline-warning fw-bold px-4 rounded-pill" role="tab" aria-selected="false">Mango</button>
-            <button class="btn btn-sm btn-outline-warning fw-bold px-4 rounded-pill" role="tab" aria-selected="false">Garlic</button>
-            <button class="btn btn-sm btn-outline-warning fw-bold px-4 rounded-pill" role="tab" aria-selected="false">Andhra</button>
-            <button class="btn btn-sm btn-outline-warning fw-bold px-4 rounded-pill" role="tab" aria-selected="false">Under ₹200</button>
+        <!-- Filters -->
+        <div class="d-flex justify-content-center flex-wrap gap-2 mb-4">
+            <button class="btn btn-sm btn-warning fw-bold px-4 rounded-pill filter-btn active" data-filter="All">All</button>
+
+            {% for cat in categories %}
+            <button class="btn btn-sm btn-outline-warning fw-bold px-4 rounded-pill filter-btn"
+                    data-filter="{{ cat }}">
+                {{ cat }}
+            </button>
+            {% endfor %}
         </div>
 
-        <div class="row g-4" role="list">
-            <div class="col-6 col-md-4 col-lg-3" role="listitem">
-                <article class="product-card">
-                    <div class="product-img">
-                        <span aria-hidden="true">🥭</span>
-                        <span class="product-badge">Bestseller</span>
-                        <button class="product-wishlist" aria-label="Add Rajasthani Mango Pickle to wishlist"><i class="fa fa-heart"></i></button>
-                    </div>
-                    <div class="product-body">
-                        <div class="product-brand">Rajasthani Brand</div>
-                        <h3 class="product-name">Rajasthani Mango Pickle</h3>
-                        <div class="product-weight">500g | Mustard Oil</div>
-                        <div class="d-flex align-items-center gap-1 mt-1">
-                            <div class="product-stars" aria-label="Rating: 4.8 out of 5">★★★★★</div>
-                            <span class="product-reviews">(128)</span>
+        <!-- Swiper Slider -->
+        <div class="swiper mySwiper">
+            <div class="swiper-wrapper">
+
+                {% for p in products %}
+                <div class="swiper-slide product-item"
+                     data-category="{{ p.category.section_title|default:'All' }}">
+
+                    <article class="product-card">
+
+                        <!-- Image -->
+                        <div class="product-img" style="background: {{ p.card_bg }}">
+                            
+                            {% if p.image %}
+                                <img src="{{ p.image.url }}" alt="{{ p.name }}" class="img-fluid">
+                            {% else %}
+                                <span>{{ p.emoji }}</span>
+                            {% endif %}
+
+                            {% if p.badge %}
+                            <span class="product-badge" style="background: {{ p.badge_color }}">
+                                {{ p.badge }}
+                            </span>
+                            {% endif %}
+
+                            <button class="product-wishlist">
+                                <i class="fa fa-heart"></i>
+                            </button>
                         </div>
-                        <div class="d-flex align-items-center gap-2 mt-2">
-                            <span class="product-price" aria-label="Price: 320 rupees">₹320</span>
-                            <span class="product-price-old" aria-label="Original price: 450 rupees">₹450</span>
-                            <span class="product-discount">29% off</span>
+
+                        <!-- Body -->
+                        <div class="product-body">
+
+                            <div class="product-brand">
+                                {{ p.brand.name }}
+                            </div>
+
+                            <h3 class="product-name">
+                                {{ p.name }}
+                            </h3>
+
+                            <div class="product-weight">
+                                {{ p.weight }} | {{ p.oil_type }}
+                            </div>
+
+                            <!-- Rating -->
+                            <div class="d-flex align-items-center gap-1 mt-1">
+                                <div class="product-stars">
+                                    {{ p.stars_html }}
+                                </div>
+                                <span class="product-reviews">
+                                    ({{ p.review_count }})
+                                </span>
+                            </div>
+
+                            <!-- Price -->
+                            <div class="d-flex align-items-center gap-2 mt-2">
+                                <span class="product-price">₹{{ p.price }}</span>
+
+                                {% if p.old_price %}
+                                <span class="product-price-old">₹{{ p.old_price }}</span>
+                                {% endif %}
+
+                                <span class="product-discount">
+                                    {{ p.discount_label }}
+                                </span>
+                            </div>
+
+                            <!-- Buttons -->
+                            <button class="btn-add-cart">
+                                <i class="fa fa-cart-plus"></i> Add to Cart
+                            </button>
+
+                            <a href="https://wa.me/{{ p.whatsapp_number }}?text=I want {{ p.name }} {{ p.weight }}"
+                               class="btn-whatsapp">
+                                <i class="fab fa-whatsapp"></i> Order
+                            </a>
+
                         </div>
-                        <button class="btn-add-cart" aria-label="Add Rajasthani Mango Pickle to cart">
-                            <i class="fa fa-cart-plus" aria-hidden="true"></i> Add to Cart
-                        </button>
-                        <a href="https://wa.me/919876543210?text=I want Rajasthani Mango Pickle 500g" class="btn-whatsapp" aria-label="Order Rajasthani Mango Pickle on WhatsApp">
-                            <i class="fab fa-whatsapp" aria-hidden="true"></i> Order on WhatsApp
-                        </a>
-                    </div>
-                </article>
-            </div>
-            <div class="col-6 col-md-4 col-lg-3" role="listitem">
-                <article class="product-card">
-                    <div class="product-img">
-                        <span aria-hidden="true">🧄</span>
-                        <span class="product-badge" style="background:linear-gradient(135deg,#2d6a4f,#52b788);">New</span>
-                        <button class="product-wishlist" aria-label="Add Andhra Garlic Pickle to wishlist"><i class="fa fa-heart"></i></button>
-                    </div>
-                    <div class="product-body">
-                        <div class="product-brand">Andhra Heritage</div>
-                        <h3 class="product-name">Andhra Spicy Garlic Pickle</h3>
-                        <div class="product-weight">250g | Sesame Oil</div>
-                        <div class="d-flex align-items-center gap-1 mt-1">
-                            <div class="product-stars" aria-label="Rating: 4.7 out of 5">★★★★★</div>
-                            <span class="product-reviews">(94)</span>
-                        </div>
-                        <div class="d-flex align-items-center gap-2 mt-2">
-                            <span class="product-price" aria-label="Price: 199 rupees">₹199</span>
-                            <span class="product-price-old" aria-label="Original price: 280 rupees">₹280</span>
-                            <span class="product-discount">29% off</span>
-                        </div>
-                        <button class="btn-add-cart" aria-label="Add Andhra Garlic Pickle to cart">
-                            <i class="fa fa-cart-plus" aria-hidden="true"></i> Add to Cart
-                        </button>
-                        <a href="https://wa.me/919876543210?text=I want Andhra Garlic Pickle 250g" class="btn-whatsapp" aria-label="Order Andhra Garlic Pickle on WhatsApp">
-                            <i class="fab fa-whatsapp" aria-hidden="true"></i> Order on WhatsApp
-                        </a>
-                    </div>
-                </article>
-            </div>
-            <div class="col-6 col-md-4 col-lg-3" role="listitem">
-                <article class="product-card">
-                    <div class="product-img">
-                        <span aria-hidden="true">🍋</span>
-                        <span class="product-badge" style="background:linear-gradient(135deg,#0f3460,#533483);">Premium</span>
-                        <button class="product-wishlist" aria-label="Add Punjabi Lemon Pickle to wishlist"><i class="fa fa-heart"></i></button>
-                    </div>
-                    <div class="product-body">
-                        <div class="product-brand">Punjabi Tadka</div>
-                        <h3 class="product-name">Punjabi Sweet Lemon Pickle</h3>
-                        <div class="product-weight">500g | Sun-dried</div>
-                        <div class="d-flex align-items-center gap-1 mt-1">
-                            <div class="product-stars" aria-label="Rating: 4.6 out of 5">★★★★☆</div>
-                            <span class="product-reviews">(67)</span>
-                        </div>
-                        <div class="d-flex align-items-center gap-2 mt-2">
-                            <span class="product-price" aria-label="Price: 280 rupees">₹280</span>
-                            <span class="product-price-old" aria-label="Original price: 380 rupees">₹380</span>
-                            <span class="product-discount">26% off</span>
-                        </div>
-                        <button class="btn-add-cart" aria-label="Add Punjabi Lemon Pickle to cart">
-                            <i class="fa fa-cart-plus" aria-hidden="true"></i> Add to Cart
-                        </button>
-                        <a href="https://wa.me/919876543210?text=I want Punjabi Lemon Pickle 500g" class="btn-whatsapp" aria-label="Order Punjabi Lemon Pickle on WhatsApp">
-                            <i class="fab fa-whatsapp" aria-hidden="true"></i> Order on WhatsApp
-                        </a>
-                    </div>
-                </article>
-            </div>
-            <div class="col-6 col-md-4 col-lg-3" role="listitem">
-                <article class="product-card">
-                    <div class="product-img">
-                        <span aria-hidden="true">🌶️</span>
-                        <span class="product-badge" style="background:linear-gradient(135deg,#9d0208,#e85d04);">Hot 🔥</span>
-                        <button class="product-wishlist" aria-label="Add Gujarati Mixed Pickle to wishlist"><i class="fa fa-heart"></i></button>
-                    </div>
-                    <div class="product-body">
-                        <div class="product-brand">Gujarat Flavours</div>
-                        <h3 class="product-name">Gujarati Mixed Achaar</h3>
-                        <div class="product-weight">400g | Sesame Oil</div>
-                        <div class="d-flex align-items-center gap-1 mt-1">
-                            <div class="product-stars" aria-label="Rating: 4.9 out of 5">★★★★★</div>
-                            <span class="product-reviews">(203)</span>
-                        </div>
-                        <div class="d-flex align-items-center gap-2 mt-2">
-                            <span class="product-price" aria-label="Price: 249 rupees">₹249</span>
-                            <span class="product-price-old" aria-label="Original price: 320 rupees">₹320</span>
-                            <span class="product-discount">22% off</span>
-                        </div>
-                        <button class="btn-add-cart" aria-label="Add Gujarati Mixed Achaar to cart">
-                            <i class="fa fa-cart-plus" aria-hidden="true"></i> Add to Cart
-                        </button>
-                        <a href="https://wa.me/919876543210?text=I want Gujarati Mixed Achaar 400g" class="btn-whatsapp" aria-label="Order Gujarati Mixed Achaar on WhatsApp">
-                            <i class="fab fa-whatsapp" aria-hidden="true"></i> Order on WhatsApp
-                        </a>
-                    </div>
-                </article>
+
+                    </article>
+                </div>
+                {% endfor %}
+
             </div>
         </div>
 
+        <!-- View All -->
         <div class="text-center mt-4">
-            <a href="/products/" class="btn btn-warning btn-lg rounded-pill fw-bold px-5" aria-label="View all pickle products">
+            <a href="{% url 'All_products' %}" 
+               class="btn btn-warning btn-lg rounded-pill fw-bold px-5">
                 View All Products <i class="fa fa-arrow-right ms-2"></i>
             </a>
         </div>
+
     </div>
 </section>
+
+<!-- Swiper CSS & JS -->
+
+<!-- Slider + Filter Script -->
+
 
 {% if brands %}
 <section class="py-5" aria-labelledby="brands-heading">
@@ -1167,6 +1156,45 @@
             this.classList.remove('btn-outline-warning');
             this.classList.add('btn-warning', 'active');
             this.setAttribute('aria-selected', 'true');
+        });
+    });
+</script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper/swiper-bundle.min.css"/>
+<script src="https://cdn.jsdelivr.net/npm/swiper/swiper-bundle.min.js"></script>
+
+
+<script>
+    // Swiper
+    var swiper = new Swiper(".mySwiper", {
+        slidesPerView: 4,
+        spaceBetween: 20,
+        loop: true,
+        breakpoints: {
+            320: { slidesPerView: 1 },
+            576: { slidesPerView: 2 },
+            768: { slidesPerView: 3 },
+            992: { slidesPerView: 4 }
+        }
+    });
+
+    // Filter
+    document.querySelectorAll('.filter-btn').forEach(btn => {
+        btn.addEventListener('click', function () {
+
+            document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('btn-warning','active'));
+            this.classList.add('btn-warning','active');
+
+            let filter = this.getAttribute('data-filter');
+
+            document.querySelectorAll('.product-item').forEach(item => {
+                if (filter === 'All' || item.dataset.category === filter) {
+                    item.style.display = "block";
+                } else {
+                    item.style.display = "none";
+                }
+            });
+
+            swiper.update();
         });
     });
 </script>

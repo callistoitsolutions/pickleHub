@@ -1,5 +1,5 @@
 from django.urls import path
-from . import views
+from Admin_app import views
 
 urlpatterns = [
     
@@ -42,4 +42,19 @@ urlpatterns = [
     ############ urls for ajax for save newsletter #####################
 
     path('Save_Newsletter_Ajax', views.Save_Newsletter_Ajax, name='Save_Newsletter_Ajax'),
+    path('dashboard/', views.dashboard, name='dashboard'),
+    path('category_section',   views.category_section, name='category_section'),
+    path('product_builder', views.product_builder, name='product_builder'), # ← NEW
+    
+    path('brand-builder/',          views.brand_builder,                name='brand_builder'),         # NEW
+    #path('product_builder/', views.product_builder, name='product_builder'),      # NEW
+    path('product-filter/',         views.product_filter_builder,       name='product_filter_builder'),# NEW
+
+    # ── AJAX sav
+
+    # ── AJAX save endpoints ──
+      # ← NEW
+
+    # ── AJAX load endpoints (optional) ──
+        # ← NEW
 ]
