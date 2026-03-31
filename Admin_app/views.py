@@ -4,7 +4,7 @@
 # NO forms.py used — data read directly from request.body (JSON).
 
 import json
-from django.shortcuts import render,HttpResponse
+from django.shortcuts import render,HttpResponse,redirect
 from django.http import JsonResponse
 from django.views.decorators.http import require_POST
 
@@ -12,6 +12,7 @@ from core.models import HeroSection,FeaturesSection
 from django.db import transaction
 from Admin_app.models import *
 from django.views.decorators.csrf import csrf_exempt
+import traceback
 
 
 # ──────────────────────────────────────────────
@@ -19,36 +20,43 @@ from django.views.decorators.csrf import csrf_exempt
 # ──────────────────────────────────────────────
 
 def dashboard(request):
-    """
-    Admin dashboard page.
-    Passes hero_json and features_json as JS-injectable strings.
-    """
-    hero     = HeroSection.get_or_create_default()
-    features = FeaturesSection.get_or_create_default()
+    session_id = request.session.get('Admin_id')
+    if session_id:
+        admin_obj = AdminDetails.objects.get(id=session_id)
 
-    hero_data = {
-        'badge_text':        hero.badge_text,
-        'title_line1':       hero.title_line1,
-        'title_highlight':   hero.title_highlight,
-        'title_line2':       hero.title_line2,
-        'subtitle':          hero.subtitle,
-        'jar_emoji':         hero.jar_emoji,
-        'hero_image_url':    hero.hero_image_url,
-        'buttons_json':      hero.buttons_json,
-        'stats_json':        hero.stats_json,
-        'float_badges_json': hero.float_badges_json,
-        'is_visible':        hero.is_visible,
-    }
+        """
+        Admin dashboard page.
+        Passes hero_json and features_json as JS-injectable strings.
+        """
+        hero     = HeroSection.get_or_create_default()
+        features = FeaturesSection.get_or_create_default()
 
-    features_data = {
-        'items_json': features.items_json,
-        'is_visible': features.is_visible,
-    }
+        hero_data = {
+            'badge_text':        hero.badge_text,
+            'title_line1':       hero.title_line1,
+            'title_highlight':   hero.title_highlight,
+            'title_line2':       hero.title_line2,
+            'subtitle':          hero.subtitle,
+            'jar_emoji':         hero.jar_emoji,
+            'hero_image_url':    hero.hero_image_url,
+            'buttons_json':      hero.buttons_json,
+            'stats_json':        hero.stats_json,
+            'float_badges_json': hero.float_badges_json,
+            'is_visible':        hero.is_visible,
+        }
 
-    return render(request, 'Admin_pages/dashboard.html', {
-        'hero_json':     json.dumps(hero_data),
-        'features_json': json.dumps(features_data),
-    })
+        features_data = {
+            'items_json': features.items_json,
+            'is_visible': features.is_visible,
+        }
+
+        return render(request, 'Admin_pages/dashboard.html', {
+            'hero_json':     json.dumps(hero_data),
+            'features_json': json.dumps(features_data),
+            'admin_obj':admin_obj
+        })
+    else:
+        return render(request,'Admin_pages/admin_login.html')
 # ──────────────────────────────────────────────
 # 2. ADMIN HOME PAGE
 # ──────────────────────────────────────────────
@@ -56,8 +64,35 @@ def dashboard(request):
 
 ############## Views start for admin login #####################
 
+@csrf_exempt
 def Admin_Login(request):
-    return render(request,'Admin_pages/admin_login.html')
+    session_id = request.session.get('Admin_id')
+    user_type = request.session.get('user_type')
+    if request.method == "POST":
+        try:
+            data = json.loads(request.body.decode('utf-8'))
+            admin_email = data['admin_email']
+            admin_password = data['admin_password']
+
+            if AdminDetails.objects.filter(admin_email=admin_email, admin_password=admin_password):
+
+                obj = AdminDetails.objects.get(admin_email=admin_email, admin_password=admin_password)
+                
+                request.session['Admin_id'] = str(obj.id)
+                request.session['user_type'] = str('Admin')
+
+                send_data = {'status':1,'msg':'Login Successful...'}
+            else:
+                send_data = {'status':0,'msg':'Invalid Credentials'}
+        except:
+            print(traceback.format_exc())
+            send_data = {'status':0 , 'msg':'Something went wrong','error':traceback.format_exc()}
+        return JsonResponse(send_data)
+    else:
+        if session_id and user_type == "Admin":
+            return redirect('dashboard')
+        else:
+            return render(request,'Admin_pages/admin_login.html')
 
 ########## Views end for admin login ########################
 
