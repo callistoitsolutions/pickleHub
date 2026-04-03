@@ -8,11 +8,29 @@ from django.db import models
 class AdminDetails(models.Model):
     admin_name = models.CharField(max_length=200,blank=True,null=True)
     admin_email = models.CharField(max_length=200,blank=True,null=True)
+    admin_phone = models.CharField(max_length=200,blank=True,null=True)
     admin_password = models.CharField(max_length=200,blank=True,null=True)
     
 
     def __str__(self):
         return f"{self.admin_email}-{self.admin_password}"
+    
+
+############### User Details Modal Starts Here ##############################
+
+class UserDetails(models.Model):
+    user_name = models.CharField(max_length=200,blank=True,null=True)
+    user_email = models.CharField(max_length=200,blank=True,null=True)
+    user_phone = models.CharField(max_length=200,blank=True,null=True)
+    user_city = models.CharField(max_length=200,blank=True,null=True)
+    user_password = models.CharField(max_length=200,blank=True,null=True)
+
+    user_register_date = models.DateField(blank=True,null=True)
+    user_register_time = models.TimeField(blank=True,null=True)
+    
+
+    def __str__(self):
+        return f"{self.user_name}-{self.user_phone}"
 
 
 ############ Offer Banner Modal Starts Here ####################

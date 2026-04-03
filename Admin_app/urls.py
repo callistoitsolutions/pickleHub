@@ -11,6 +11,18 @@ urlpatterns = [
 
     path('', views.Admin_Login, name='Admin_Login'),
 
+    ############# urls for admin logout #########################
+
+    path('Admin_Logout', views.Admin_Logout, name='Admin_Logout'),
+
+    ############# urls for update admin profile #####################
+
+    path('Admin_Profile', views.Admin_Profile, name='Admin_Profile'),
+
+    ############## urls for ajax for update admin profile #####################
+
+    path('Admin_Profile_Ajax', views.Admin_Profile_Ajax, name='Admin_Profile_Ajax'),
+
     ############### urls for offer banner section #####################
 
     path('Offer_Banner_Section', views.Offer_Banner_Section, name='Offer_Banner_Section'),

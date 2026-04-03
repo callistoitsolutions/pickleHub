@@ -7,6 +7,10 @@ from Admin_app.models import *
 
 admin.site.register(AdminDetails)
 
+############## Register User Details Table/Modal ##################
+
+admin.site.register(UserDetails)
+
 ############ Register Offer Banner Table ####################
 
 admin.site.register(OfferBanner)

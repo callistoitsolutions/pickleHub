@@ -8,7 +8,19 @@ urlpatterns = [
    
    path('All_products', views.All_products, name='All_products'),
     
-    path('account', views.login, name='login'),
+    path('login/', views.login, name='login'),
+
+    ############# urls for complete profile ####################
+
+    path('complete-profile/', views.complete_profile, name='complete_profile'),
+
+    ############# urls for user logout ###########################
+
+    path('User_Logout', views.User_Logout, name='User_Logout'),
+
+    ############ urls for ajax for register user #############################
+
+    path('Users_Ajax', views.Users_Ajax, name='Users_Ajax'),
     
     path('cart', views.cart, name='cart'),
     

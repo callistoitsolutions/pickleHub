@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+{% load socialaccount %}
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -8,6 +9,11 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/2.1.2/sweetalert.min.js" integrity="sha512-AA1Bzp5Q0K1KanKKmvN/4d3IRKVlv9PYgwFPvm32nPO6QS8yH1HO7LbgB1pgiOxPtfeg5zEn2ba64MUcqJx6CA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
     <style>
         :root{--primary:#e85d04;--dark:#1a1a2e;}
         *{margin:0;padding:0;box-sizing:border-box;}
@@ -132,13 +138,11 @@
                     <h2 style="font-size:19px;font-weight:700;color:#1a1a2e;margin-bottom:4px;">Sign In to Your Account</h2>
                     <p style="font-size:13px;color:#aaa;margin-bottom:20px;">Enter your mobile number or email to continue</p>
 
-                    <form id="loginFrm" novalidate method="post" action="/login/">
-                        {% csrf_token %}
                         <div class="mb-3">
                             <label class="lbl" for="loginId">Mobile Number / Email</label>
                             <div class="inp-wrap">
                                 <i class="fa fa-user ico" aria-hidden="true"></i>
-                                <input class="inp" type="text" id="loginId" name="username"
+                                <input class="inp" type="text" id="login_placement" name="login_placement"
                                     placeholder="9876543210 or email@gmail.com"
                                     required autocomplete="username" maxlength="100">
                             </div>
@@ -150,7 +154,7 @@
                             </div>
                             <div class="inp-wrap">
                                 <i class="fa fa-lock ico" aria-hidden="true"></i>
-                                <input class="inp" type="password" id="loginPwd" name="password"
+                                <input class="inp" type="password" id="login_password" name="login_password"
                                     placeholder="Enter your password"
                                     required autocomplete="current-password" style="padding-right:42px;">
                                 <button type="button" class="eye-btn" id="eyeLogin" aria-label="Toggle password visibility">
@@ -158,20 +162,34 @@
                                 </button>
                             </div>
                         </div>
-                        <div class="d-flex align-items-center mb-3">
-                            <input type="checkbox" id="remMe" name="remember" style="margin-right:7px;accent-color:#e85d04;">
-                            <label for="remMe" class="check-lbl">Remember me for 30 days</label>
-                        </div>
-                        <button type="submit" class="btn-main" id="loginSubmitBtn">
-                            <i class="fa fa-sign-in-alt me-2" aria-hidden="true"></i> Sign In
+                        
+                        {% comment %} <button type="button" class="btn-main" id="loginSubmitBtn">
+                            <i class="fa fa-sign-in-alt me-2" aria-hidden="true" onclick="User_Login(this)"></i> Sign In
+                        </button> {% endcomment %}
+
+                        <button type="button" class="btn-main mt-3" id="loginSubmitBtn"   onclick="User_Login(this)">
+                        <i class="fa fa-sign-in-alt me-2" aria-hidden="true"></i> Sign In
                         </button>
-                    </form>
 
                     <div class="divider">or continue with</div>
 
-                    <button type="button" class="btn-wa" id="waLoginBtn" aria-label="Login with WhatsApp OTP">
+                    {% comment %} <button type="button" class="btn-wa" id="waLoginBtn" aria-label="Login with WhatsApp OTP">
                         <i class="fab fa-whatsapp me-2" aria-hidden="true"></i> Login with WhatsApp OTP
-                    </button>
+                    </button> {% endcomment %}
+
+                    {% load socialaccount %}
+
+<a href="{% provider_login_url 'google' %}" style="display: flex; align-items: center; justify-content: center; gap: 10px; background: #ffffff; color: #1a1a2e; border: 1.5px solid #e0e0e0; border-radius: 10px; padding: 12px; font-family: 'Poppins', sans-serif; font-weight: 700; font-size: 14px; text-decoration: none; width: 100%; transition: 0.2s; box-shadow: 0 2px 4px rgba(0,0,0,0.02);" onmouseover="this.style.background='#f8f9fa'; this.style.borderColor='#d0d0d0';" onmouseout="this.style.background='#ffffff'; this.style.borderColor='#e0e0e0';">
+
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="20px" height="20px">
+        <path fill="#FFC107" d="M43.611,20.083H42V20H24v8h11.303c-1.649,4.657-6.08,8-11.303,8c-6.627,0-12-5.373-12-12c0-6.627,5.373-12,12-12c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4C12.955,4,4,12.955,4,24c0,11.045,8.955,20,20,20c11.045,0,20-8.955,20-20C44,22.659,43.862,21.35,43.611,20.083z"/>
+        <path fill="#FF3D00" d="M6.306,14.691l6.571,4.819C14.655,15.108,18.961,12,24,12c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4C16.318,4,9.656,8.337,6.306,14.691z"/>
+        <path fill="#4CAF50" d="M24,44c5.166,0,9.86-1.977,13.409-5.192l-6.19-5.238C29.211,35.091,26.715,36,24,36c-5.202,0-9.619-3.317-11.283-7.946l-6.522,5.025C9.505,39.556,16.227,44,24,44z"/>
+        <path fill="#1976D2" d="M43.611,20.083H42V20H24v8h11.303c-0.792,2.237-2.231,4.166-4.087,5.571c0.001-0.001,0.002-0.001,0.003-0.002l6.19,5.238C36.971,39.205,44,34,44,24C44,22.659,43.862,21.35,43.611,20.083z"/>
+    </svg>
+
+    Continue with Google
+</a>
 
                     <p style="font-size:12px;color:#aaa;text-align:center;margin-top:16px;">
                         Don't have an account?
@@ -184,33 +202,32 @@
                     <h2 style="font-size:19px;font-weight:700;color:#1a1a2e;margin-bottom:4px;">Create Your Account</h2>
                     <p style="font-size:13px;color:#aaa;margin-bottom:20px;">Join PickleHub — free forever, instant access</p>
 
-                    <form id="regFrm" novalidate method="post" action="/register/">
-                        {% csrf_token %}
+                    
                         <div class="row g-3">
                             <div class="col-md-6">
                                 <label class="lbl" for="regName">Full Name *</label>
                                 <div class="inp-wrap"><i class="fa fa-user ico" aria-hidden="true"></i>
-                                <input class="inp" type="text" id="regName" name="full_name"
+                                <input class="inp" type="text" id="user_name" name="user_name"
                                     placeholder="Priya Deshmukh" required autocomplete="name" maxlength="80"></div>
                             </div>
                             <div class="col-md-6">
                                 <label class="lbl" for="regPhone">Mobile Number *</label>
                                 <div class="inp-wrap"><i class="fa fa-phone ico" aria-hidden="true"></i>
-                                <input class="inp" type="tel" id="regPhone" name="phone"
+                                <input class="inp" type="tel" id="user_phone" name="user_phone"
                                     placeholder="10-digit number" required
                                     maxlength="10" pattern="[6-9][0-9]{9}" autocomplete="tel"></div>
                             </div>
                             <div class="col-12">
                                 <label class="lbl" for="regEmail">Email Address (optional)</label>
                                 <div class="inp-wrap"><i class="fa fa-envelope ico" aria-hidden="true"></i>
-                                <input class="inp" type="email" id="regEmail" name="email"
+                                <input class="inp" type="email" id="user_email" name="user_email"
                                     placeholder="yourname@gmail.com" autocomplete="email" maxlength="100"></div>
                             </div>
                             <div class="col-md-6">
                                 <label class="lbl" for="regPwd">Password *</label>
                                 <div class="inp-wrap" style="position:relative;">
                                     <i class="fa fa-lock ico" aria-hidden="true"></i>
-                                    <input class="inp" type="password" id="regPwd" name="password1"
+                                    <input class="inp" type="password" id="user_password" name="user_password"
                                         placeholder="Min 8 characters" required
                                         autocomplete="new-password" style="padding-right:42px;">
                                     <button type="button" class="eye-btn" id="eyeReg" aria-label="Toggle password visibility">
@@ -218,18 +235,17 @@
                                     </button>
                                 </div>
                                 <div class="str-bar"><div class="str-fill" id="strFill"></div></div>
-                                <div class="str-txt" id="strTxt">Enter a password</div>
                             </div>
                             <div class="col-md-6">
                                 <label class="lbl" for="regPwd2">Confirm Password *</label>
                                 <div class="inp-wrap"><i class="fa fa-lock ico" aria-hidden="true"></i>
-                                <input class="inp" type="password" id="regPwd2" name="password2"
+                                <input class="inp" type="text" id="user_com_password" name="user_com_password"
                                     placeholder="Repeat password" required autocomplete="new-password"></div>
                             </div>
                             <div class="col-12">
                                 <label class="lbl" for="regCity">City</label>
                                 <div class="inp-wrap"><i class="fa fa-map-marker-alt ico" aria-hidden="true"></i>
-                                <input class="inp" type="text" id="regCity" name="city"
+                                <input class="inp" type="text" id="user_city" name="user_city"
                                     value="Nagpur" autocomplete="address-level2" maxlength="50"></div>
                             </div>
                             <div class="col-12">
@@ -237,24 +253,17 @@
                                     <input type="checkbox" id="agreeTerms" name="agree_terms" required style="margin-right:7px;accent-color:#e85d04;">
                                     <label for="agreeTerms" class="check-lbl">
                                         I agree to the
-                                        <a href="terms-conditions.html" target="_blank" style="color:#e85d04;font-weight:700;text-decoration:none;">Terms &amp; Conditions</a>
+                                        <a href="#" target="_blank" style="color:#e85d04;font-weight:700;text-decoration:none;">Terms &amp; Conditions</a>
                                         and
-                                        <a href="privacy-policy.html" target="_blank" style="color:#e85d04;font-weight:700;text-decoration:none;">Privacy Policy</a>
+                                        <a href="#" target="_blank" style="color:#e85d04;font-weight:700;text-decoration:none;">Privacy Policy</a>
                                     </label>
                                 </div>
-                                <div>
-                                    <input type="checkbox" id="waUpdates" name="whatsapp_updates" checked style="margin-right:7px;accent-color:#25D366;">
-                                    <label for="waUpdates" class="check-lbl">
-                                        <i class="fab fa-whatsapp" style="color:#25D366;" aria-hidden="true"></i>
-                                        Receive order updates on WhatsApp
-                                    </label>
-                                </div>
+                               
                             </div>
                         </div>
-                        <button type="submit" class="btn-main mt-3" id="regSubmitBtn">
-                            <i class="fa fa-user-plus me-2" aria-hidden="true"></i> Create Account
+                        <button type="button" class="btn-main mt-3" id="regSubmitBtn"   onclick="Register_User(this)">
+                        <i class="fa fa-user-plus me-2" aria-hidden="true"></i> Create Account
                         </button>
-                    </form>
 
                     <p style="font-size:12px;color:#aaa;text-align:center;margin-top:14px;">
                         Already have an account?
@@ -262,7 +271,7 @@
                     </p>
                 </div>
 
-                <!-- ── OTP VERIFICATION ── -->
+                {% comment %} <!-- ── OTP VERIFICATION ── -->
                 <div id="formOtp" style="display:none;" role="region" aria-label="OTP Verification">
                     <div style="text-align:center;">
                         <div style="font-size:48px;margin-bottom:12px;" aria-hidden="true">📱</div>
@@ -310,7 +319,7 @@
                             <i class="fab fa-whatsapp me-2" aria-hidden="true"></i> Send Reset OTP via WhatsApp
                         </button>
                     </form>
-                </div>
+                </div> {% endcomment %}
 
             </div><!-- /right-col -->
         </div>
@@ -370,8 +379,8 @@
             btn.querySelector("i").className = isPass ? "fa fa-eye-slash" : "fa fa-eye";
         });
     }
-    bindEye("eyeLogin", "loginPwd");
-    bindEye("eyeReg",   "regPwd");
+    bindEye("eyeLogin", "login_password");
+    bindEye("eyeReg",   "user_password");
 
     /* ── PASSWORD STRENGTH ── */
     var regPwdInp = document.getElementById("regPwd");
@@ -491,35 +500,156 @@
         openOtp(ph, "formForgot");
     });
 
-    /* ── LOGIN FORM SUBMIT ── */
-    document.getElementById("loginFrm").addEventListener("submit", function (e) {
-        var id  = document.getElementById("loginId").value.trim();
-        var pwd = document.getElementById("loginPwd").value;
-        if (!id) { e.preventDefault(); showMsg("error", "Please enter your mobile number or email."); return; }
-        if (pwd.length < 4) { e.preventDefault(); showMsg("error", "Please enter your password."); return; }
-        /* Valid — let Django handle the POST */
-    });
-
-    /* ── REGISTER FORM SUBMIT ── */
-    document.getElementById("regFrm").addEventListener("submit", function (e) {
-        e.preventDefault();
-        var name   = document.getElementById("regName").value.trim();
-        var phone  = document.getElementById("regPhone").value.trim();
-        var pwd    = document.getElementById("regPwd").value;
-        var pwd2   = document.getElementById("regPwd2").value;
-        var terms  = document.getElementById("agreeTerms").checked;
-
-        if (!name)  { showMsg("error", "Please enter your full name."); return; }
-        if (!/^[6-9][0-9]{9}$/.test(phone)) { showMsg("error", "Enter a valid 10-digit mobile number."); return; }
-        if (pwd.length < 8) { showMsg("error", "Password must be at least 8 characters."); return; }
-        if (pwd !== pwd2)   { showMsg("error", "Passwords do not match. Please re-enter."); return; }
-        if (!terms) { showMsg("error", "Please accept the Terms and Conditions to continue."); return; }
-
-        /* Show OTP step — actual registration completes after OTP */
-        openOtp(phone, "formRegister");
-    });
+   
 
 }());
 </script>
+
+<script>
+
+    // Javscript ajax and jquery to add customers/users
+
+    function Register_User(_this) {
+        var user_name = $("#user_name").val();
+        var user_email = $("#user_email").val();
+        var user_phone = $("#user_phone").val();
+        var user_city = $("#user_city").val();
+        var user_password = $("#user_password").val();
+        var user_com_password = $("#user_com_password").val();
+
+        if (user_name == "") {
+            alert("Please Enter Name");
+            return;
+        }
+        else if (user_phone == "") {
+            alert("Please Enter Phone Number");
+            return;
+        }
+        else if (user_city == "") {
+            alert("Please Enter City");
+            return;
+        }
+        else if (user_password == "") {
+            alert("Please Enter Password");
+            return;
+        }
+        else if (user_com_password == "") {
+            alert("Please Enter Confrm Password");
+            return;
+        }
+        else if (user_password!=user_com_password) {
+            alert("Passwords do not match");
+            return;
+        }
+        
+
+        var fd = new FormData();
+        fd.append('id', '');
+        fd.append('user_name', user_name);
+        fd.append('user_email', user_email);
+        fd.append('user_phone', user_phone);
+        fd.append('user_city', user_city);
+        fd.append('user_password', user_password);
+
+        $(_this).prop("disabled", true);
+        _this.innerHTML = `<span class="spinner-border spinner-border-sm" role="status"></span> Processing...`;
+
+        $.ajax({
+            method: "POST",
+            url: "{% url 'Users_Ajax' %}",
+            enctype: "multipart/form-data",
+            processData: false,
+            contentType: false,
+            cache: false,
+            data: fd,
+            mode: 'same-origin',
+            success: function (response) {
+                $(_this).prop("disabled", false);
+                _this.innerHTML = `<i class="fa fa-user-plus mr-1"></i> Create Account`;
+
+                if (response.status == '1') {
+                    swal({
+                        title: response.msg,
+                        icon: 'success',
+                        confirmButtonColor: '#3085d6',
+                        confirmButtonText: 'OK',
+                    }).then((result) => {
+                        if (result) {
+                            location.reload();
+                        }
+                    })
+                } else {
+                    swal({
+                        title: response.msg,
+                        icon: 'error',
+                        showCancelButton: true,
+                        cancelButtonColor: '#d33',
+                        showConfirmButton: false,
+                    })
+                }
+            },
+            error: function() {
+                $(_this).prop("disabled", false);
+                _this.innerHTML = `<i class="fa fa-user-plus mr-1"></i> Create Account`;
+                showToast("Network error. Please try again.");
+            }
+        });
+    }
+</script>
+
+{% comment %} Ajax and Jquery for user login {% endcomment %}
+
+
+    <script>
+        function User_Login(_this){
+            var login_placement = $("#login_placement").val();
+            var login_password = $("#login_password").val();
+            if (login_placement == "")
+            {
+                alert("Please Enter Mobile Number/Email");
+            }
+            else if(login_password == "")
+            {
+                alert("Please Enter Password");
+            }
+             else
+            {
+                _this.innerHTML = `<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Loading...`;
+                
+                $.ajax({
+                    method:"POST",
+                    url : "{% url 'login' %}",
+                    data:JSON.stringify({
+                    "login_placement":login_placement,
+                    "login_password":login_password
+                    }),
+                    success : function (response){
+                    $(_this).prop("disabled", false);
+                        _this.innerHTML = `Sign In`;
+                    if (response.status == '1'){
+                        window.location.href ="{% url 'index' %}";
+                    }
+                    else
+                    {
+                        swal( 
+                        {
+                            content: {
+                                element: "div",
+                                attributes: {
+                                    innerHTML: '<span style="font-weight:bold; color:red;font-size:20px;">' + response.msg + '</span>'
+                                }
+                            },
+
+                            icon: "warning",
+                            closeOnClickOutside: false,
+                        }) 
+                    }
+        
+                    }
+                });
+            }
+        }
+    </script>
+
 </body>
 </html>

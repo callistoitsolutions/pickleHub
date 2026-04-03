@@ -30,6 +30,8 @@ urlpatterns = [
     
     # This sends the root URL (127.0.0.1:8000) directly to the core app
     path('', include('core.urls')), 
+
+    path('accounts/', include('allauth.urls')),
     
     # Your other apps
     path('Admin_panel/', include('Admin_app.urls')), 

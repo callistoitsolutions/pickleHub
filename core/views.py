@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.shortcuts import render,HttpResponse
 from Admin_app.models import *
 import json
 from django.shortcuts import render, redirect
@@ -12,6 +12,10 @@ from products.models import *
 from django.core.paginator import Paginator
 from django.utils.text import slugify
 from django.shortcuts import render, get_object_or_404
+from datetime import datetime
+from django.db.models import Q
+import traceback
+from django.contrib.auth.decorators import login_required
 
 
 
@@ -23,54 +27,45 @@ from django.shortcuts import render, get_object_or_404
 
 
 def index(request):
-
-    # 🔹 Banner logic
+    
+    # Banner logic
     active_banners = OfferBanner.objects.filter(is_active=True).order_by('order')
-
     banner_pairs = []
     for i in range(0, len(active_banners), 2):
         pair = {'main': None, 'potw': None}
-
         if i < len(active_banners):
             banner1 = active_banners[i]
-            if banner1.offer_type == 'main':
-                pair['main'] = banner1
-            else:
-                pair['potw'] = banner1
+            if banner1.offer_type == 'main': pair['main'] = banner1
+            else: pair['potw'] = banner1
 
         if i + 1 < len(active_banners):
             banner2 = active_banners[i + 1]
-            if banner2.offer_type == 'main':
-                pair['main'] = banner2
-            else:
-                pair['potw'] = banner2
+            if banner2.offer_type == 'main': pair['main'] = banner2
+            else: pair['potw'] = banner2
 
         if pair['main'] or pair['potw']:
             banner_pairs.append(pair)
 
-    # 🔹 Sections
+    # Sections
     hero = HeroSection.get_or_create_default()
     features = FeaturesSection.get_or_create_default()
     category = CategorySection.get_or_create_default()
 
-    # 🔹 Data
+    # Data
     brands = Brand.objects.filter(is_active=True).order_by('order')
     reviews = Review.objects.filter(is_active=True).order_by('order')
     newsletter = NewsletterSetting.objects.last()
 
-    # 🔥 Products
+    # Products
     products = Product.objects.filter(
         is_active=True,
         is_featured=True
     ).select_related('brand', 'category').order_by('sort_order')[:12]
 
-    # 🔥 Category names (for filter buttons)
-    categories = [
-        item.get('name')
-        for item in category.items_json
-    ]
+    # Category names
+    categories = [item.get('name') for item in category.items_json]
 
-    # 🔹 Final context (ONLY ONE)
+    # 🔹 2. Create the context dictionary (Defaulting user_obj to None)
     context = {
         'banner_pairs': banner_pairs,
         'hero': hero,
@@ -78,15 +73,21 @@ def index(request):
         'brands': brands,
         'reviews': reviews,
         'newsletter': newsletter,
-
-        # Category section
         'category': category,
-
-        # Product section
         'products': products,
         'categories': categories,
+        'user_obj': None,  # Will remain None if they are a guest
     }
 
+    # 🔹 3. Handle the logged-in user logic safely
+    session_id = request.session.get('User_id')
+    if session_id:
+        
+        user_obj = UserDetails.objects.filter(id=session_id).first()
+        if user_obj:
+            context['user_obj'] = user_obj
+
+    # 🔹 4. Return the render (Works safely for both scenarios now!)
     return render(request, 'home/index.html', context)
     
 
@@ -194,10 +195,188 @@ def load_category(request):
     return JsonResponse({'ok': True, 'category': _category_data(category)})
 
 
+############## Views start for complete profile ##########################
 
 
+@login_required
+def complete_profile(request):
+    if request.method == "POST":
+        try:
+            data        = json.loads(request.body.decode('utf-8'))
+            phone       = data.get('user_phone', '').strip()
+            city        = data.get('user_city', '').strip()
+            # pincode     = data.get('user_pincode', '').strip()
+
+            if not phone:
+                return JsonResponse({'status': '0', 'msg': 'Phone number is required'})
+
+            user_id = request.session.get('User_id')
+            user    = UserDetails.objects.get(id=user_id)
+
+            # Check phone not already taken by another user
+            if UserDetails.objects.filter(user_phone=phone).exclude(id=user_id).exists():
+                return JsonResponse({'status': '0', 'msg': 'Phone number already registered'})
+
+            user.user_phone   = phone
+            user.user_city    = city
+            # user.user_pincode = pincode   # add this field to your model if not exists
+            user.save()
+
+            # Clear the flag
+            request.session.pop('show_complete_profile', None)
+
+            return JsonResponse({'status': '1', 'msg': 'Profile completed successfully'})
+
+        except Exception as e:
+            return JsonResponse({'status': '0', 'msg': str(e)})
+        
+
+############## Views end for complete profile #################################
+
+
+
+
+@csrf_exempt
 def login(request):
-    return render(request, 'account/login.html')
+    session_id = request.session.get('User_id')
+    user_type  = request.session.get('user_type')
+
+    if request.method == "POST":
+        try:
+            data = json.loads(request.body.decode('utf-8'))
+            login_placement = data.get('login_placement')
+            login_password  = data.get('login_password')
+
+            login_user = UserDetails.objects.filter(
+                Q(user_email=login_placement) | Q(user_phone=login_placement),
+                user_password=login_password
+            ).first()
+
+            if login_user:
+                # ── Normal login session ─────────────────────────────────
+                request.session['User_id']   = str(login_user.id)
+                request.session['user_type'] = 'User'
+                request.session.modified     = True
+                send_data = {'status': '1', 'msg': 'Login Successful...'}
+            else:
+                send_data = {'status': '0', 'msg': 'Invalid Credentials'}
+
+        except Exception as e:
+            print(traceback.format_exc())
+            send_data = {'status': '0', 'msg': 'Something went wrong', 'error': str(e)}
+
+        return JsonResponse(send_data)
+
+    else:
+        # ── Already logged in via normal login ───────────────────────────
+        if session_id and user_type == 'User':
+            return redirect('index')
+
+        # ── Already logged in via Google OAuth ───────────────────────────
+        if request.user.is_authenticated:
+            return redirect('index')
+
+        return render(request, 'account/login.html')
+
+        
+
+############### Views start for user logout ##########################
+
+@csrf_exempt
+def User_Logout(request):
+    try:
+        del request.session['User_id']
+        return JsonResponse({"status":"1",'msg': 'Logout Successfully '})
+    except:
+        print(traceback.format_exc())
+
+############# Views end for user logout ################################
+    
+
+
+############# Views start for ajax for register user #######################
+
+@csrf_exempt
+def Users_Ajax(request):
+    data = request.POST.dict()
+
+    if data.get('id') == "":
+        data.pop("id", None)         
+        data['user_register_date'] = datetime.today()
+        data['user_register_time'] = datetime.now()
+        if UserDetails.objects.filter(user_phone=data['user_phone']).exists():
+            return JsonResponse({"status":"0", "msg" : f"User already exists .."})
+        else:
+            UserDetails.objects.create(**data)
+            return JsonResponse({"status":"1", "msg" : f"User account has been created successfully"})
+
+    # UPDATE MODE
+    # else:
+    #     try:
+    #         withdraw = WithdrawDetails.objects.get(id=data['id'])
+    #     except WithdrawDetails.DoesNotExist:
+    #         return JsonResponse({'status': '0', 'msg': 'Withdraw Details not found'})
+
+    #     member = MemberDetails.objects.get(user_id=data['fk_member'])
+        
+    #     if data['withdraw_status'] == "Done":
+    #         if withdraw.is_withdraw == False:
+    #             try:
+                    
+                    
+    #                 withdraw.is_withdraw = True
+                    
+
+                    
+    #                 # STEP 2: DEDUCT withdrawal ONLY from activation
+    #                 # if member.user_activation >= withdraw_amount:
+    #                 #     member.user_activation -= withdraw_amount  #  DEDUCT ONLY!
+                        
+    #                 #     super_amount = float(getattr(super_admin, 'super_total_amount', 0) or 0)
+    #                 #     super_admin.super_total_amount = super_amount - withdraw_amount
+                        
+    #                 #     super_admin.save()
+    #                 #     member.save()
+    #                 #     withdraw.is_withdraw = True
+                        
+    #                 #     print(f"COMPLETE: Remaining activation ₹{member.user_activation}")
+    #                 #     print(f"EARNINGS KEPT: Match=₹{member.user_total_match}, Level=₹{member.user_total_level_amount}")
+    #                 # else:
+    #                 #     return JsonResponse({
+    #                 #         'status': '0', 
+    #                 #         'msg': f'Insufficient: ₹{member.user_activation:.2f}'
+    #                 #     })
+    #             except (ValueError, TypeError) as e:
+    #                 print(f"Error: {e}")
+    #                 return JsonResponse({'status': '0', 'msg': 'Invalid amount'})
+
+    #     # Donation logic (unchanged)
+    #     if withdraw.donation_paid == False:
+    #         DonationDetails.objects.create(
+    #             donor_id=withdraw.fk_member.user_id,
+    #             donor_name=withdraw.fk_member.user_name,
+    #             donor_email=withdraw.fk_member.user_email,
+    #             donor_phone=withdraw.fk_member.user_phone,
+    #             donor_address=withdraw.fk_member.user_address,
+    #             donation_amount=data['donation_amount'],
+    #             donation_payment_mode="UPI",
+    #             donation_status="Done",
+    #             donation_date=datetime.today(),
+    #             donation_time=datetime.now()
+    #         )
+    #         withdraw.donation_paid = True
+
+    #     # Update withdraw fields (unchanged)
+    #     for key, value in data.items():
+    #         if key != 'fk_member':
+    #             setattr(withdraw, key, value)
+
+    #     withdraw.save()
+    #     return JsonResponse({"status":"1", "msg" : f"Withdraw updated successfully"})
+
+############ Views end for ajax for register user ##############################
+
+
 
 def cart(request):
     return render(request, 'cart/cart.html')

@@ -60,7 +60,8 @@ def dashboard(request):
         return render(request, 'Admin_pages/dashboard.html', {
         'hero_json':     json.dumps(_hero_data(hero)),
         'features_json': json.dumps(_features_data(features)),
-        'category_json': json.dumps(_category_data(category)),  # ← NEW
+        'category_json': json.dumps(_category_data(category)),
+        'admin_obj':admin_obj,  # ← NEW
         })
     else:
         return render(request,'Admin_pages/admin_login.html')
@@ -107,21 +108,75 @@ def Admin_Login(request):
 ########## Views end for admin login ########################
 
 
+######### Views start for admin logout #############################
+
+@csrf_exempt
+def Admin_Logout(request):
+    try:
+        del request.session['Admin_id']
+        del request.session['user_type']
+        return JsonResponse({"status":"1",'msg': 'Logout Successfully '})
+    except:
+        print(traceback.format_exc())
+
+########## Views end for admin logout ###############################
+
+
+############ Views start for update admin profile ######################
+
+def Admin_Profile(request):
+    session_id = request.session.get('Admin_id')
+    if session_id:
+        admin_obj = AdminDetails.objects.get(id=session_id)
+
+        context = {'admin_obj':admin_obj}
+        return render(request,'Admin_pages/Profile/admin_profile.html',context)
+    else:
+        return render(request,'Admin_pages/admin_login.html')
+    
+
+############## Views end for update admin profile ############################
+
+
+########## Views start for ajax for update admin profile ########################
+
+@csrf_exempt
+def Admin_Profile_Ajax(request):
+    data=request.POST.dict()
+    try:
+        AdminDetails.objects.get(id=data['id'])
+        AdminDetails.objects.filter(id=data['id']).update(**data)
+        return JsonResponse({"status":"1", "msg" : f"Admin Profile updated successfully"})
+    except:
+        traceback.print_exc()
+        return JsonResponse({"status":"0", "msg" : "Something went wrong..."})
+
+############## Views end for ajax for update admin profile #######################
+
+
+
 ############### Views start for offer banner section ######################
 
 def Offer_Banner_Section(request):
-    active_banners = OfferBanner.objects.filter(is_active=True).order_by('order', '-created_at')
+    session_id = request.session.get('Admin_id')
+    if session_id:
+        admin_obj = AdminDetails.objects.get(id=session_id)
 
-    # 1. Create the standard Python list
-    banners_list = [banner.to_dict() for banner in active_banners]
+        active_banners = OfferBanner.objects.filter(is_active=True).order_by('order', '-created_at')
 
-    # 2. DO NOT use json.dumps(banners_list) here! 
-    # Just pass the raw Python list directly into the context.
-    context = {
-        'offers_list': banners_list, 
-    }
+        # 1. Create the standard Python list
+        banners_list = [banner.to_dict() for banner in active_banners]
 
-    return render(request,'Admin_pages/Offer_Banner/offer_banner.html',context)
+        # 2. DO NOT use json.dumps(banners_list) here! 
+        # Just pass the raw Python list directly into the context.
+        context = {
+            'offers_list': banners_list,
+            'admin_obj':admin_obj,
+        }
+
+        return render(request,'Admin_pages/Offer_Banner/offer_banner.html',context)
+    else:
+        return render(request,'Admin_pages/admin_login.html')
 
 ######### Views end for offer banner section ##################################
 
@@ -189,16 +244,24 @@ def Save_Offer_Ajax(request):
 ########### Views start for brand section ############################
 
 def Brand_Section(request):
-    active_brands = Brand.objects.filter(is_active=True).order_by('order')
-    brands_list = [brand.to_dict() for brand in active_brands]
+    session_id = request.session.get('Admin_id')
+    if session_id:
+        admin_obj = AdminDetails.objects.get(id=session_id)
 
-    # 2. DO NOT use json.dumps(banners_list) here! 
-    # Just pass the raw Python list directly into the context.
-    context = {
-        'brands_list': brands_list, 
-    }
+        active_brands = Brand.objects.filter(is_active=True).order_by('order')
+        brands_list = [brand.to_dict() for brand in active_brands]
 
-    return render(request,'Admin_pages/Brand/brand.html',context)
+        # 2. DO NOT use json.dumps(banners_list) here! 
+        # Just pass the raw Python list directly into the context.
+        context = {
+            'brands_list': brands_list, 
+            'admin_obj':admin_obj
+        }
+
+        return render(request,'Admin_pages/Brand/brand.html',context)
+    else:
+        return render(request,'Admin_pages/admin_login.html')
+
 
 ############# Views end for brand section ##############################
 
@@ -244,16 +307,23 @@ def Save_Brand_Ajax(request):
 ############## Views start for review section #######################
 
 def Review_Section(request):
-    active_reviews = Review.objects.filter(is_active=True).order_by('order')
-    reviews_list = [review.to_dict() for review in active_reviews]
+    session_id = request.session.get('Admin_id')
+    if session_id:
+        admin_obj = AdminDetails.objects.get(id=session_id)
 
-    # # 2. DO NOT use json.dumps(banners_list) here! 
-    # # Just pass the raw Python list directly into the context.
-    context = {
-        'reviews_list': reviews_list, 
-    }
+        active_reviews = Review.objects.filter(is_active=True).order_by('order')
+        reviews_list = [review.to_dict() for review in active_reviews]
 
-    return render(request,'Admin_pages/Review/review.html',context)
+        # # 2. DO NOT use json.dumps(banners_list) here! 
+        # # Just pass the raw Python list directly into the context.
+        context = {
+            'reviews_list': reviews_list, 
+            'admin_obj':admin_obj,
+        }
+
+        return render(request,'Admin_pages/Review/review.html',context)
+    else:
+        return render(request,'Admin_pages/admin_login.html')
 
 ########### Views end for review section ###########################
 
@@ -301,13 +371,20 @@ def Save_Review_Ajax(request):
 ############# Views start for newsletter section ############################
 
 def Newsletter_Section(request):
-    newsletter = NewsletterSetting.objects.first()
+    session_id = request.session.get('Admin_id')
+    if session_id:
+        admin_obj = AdminDetails.objects.get(id=session_id)
 
-    context={
-        'newsletter':newsletter
-    }
+        newsletter = NewsletterSetting.objects.first()
 
-    return render(request,'Admin_pages/Newsletter/newsletter.html',context)
+        context={
+            'newsletter':newsletter,
+            'admin_obj':admin_obj,
+        }
+
+        return render(request,'Admin_pages/Newsletter/newsletter.html',context)
+    else:
+        return render(request,'Admin_pages/admin_login.html')
 
 ############### Views end for newsletter section #############################
 
@@ -339,46 +416,69 @@ def Save_Newsletter_Ajax(request):
 ########### Views end for ajax for save newsletter ############################
 
 def hero_section(request):
-    """
-    Dedicated admin builder page for the Hero Section.
-    """
-    hero     = HeroSection.get_or_create_default()
-    features = FeaturesSection.get_or_create_default()
-    category = CategorySection.get_or_create_default()          # ← NEW
- 
-    return render(request, 'Admin_pages/hero_section.html', {
-        'hero_json':     json.dumps(_hero_data(hero)),
-        'features_json': json.dumps(_features_data(features)),
-        'category_json': json.dumps(_category_data(category)),  # ← NEW
-    })
+    session_id = request.session.get('Admin_id')
+    if session_id:
+        """
+        Dedicated admin builder page for the Hero Section.
+        """
+        admin_obj = AdminDetails.objects.get(id=session_id)
+
+        hero     = HeroSection.get_or_create_default()
+        features = FeaturesSection.get_or_create_default()
+        category = CategorySection.get_or_create_default()          # ← NEW
+    
+        return render(request, 'Admin_pages/hero_section.html', {
+            'hero_json':     json.dumps(_hero_data(hero)),
+            'features_json': json.dumps(_features_data(features)),
+            'category_json': json.dumps(_category_data(category)),
+            'admin_obj':admin_obj,  # ← NEW
+        })
+    else:
+        return render(request,'Admin_pages/admin_login.html')
 
 
 
 def feature_section(request):
-    """
-    Dedicated admin builder page for the Features Strip.
-    """
-    hero     = HeroSection.get_or_create_default()
-    features = FeaturesSection.get_or_create_default()
-    category = CategorySection.get_or_create_default()          # ← NEW
- 
-    return render(request, 'Admin_pages/feature_section.html', {
-        'hero_json':     json.dumps(_hero_data(hero)),
-        'features_json': json.dumps(_features_data(features)),
-        'category_json': json.dumps(_category_data(category)),  # ← NEW
-    })
+    session_id = request.session.get('Admin_id')
+    if session_id:
+        """
+        Dedicated admin builder page for the Features Strip.
+        """
+        admin_obj = AdminDetails.objects.get(id=session_id)
+
+        hero     = HeroSection.get_or_create_default()
+        features = FeaturesSection.get_or_create_default()
+        category = CategorySection.get_or_create_default()          # ← NEW
+    
+        return render(request, 'Admin_pages/feature_section.html', {
+            'hero_json':     json.dumps(_hero_data(hero)),
+            'features_json': json.dumps(_features_data(features)),
+            'category_json': json.dumps(_category_data(category)),
+            'admin_obj':admin_obj  # ← NEW
+        })
+    else:
+        return render(request,'Admin_pages/admin_login.html')
     
     
 def category_section(request):
-    """
-    Dedicated admin builder page for the Category Section.
-    Only passes category_json — this page only edits categories.
-    """
-    category = CategorySection.get_or_create_default()
- 
-    return render(request, 'Admin_pages/category_section.html', {
-        'category_json': json.dumps(_category_data(category)),
-    })
+    session_id = request.session.get('Admin_id')
+    if session_id:
+        """
+        Dedicated admin builder page for the Category Section.
+        Only passes category_json — this page only edits categories.
+        """
+
+        admin_obj = AdminDetails.objects.get(id=session_id)
+
+        category = CategorySection.get_or_create_default()
+    
+        return render(request, 'Admin_pages/category_section.html', {
+            'category_json': json.dumps(_category_data(category)),
+            'admin_obj':admin_obj
+        })
+    else:
+        return render(request,'Admin_pages/admin_login.html')
+
 
 
 def _hero_data(hero):

@@ -1,29 +1,13 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>Home Page Settings | PickleHub Admin</title>
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&family=Playfair+Display:wght@700;800&display=swap" rel="stylesheet">
+{% extends "Admin_pages/admin_base.html" %}
+
+{% block extra_css %}
 <style>
-*{box-sizing:border-box;margin:0;padding:0;}
-body{font-family:'Poppins',sans-serif;background:#f0f2f5;color:#1a1a2e;font-size:13px;}
-.wrap{display:flex;min-height:100vh;}
-.sb{width:220px;background:#1a1a2e;position:fixed;top:0;left:0;height:100vh;overflow-y:auto;z-index:50;}
-.sb-logo{padding:18px 16px;border-bottom:1px solid rgba(255,255,255,.07);}
-.sb-logo-name{font-family:'Playfair Display',serif;font-size:18px;font-weight:800;color:#ffd60a;}
-.sb-logo-sub{font-size:10px;color:rgba(255,255,255,.35);margin-top:2px;}
-.sb-sec{padding:14px 16px 4px;font-size:9px;font-weight:800;color:rgba(255,255,255,.25);text-transform:uppercase;letter-spacing:2px;}
-.sb-a{display:flex;align-items:center;gap:10px;padding:9px 16px;color:rgba(255,255,255,.55);text-decoration:none;font-size:12px;font-weight:600;border-left:3px solid transparent;transition:.2s;}
-.sb-a:hover{background:rgba(255,255,255,.05);color:#fff;}
-.sb-a.on{background:rgba(232,93,4,.15);color:#ffd60a;border-left-color:#e85d04;}
-.sb-a i{width:16px;text-align:center;}
-.main{margin-left:220px;flex:1;}
-.tbar{background:#fff;padding:13px 26px;display:flex;align-items:center;gap:14px;box-shadow:0 2px 8px rgba(0,0,0,.06);position:sticky;top:0;z-index:40;flex-wrap:wrap;}
-.tbar-title{font-size:16px;font-weight:800;color:#1a1a2e;}
-.tbar-sub{font-size:11px;color:#aaa;margin-top:1px;}
-.tbar-right{margin-left:auto;display:flex;gap:10px;flex-wrap:wrap;}
+/* =========================================
+   PAGE SPECIFIC CSS 
+   (Layout rules removed to prevent conflicts with Base CSS)
+========================================= */
+
+/* BUTTONS */
 .btn-p{background:linear-gradient(135deg,#e85d04,#f48c06);color:#fff;border:none;border-radius:10px;padding:9px 18px;font-size:12px;font-weight:700;cursor:pointer;font-family:'Poppins',sans-serif;display:inline-flex;align-items:center;gap:6px;transition:.2s;}
 .btn-p:hover{transform:translateY(-1px);box-shadow:0 4px 14px rgba(232,93,4,.3);}
 .btn-s{background:#fff;border:1.5px solid #e0e0e0;color:#555;border-radius:10px;padding:8px 16px;font-size:12px;font-weight:700;cursor:pointer;font-family:'Poppins',sans-serif;display:inline-flex;align-items:center;gap:6px;transition:.2s;}
@@ -32,39 +16,57 @@ body{font-family:'Poppins',sans-serif;background:#f0f2f5;color:#1a1a2e;font-size
 .btn-danger:hover{background:#c62828;color:#fff;}
 .btn-add{background:#e3f2fd;border:1.5px solid #90caf9;color:#1565c0;border-radius:8px;padding:7px 14px;font-size:11px;font-weight:700;cursor:pointer;font-family:'Poppins',sans-serif;display:inline-flex;align-items:center;gap:5px;transition:.2s;}
 .btn-add:hover{background:#1565c0;color:#fff;}
+
+/* CARDS & PANELS */
 .card{background:#fff;border-radius:16px;box-shadow:0 2px 12px rgba(0,0,0,.06);overflow:hidden;margin-bottom:20px;}
 .card-head{padding:14px 20px;border-bottom:1px solid #f5f5f5;display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
-.ch-ico{font-size:20px;}.ch-title{font-size:14px;font-weight:800;color:#1a1a2e;}
-.ch-sub{font-size:11px;color:#aaa;}.ch-right{margin-left:auto;}
+.ch-ico{font-size:20px;}
+.ch-title{font-size:14px;font-weight:800;color:#1a1a2e;}
+.ch-sub{font-size:11px;color:#aaa;}
+.ch-right{margin-left:auto;}
 .card-body{padding:20px;}
+
+/* FORM INPUTS */
 .lbl{font-size:11px;font-weight:800;color:#333;margin-bottom:5px;display:block;}
 .lbl-hint{font-size:10px;color:#aaa;font-weight:400;margin-left:5px;}
 .req{color:#e85d04;}
 .inp{width:100%;border-radius:10px;border:1.5px solid #e0e0e0;padding:10px 14px;font-size:13px;font-family:'Poppins',sans-serif;outline:none;transition:.2s;color:#1a1a2e;background:#fff;}
 .inp:focus{border-color:#e85d04;box-shadow:0 0 0 3px rgba(232,93,4,.08);}
 textarea.inp{resize:vertical;min-height:65px;}
+.inp-sm{border:1.5px solid #e8e8e8;border-radius:8px;padding:7px 10px;font-size:12px;font-family:'Poppins',sans-serif;outline:none;background:#fff;}
+.inp-sm:focus{border-color:#e85d04;}
+.inp-w60{width:60px;}.inp-w80{width:80px;}.inp-w100{width:100px;}.inp-w120{width:120px;}.inp-w140{width:140px;}.inp-flex{flex:1;}
+
+/* TOGGLES & PILLS */
 .tog{width:44px;height:24px;border-radius:50px;background:#ddd;cursor:pointer;position:relative;transition:.3s;flex-shrink:0;}
 .tog.on{background:#2d6a4f;}
 .tog::after{content:'';position:absolute;width:18px;height:18px;background:#fff;border-radius:50%;top:3px;left:3px;transition:.3s;box-shadow:0 1px 4px rgba(0,0,0,.2);}
 .tog.on::after{left:23px;}
 .tog-row{display:flex;align-items:center;gap:8px;}
 .tog-lbl{font-size:11px;font-weight:700;color:#555;}
+.s-pill{padding:3px 10px;border-radius:50px;font-size:10px;font-weight:800;display:inline-flex;align-items:center;gap:4px;}
+.sp-green{background:#d4edda;color:#155724;}.sp-yellow{background:#fff3cd;color:#856404;}
+
+/* DYNAMIC ROWS */
 .stat-row,.feat-row,.cat-row,.brand-row,.review-row,.btn-row{background:#f8f9fa;border-radius:11px;padding:11px 14px;margin-bottom:9px;display:flex;align-items:center;gap:9px;border:1.5px solid #f0f0f0;transition:.2s;flex-wrap:wrap;}
 .stat-row:hover,.feat-row:hover,.cat-row:hover,.brand-row:hover,.review-row:hover,.btn-row:hover{border-color:#e85d04;}
 .si{font-size:14px;color:#ccc;cursor:grab;}
-.inp-sm{border:1.5px solid #e8e8e8;border-radius:8px;padding:7px 10px;font-size:12px;font-family:'Poppins',sans-serif;outline:none;background:#fff;}
-.inp-sm:focus{border-color:#e85d04;}
-.inp-w60{width:60px;}.inp-w80{width:80px;}.inp-w100{width:100px;}.inp-w120{width:120px;}.inp-w140{width:140px;}.inp-flex{flex:1;}
-.s-pill{padding:3px 10px;border-radius:50px;font-size:10px;font-weight:800;display:inline-flex;align-items:center;gap:4px;}
-.sp-green{background:#d4edda;color:#155724;}.sp-yellow{background:#fff3cd;color:#856404;}
+
+/* SECTION TABS */
 .sec-tabs{display:flex;gap:6px;flex-wrap:wrap;padding:0 26px;margin-bottom:0;background:#fff;border-bottom:1px solid #f0f0f0;}
 .sec-tab{padding:10px 16px;font-size:12px;font-weight:700;color:#888;cursor:pointer;border-bottom:3px solid transparent;transition:.2s;white-space:nowrap;}
 .sec-tab.on{color:#e85d04;border-bottom-color:#e85d04;}
+.sec-panel{display:none;}
+.sec-panel.on{display:block;}
+.page{padding:22px 26px;}
+
+/* LIVE PREVIEW BOX */
 .preview-wrap{position:sticky;top:130px;}
 .prev-lbl{font-size:11px;font-weight:800;color:#aaa;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:10px;display:flex;align-items:center;gap:8px;}
 .prev-lbl::after{content:'';flex:1;height:1px;background:#e0e0e0;}
 .pv-box{border-radius:14px;overflow:hidden;box-shadow:0 8px 30px rgba(0,0,0,.12);border:1.5px solid #e0e0e0;font-size:11px;}
-/* HERO PREVIEW */
+
+/* PREVIEW COMPONENTS */
 .pv-hero{background:linear-gradient(135deg,#1a1a2e 0%,#0f3460 40%,#16213e 100%);padding:18px;color:#fff;}
 .pv-badge{background:linear-gradient(135deg,#e85d04,#ffd60a);color:#1a1a2e;font-weight:800;font-size:9px;padding:3px 10px;border-radius:50px;display:inline-block;margin-bottom:8px;}
 .pv-title{font-family:'Playfair Display',serif;font-size:16px;font-weight:800;color:#fff;line-height:1.2;margin-bottom:6px;}
@@ -74,28 +76,23 @@ textarea.inp{resize:vertical;min-height:65px;}
 .pv-stats{display:flex;gap:14px;flex-wrap:wrap;margin-bottom:10px;}
 .pv-stat .num{font-size:14px;font-weight:800;color:#ffd60a;display:block;}
 .pv-stat .lbl-s{font-size:9px;color:rgba(255,255,255,.5);text-transform:uppercase;}
-/* Hero image preview */
 .pv-hero-img-wrap{text-align:center;padding:10px 0 4px;position:relative;}
 .pv-hero-img{width:80px;height:80px;object-fit:contain;border-radius:12px;display:block;margin:0 auto;}
 .pv-hero-emoji{font-size:52px;display:block;text-align:center;animation:pvFloat 3s ease-in-out infinite;}
 @keyframes pvFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
 .pv-float-badges{display:flex;gap:5px;flex-wrap:wrap;margin-top:6px;}
 .pv-float-badge{background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.25);color:#fff;padding:2px 8px;border-radius:50px;font-size:9px;font-weight:700;}
-/* Dynamic hero buttons preview */
 .pv-btn-primary{background:linear-gradient(135deg,#e85d04,#f48c06);color:#fff;padding:6px 14px;border-radius:50px;font-size:10px;font-weight:700;display:inline-flex;align-items:center;gap:5px;}
 .pv-btn-secondary{border:1.5px solid #ffd60a;color:#ffd60a;padding:5px 13px;border-radius:50px;font-size:10px;font-weight:700;display:inline-flex;align-items:center;gap:5px;}
 .pv-btn-outline{border:1.5px solid rgba(255,255,255,.5);color:#fff;padding:5px 13px;border-radius:50px;font-size:10px;font-weight:700;display:inline-flex;align-items:center;gap:5px;}
-/* FEATURES PREVIEW */
 .pv-feats{background:#1a1a2e;padding:10px 14px;display:flex;gap:10px;flex-wrap:wrap;}
 .pv-feat{display:flex;align-items:center;gap:7px;color:#fff;}
 .pv-feat-ico{width:28px;height:28px;background:linear-gradient(135deg,#e85d04,#ffd60a);border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0;}
 .pv-feat h6{font-size:10px;font-weight:700;color:#ffd60a;margin:0;}
 .pv-feat p{font-size:9px;color:rgba(255,255,255,.5);margin:0;}
-/* CATEGORIES PREVIEW */
 .pv-cats{background:#fff;padding:12px;display:flex;gap:8px;flex-wrap:wrap;justify-content:center;}
 .pv-cat{background:#fff3e0;border-radius:10px;padding:8px 10px;text-align:center;font-size:10px;font-weight:700;color:#1a1a2e;min-width:60px;}
 .pv-cat-ico{font-size:18px;display:block;margin-bottom:3px;}
-/* OFFER PREVIEW */
 .pv-offer{background:linear-gradient(135deg,#2d6a4f,#52b788);padding:12px;color:#fff;}
 .pv-o-badge{background:#ffd60a;color:#1a1a2e;font-size:9px;font-weight:800;padding:2px 8px;border-radius:50px;display:inline-block;margin-bottom:5px;}
 .pv-o-name{font-size:13px;font-weight:800;margin-bottom:3px;}
@@ -108,73 +105,66 @@ textarea.inp{resize:vertical;min-height:65px;}
 .pv-news h4{font-size:12px;font-weight:800;margin-bottom:4px;}
 .pv-news p{font-size:9px;opacity:.8;margin-bottom:8px;}
 .pv-news-inp{background:rgba(255,255,255,.15);border:none;border-radius:50px;padding:6px 14px;font-size:10px;color:#fff;width:60%;font-family:'Poppins',sans-serif;}
+
+/* TOASTS & EXTRAS */
 .toast-wrap{position:fixed;bottom:20px;right:20px;z-index:9999;display:flex;flex-direction:column;gap:8px;}
 .t-item{background:#1a1a2e;color:#fff;border-radius:12px;padding:12px 18px;font-size:12px;font-weight:600;box-shadow:0 8px 24px rgba(0,0,0,.2);transform:translateX(150px);opacity:0;transition:.35s;border-left:4px solid #52b788;max-width:300px;}
 .t-item.show{transform:translateX(0);opacity:1;}
 .t-item.err{border-left-color:#e85d04;}
-.page{padding:22px 26px;}
-.sec-panel{display:none;}
-.sec-panel.on{display:block;}
-/* IMAGE UPLOAD */
 .img-upload-box{border:2px dashed #e0e0e0;border-radius:12px;padding:16px;text-align:center;cursor:pointer;transition:.2s;background:#fafafa;position:relative;}
 .img-upload-box:hover{border-color:#e85d04;background:#fff8f5;}
 .img-upload-box input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;}
 .img-upload-box .upload-icon{font-size:24px;margin-bottom:6px;}
 .img-upload-box .upload-text{font-size:11px;font-weight:700;color:#888;}
 .img-preview-thumb{width:80px;height:80px;object-fit:contain;border-radius:10px;border:2px solid #e0e0e0;margin-top:8px;}
-/* BTN TYPE SELECT */
 .btn-type-select{border:1.5px solid #e8e8e8;border-radius:8px;padding:7px 10px;font-size:12px;font-family:'Poppins',sans-serif;outline:none;background:#fff;cursor:pointer;}
 .btn-type-select:focus{border-color:#e85d04;}
-/* SECTION DIVIDER */
 .section-divider{background:#f8f9fa;border-radius:10px;padding:10px 14px;margin:12px 0;font-size:11px;font-weight:800;color:#e85d04;border-left:3px solid #e85d04;}
 </style>
-</head>
-<body>
-
-<div class="wrap">
-
-<!-- ════ SIDEBAR ════ -->
-<aside class="sb">
-  <div class="sb-logo">
-    <div class="sb-logo-name">🥒 PickleHub</div>
-    <div class="sb-logo-sub">Admin Panel</div>
-  </div>
-  <div class="sb-sec">Main</div>
-  <a class="sb-a" href="#"><i class="fa fa-tachometer-alt"></i> Dashboard</a>
-  <a class="sb-a" href="#"><i class="fa fa-boxes"></i> Products</a>
-  <a class="sb-a" href="#"><i class="fa fa-shopping-bag"></i> Orders</a>
-  <div class="sb-sec">Site Settings</div>
-  <a class="sb-a" href="#"><i class="fa fa-sliders-h"></i> Header & Top Bar</a>
-  <a class="sb-a on" href="#"><i class="fa fa-home"></i> Home Page</a>
-  <a class="sb-a" href="#"><i class="fa fa-shoe-prints"></i> Footer Settings</a>
-  <a class="sb-a" href="#"><i class="fa fa-map-pin"></i> Pincode Manager</a>
-  <a class="sb-a" href="#"><i class="fa fa-cog"></i> General Settings</a>
-  <div class="sb-sec">More</div>
-  <a class="sb-a" href="#"><i class="fa fa-users"></i> Customers</a>
-  <a class="sb-a" href="#"><i class="fa fa-sign-out-alt"></i> Logout</a>
-</aside>
+{% endblock %}
 
 <!-- ════ MAIN ════ -->
-<div class="main">
-<div class="tbar">
-  <div>
-    <div class="tbar-title">🏠 Home Page Settings</div>
-    <div class="tbar-sub">All 8 sections — changes reflect instantly in live preview →</div>
-  </div>
-  <div class="tbar-right">
-    <span class="s-pill sp-green" id="saveStatus">✅ All Changes Saved</span>
-    <button class="btn-s" onclick="resetAll()"><i class="fa fa-undo"></i> Reset</button>
-    <button class="btn-p" onclick="saveAll()"><i class="fa fa-save"></i> Save & Publish</button>
-  </div>
-</div>
+
+
+{% block content %}
+
+<div style="background: #ffffff; border-radius: 16px; box-shadow: 0 4px 15px rgba(0,0,0,0.03); margin-bottom: 24px; overflow: hidden;">
+            
+    <div style="padding: 20px 24px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #f5f5f5; flex-wrap: wrap; gap: 14px;">
+        <div>
+          <h2 style="font-size: 18px; font-weight: 800; color: #1a1a2e; margin: 0; display: flex; align-items: center; gap: 8px;">
+            🏠 Home Page Settings
+          </h2>
+          <div style="font-size: 12px; color: #888; margin-top: 4px;">
+              All 8 sections — changes reflect instantly in live preview &rarr;
+          </div>
+        </div>
+          <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+            <span class="s-pill sp-green" id="saveStatus">✅ All Changes Saved</span>
+            <button class="btn-s" onclick="resetAll()"><i class="fa fa-undo"></i> Reset</button>
+            <button class="btn-p" onclick="saveAll()"><i class="fa fa-save"></i> Save & Publish</button>
+          </div>
+        </div>
+
+        <div class="sec-tabs" style="margin: 0; padding: 0 16px; background: transparent; border-bottom: none;">
+          <div class="sec-tab on"  onclick="switchTab(0)">🦸 Hero</div>
+          <div class="sec-tab"     onclick="switchTab(1)">⭐ Features Strip</div>
+          <div class="sec-tab"     onclick="switchTab(2)">📂 Categories</div>
+          <div class="sec-tab"     onclick="switchTab(3)">🏷️ Offer Banner</div>
+          <div class="sec-tab"     onclick="switchTab(4)">🔥 Best Sellers</div>
+          <div class="sec-tab"     onclick="switchTab(5)">🏷 Brands</div>
+          <div class="sec-tab"     onclick="switchTab(6)">💬 Reviews</div>
+          <div class="sec-tab"     onclick="switchTab(7)">📧 Newsletter</div>
+        </div>
+            
+    </div>
 
 <!-- SECTION TABS -->
 <div class="sec-tabs">
-  
-  <div class="sec-tab"     onclick="switchTab(1)">⭐ Features Strip</div>
-
-
+  <div class="sec-tab on"  onclick="switchTab(0)">🦸 Hero</div>
+ 
 </div>
+
 
 <div class="page">
 <div class="row g-4">
@@ -492,6 +482,11 @@ textarea.inp{resize:vertical;min-height:65px;}
 </div><!-- /wrap -->
 
 <div class="toast-wrap" id="toastWrap"></div>
+
+{% endblock %}
+
+
+{% block extra_js %}
 
 <script>
   window.HERO_DATA     = {{ hero_json|safe }};
@@ -1130,3 +1125,6 @@ document.getElementById('saveStatus').className   = 's-pill sp-green';
 </script>
 </body>
 </html>
+
+
+{% endblock %}
