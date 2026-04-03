@@ -1,9 +1,7 @@
-
-
 import json
 from django.shortcuts import render,HttpResponse
 from django.http import JsonResponse
-from django.views.decorators.http import require_POST
+from django.views.decorators.http import require_POST, require_GET
 
 
 from django.db import transaction
@@ -12,11 +10,21 @@ from django.views.decorators.csrf import csrf_exempt
 from Admin_app.models import *
 from products.models import *
 
+from django.shortcuts import render, get_object_or_404
+
+
+from django.contrib.admin.views.decorators import staff_member_required
+from django.db.models import Q
+
+from django.core.serializers.json import DjangoJSONEncoder
 
 
 from products.product_utils  import _product_page_data
 
 
+
+from django.utils.dateparse import parse_datetime
+from django.utils import timezone
 
 
 
@@ -34,9 +42,7 @@ def dashboard(request):
         'features_json': json.dumps(_features_data(features)),
         'category_json': json.dumps(_category_data(category)),  # ← NEW
     })
-# ──────────────────────────────────────────────
-# 2. ADMIN HOME PAGE
-# ──────────────────────────────────────────────
+
 
 
 ############## Views start for admin login #####################
@@ -278,6 +284,9 @@ def Save_Newsletter_Ajax(request):
 
 ########### Views end for ajax for save newsletter ############################
 
+
+#################################### Website Page Sections Views Start Here ###############################################
+
 def hero_section(request):
     """
     Dedicated admin builder page for the Hero Section.
@@ -352,15 +361,18 @@ def _category_data(category):                        # ← NEW helper
  
  
  
- 
+ #################################### Website Page Sections Views Ends Here ###############################################
+
+#################################### Products Views Start Here ###############################################
+
+
 def product_builder(request):
-    """
-    Admin page to add / edit / delete products.
-    """
     products   = Product.objects.all().select_related('brand', 'category').order_by('sort_order', '-created_at')
     brands     = Brand.objects.filter(is_active=True).order_by('order', 'name')
     categories = CategorySection.get_or_create_default()
- 
+    coupons    = Coupon.objects.filter(is_active=True)
+
+    # ✅ PRODUCTS
     products_data = [
         {
             'id':               p.id,
@@ -379,8 +391,6 @@ def product_builder(request):
             'card_bg':          p.card_bg,
             'price':            p.price,
             'old_price':        p.old_price,
-            # ✅ FIX 1: serialize the raw DB field `discount`, NOT the @property `discount_label`
-            #    The JS edit form reads p.discount to pre-fill the input, so it must be the raw value.
             'discount':         p.discount,
             'stock':            p.stock,
             'low_stock_label':  p.low_stock_label,
@@ -390,21 +400,70 @@ def product_builder(request):
             'is_active':        p.is_active,
             'is_featured':      p.is_featured,
             'sort_order':       p.sort_order,
+
+            # extra fields
+            'short_description': p.short_description,
+            'long_description':  p.long_description,
+            'highlights':        p.highlights,
+            'sku':               p.sku,
+            'hsn_code':          p.hsn_code,
+            'unit_type':         p.unit_type,
+            'cost_price':        p.cost_price,
+            'gst_rate':          p.gst_rate,
+            'gst_inclusive':     p.gst_inclusive,
+            'free_delivery':     p.free_delivery,
+            'shelf_life':        p.shelf_life,
+            'storage_info':      p.storage_info,
+            'min_order_qty':     p.min_order_qty,
+            'max_order_qty':     p.max_order_qty,
+            'seo_title':         p.seo_title,
+            'seo_description':   p.seo_description,
+            'seo_keywords':      p.seo_keywords,
+            'tags':              p.tags,
+
+            'assigned_coupon_ids': list(
+                p.assigned_coupons.values_list('id', flat=True)
+            ),
         }
         for p in products
     ]
- 
+
+    # ✅ BRANDS
     brands_data = [
         {'id': b.id, 'name': b.name, 'emoji': b.emoji}
         for b in brands
     ]
- 
+
+    # ✅ CATEGORIES
     categories_data = categories.items_json
- 
+
+    # ✅ COUPONS (💯 ERROR-FREE VERSION)
+    coupons_data = []
+    for c in coupons:
+        # safe discount display
+        discount_text = ''
+
+        if hasattr(c, 'discount_value'):
+            discount_text = f"{c.discount_value} OFF"
+        elif hasattr(c, 'amount'):
+            discount_text = f"₹{c.amount} OFF"
+        elif hasattr(c, 'value'):
+            discount_text = f"{c.value} OFF"
+        else:
+            discount_text = 'Offer'
+
+        coupons_data.append({
+            'id': c.id,
+            'code': getattr(c, 'code', ''),
+            'type': discount_text,
+            'expiry': c.expiry_date.strftime('%d/%m/%Y') if getattr(c, 'expiry_date', None) else '—',
+        })
+
     return render(request, 'products_panel/product_builder.html', {
         'products_json':   json.dumps(products_data),
         'brands_json':     json.dumps(brands_data),
         'categories_json': json.dumps(categories_data),
+        'coupons_json':    json.dumps(coupons_data),
     })
 
 
@@ -455,3 +514,357 @@ def product_filter_builder(request):
             for b in brands
         ]),
     })
+    
+    
+    
+    #################################### Prouducts Views Ends Here ###############################################
+
+
+#################################### Stock  Views Start Here ###############################################
+
+
+def stock_manager(request):
+    """
+    Main stock management dashboard — shows all products with stock controls.
+    """
+    search   = request.GET.get('q', '').strip()
+    brand_id = request.GET.get('brand', '')
+    cat_id   = request.GET.get('cat', '')
+    status   = request.GET.get('status', '')   # in_stock | low_stock | out_of_stock
+
+    qs = Product.objects.select_related('brand', 'category').filter()
+
+    if search:
+        qs = qs.filter(Q(name__icontains=search) | Q(brand__name__icontains=search))
+    if brand_id:
+        qs = qs.filter(brand__id=brand_id)
+    if cat_id:
+        qs = qs.filter(category__id=cat_id)
+    if status == 'out_of_stock':
+        qs = qs.filter(Q(stock=0) | Q(is_out_of_stock_manual=True))
+    elif status == 'low_stock':
+        qs = qs.filter(stock__gt=0, stock__lte=20, is_out_of_stock_manual=False)
+    elif status == 'in_stock':
+        qs = qs.filter(stock__gt=20, is_out_of_stock_manual=False)
+
+    # summary counts
+    all_products = Product.objects.all()
+    summary = {
+        'total':         all_products.count(),
+        'in_stock':      all_products.filter(stock__gt=20, is_out_of_stock_manual=False).count(),
+        'low_stock':     all_products.filter(stock__gt=0, stock__lte=20, is_out_of_stock_manual=False).count(),
+        'out_of_stock':  all_products.filter(Q(stock=0) | Q(is_out_of_stock_manual=True)).count(),
+    }
+
+    return render(request, 'Admin_pages/Stock/stock_manager.html', {
+        'products':   qs.order_by('name'),
+        'brands':     Brand.objects.filter(is_active=True),
+        'categories': CategorySection.objects.all(),
+        'summary':    summary,
+        'search':     search,
+        'sel_brand':  brand_id,
+        'sel_cat':    cat_id,
+        'sel_status': status,
+    })
+
+
+
+@require_POST
+def stock_update(request, product_id):
+    product = get_object_or_404(Product, id=product_id)
+    try:
+        data = json.loads(request.body)
+    except (json.JSONDecodeError, ValueError):
+        return JsonResponse({'ok': False, 'error': 'Invalid JSON'}, status=400)
+
+    changed = []
+
+    if 'stock' in data:
+        new_stock = int(data['stock'])
+        if new_stock < 0:
+            return JsonResponse({'ok': False, 'error': 'Stock cannot be negative'}, status=400)
+        product.stock = new_stock
+        changed.append('stock')
+
+    if 'is_out_of_stock_manual' in data:
+        product.is_out_of_stock_manual = bool(data['is_out_of_stock_manual'])
+        changed.append('is_out_of_stock_manual')
+
+    if changed:
+        product.save(update_fields=changed)   # ← fixed, no 'updated_at'
+
+    return JsonResponse({
+        'ok':                     True,
+        'stock':                  product.stock,
+        'is_out_of_stock_manual': product.is_out_of_stock_manual,
+        'is_out_of_stock':        product.is_out_of_stock,
+        'stock_status':           product.stock_status,
+        'low_stock_text':         product.low_stock_text,
+    })
+
+
+@require_POST
+def stock_bulk_update(request):
+    """
+    Bulk update — mark multiple products OOS or restock.
+    Body JSON: { "ids": [1,2,3], "action": "mark_oos" | "mark_available" | "restock" , "qty": 100 }
+    """
+    try:
+        data    = json.loads(request.body)
+        ids     = data.get('ids', [])
+        action  = data.get('action', '')
+        qty     = int(data.get('qty', 100))
+    except (json.JSONDecodeError, ValueError, TypeError):
+        return JsonResponse({'ok': False, 'error': 'Invalid data'}, status=400)
+
+    products = Product.objects.filter(id__in=ids)
+
+    if action == 'mark_oos':
+        products.update(is_out_of_stock_manual=True)
+    elif action == 'mark_available':
+        products.update(is_out_of_stock_manual=False)
+    elif action == 'restock':
+        products.update(stock=qty, is_out_of_stock_manual=False)
+    else:
+        return JsonResponse({'ok': False, 'error': 'Unknown action'}, status=400)
+
+    return JsonResponse({'ok': True, 'updated': products.count()})
+
+
+####################################  Stock Views Ends Here ###############################################
+
+
+
+##############Start View Section of Deals and offers ########################################################
+
+
+
+def admin_ticker_view(request):
+    tickers = TickerMessage.objects.all().order_by('order')
+    ticker_list = [{'text': t.text, 'is_active': t.is_active} for t in tickers]
+    
+    return render(request, 'Admin_pages/Deal_Offer/ticker.html', {
+        'ticker_json': json.dumps(ticker_list, cls=DjangoJSONEncoder)
+    })
+
+@require_POST
+def save_ticker_api(request):
+    try:
+        data = json.loads(request.body)
+        messages = data.get('messages', [])
+        
+        TickerMessage.objects.all().delete()
+        for index, msg in enumerate(messages):
+            if msg.get('text', '').strip():
+                TickerMessage.objects.create(
+                    text=msg.get('text').strip(),
+                    is_active=msg.get('is_active', True),
+                    order=index
+                )
+        return JsonResponse({'status': 'success', 'message': 'Ticker messages updated!'})
+    except Exception as e:
+        return JsonResponse({'status': 'error', 'message': str(e)}, status=400)
+    
+    
+    
+    
+    
+
+
+
+
+
+
+def todays_offer_admin(request):
+    offers = TodaysOffer.objects.select_related('product').all()
+    products = Product.objects.filter(is_active=True)
+
+    return render(request, 'Admin_pages/Deal_Offer/todays_offers.html', {
+        'offers': offers,
+        'products': products,   # ✅ ADD THIS
+        'badge_choices': TodaysOffer.BADGE_CHOICES,
+    })
+
+
+@require_POST
+def todays_offer_add(request):
+    try:
+        data = json.loads(request.body)
+
+        product = Product.objects.get(id=data.get('product_id'))
+
+        offer = TodaysOffer.objects.create(
+            product      = product,
+            badge        = data.get('badge', 'deal'),
+            badge_label  = data.get('badge_label', 'DEAL').strip(),
+            is_visible   = data.get('is_visible', True),
+            order        = TodaysOffer.objects.count(),
+        )
+
+        return JsonResponse({
+            'ok': True,
+            'id': offer.id,
+            'message': f'"{product.name}" offer added!'
+        })
+
+    except Exception as e:
+        return JsonResponse({'ok': False, 'error': str(e)}, status=400)
+    
+    
+
+@require_POST
+def todays_offer_edit(request, offer_id):
+    try:
+        offer = get_object_or_404(TodaysOffer, id=offer_id)
+        data  = json.loads(request.body)
+
+        product = Product.objects.get(id=data.get('product_id'))
+
+        offer.product      = product
+        offer.badge        = data.get('badge', offer.badge)
+        offer.badge_label  = data.get('badge_label', offer.badge_label).strip()
+        offer.is_visible   = data.get('is_visible', offer.is_visible)
+        offer.save()
+
+        return JsonResponse({'ok': True, 'message': f'"{product.name}" updated!'})
+
+    except Exception as e:
+        return JsonResponse({'ok': False, 'error': str(e)}, status=400)
+
+
+@require_POST
+def todays_offer_delete(request, offer_id):
+    try:
+        offer = get_object_or_404(TodaysOffer, id=offer_id)
+        name  = offer.product.name   # ✅ CHANGE
+        offer.delete()
+        return JsonResponse({'ok': True, 'message': f'"{name}" deleted!'})
+    except Exception as e:
+        return JsonResponse({'ok': False, 'error': str(e)}, status=400)
+
+
+@require_POST
+def todays_offer_toggle(request, offer_id):
+    try:
+        offer = get_object_or_404(TodaysOffer, id=offer_id)
+        offer.is_visible = not offer.is_visible
+        offer.save()
+
+        return JsonResponse({
+            'ok': True,
+            'is_visible': offer.is_visible,
+            'message': f'"{offer.product.name}" is now {"visible" if offer.is_visible else "hidden"}!'
+        })
+
+    except Exception as e:
+        return JsonResponse({'ok': False, 'error': str(e)}, status=400)
+
+@require_POST
+def todays_offer_reorder(request):
+    try:
+        data     = json.loads(request.body)
+        id_order = data.get('order', [])  # list of IDs in new order
+        for index, offer_id in enumerate(id_order):
+            TodaysOffer.objects.filter(id=offer_id).update(order=index)
+        return JsonResponse({'ok': True, 'message': 'Order saved!'})
+    except Exception as e:
+        return JsonResponse({'ok': False, 'error': str(e)}, status=400)
+    
+    
+    #################################### Deals & Offers Views Ends Here ###############################################
+    
+    
+#####################Start Coupen Views Section #######################################################
+
+
+
+
+def coupon_wall_admin(request):
+    coupons = Coupon.objects.filter(show_on_wall=True).order_by('order', '-id')
+    return render(request, 'Admin_pages/Deal_Offer/coupon_wall.html', {'coupon_wall': coupons})
+
+
+def coupon_add_ajax(request):
+    if request.method != 'POST':
+        return JsonResponse({'success': False, 'error': 'POST required'})
+    try:
+        d = json.loads(request.body)
+
+        coupon = Coupon.objects.create(
+            code            = d['code'],
+            name            = d['name'],
+            description     = d.get('description', ''),
+            coupon_type     = d.get('coupon_type', 'percent'),
+            discount_value  = d.get('discount_value') or None,
+            max_discount    = d.get('max_discount') or None,
+            min_order_value = d.get('min_order_value') or 0,
+            max_uses        = d.get('max_uses') or None,
+            start_date      = d.get('start_date') or None,
+            end_date        = d.get('end_date') or None,
+            discount_val    = d.get('discount_val', ''),
+            expiry_note     = d.get('expiry_note', ''),
+            icon            = d.get('icon', '🎁'),
+            color_bg        = d.get('color_bg', '#e4eeff'),
+            order           = d.get('order', 0),
+            is_active       = d.get('is_active', True),
+            show_on_wall    = d.get('show_on_wall', True),
+            show_on_strip   = d.get('show_on_strip', False),
+            first_order_only= d.get('first_order_only', False),
+            is_public       = d.get('is_public', True),
+        )
+
+        return JsonResponse({'success': True, 'coupon': {
+            'code':         coupon.code,
+            'discount_val': coupon.discount_val,
+            'description':  coupon.description,
+            'expiry_note':  coupon.expiry_note,
+            'icon':         coupon.icon,
+            'color_bg':     coupon.color_bg,
+            'is_active':    coupon.is_active,
+        }})
+
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)})
+
+#####################End Coupen Views Section #######################################################
+
+
+
+
+def deal_of_the_day_admin(request):
+    dotd     = DealOfTheDay.objects.select_related('product').first()
+    products = Product.objects.filter(is_active=True).order_by('name')
+    return render(request, 'Admin_pages/Deal_Offer/deal_of_day_admin.html', {
+        'dotd':     dotd,
+        'products': products,
+    })
+
+
+def dotd_save_ajax(request):
+    if request.method != 'POST':
+        return JsonResponse({'success': False, 'error': 'POST only'})
+    try:
+        d          = json.loads(request.body)
+        product    = Product.objects.get(id=d['product_id'])
+
+        # Always update the single DOTD record (id=1), create if not exists
+        dotd, _    = DealOfTheDay.objects.get_or_create(id=1)
+        dotd.product      = product
+        dotd.badge_text   = d.get('badge_text', '🔥 Deal of the Day')
+        dotd.float_badge1 = d.get('float_badge1', '')
+        dotd.float_badge2 = d.get('float_badge2', '')
+        dotd.is_visible   = d.get('is_visible', True)
+
+        if d.get('end_time'):
+            dt = parse_datetime(d['end_time'])
+            if dt and timezone.is_naive(dt):
+                dt = timezone.make_aware(dt)
+            dotd.end_time = dt
+
+        dotd.save()
+        return JsonResponse({'success': True})
+
+    except Product.DoesNotExist:
+        return JsonResponse({'success': False, 'error': 'Product not found'})
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)})

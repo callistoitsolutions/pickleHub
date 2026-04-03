@@ -132,17 +132,21 @@
           <div class="gallery-emoji">{{ product.emoji }}</div>
         {% endif %}
 
-        <div class="badge-corner">
-          {% if product.badge %}
-            <span class="prod-badge badge-new">{{ product.badge }}</span>
-          {% endif %}
-          {% if product.discount_label %}
-            <span class="prod-badge badge-off">{{ product.discount_label }}</span>
-          {% endif %}
-          {% if product.is_featured %}
-            <span class="prod-badge badge-sell">🏆 BESTSELLER</span>
-          {% endif %}
-        </div>
+     <div class="badge-corner">
+  {# ✅ Offer badge — takes priority over product badge #}
+  {% if product.active_offer %}
+    <span class="prod-badge badge-new">{{ product.active_offer.badge_label }}</span>
+  {% elif product.badge %}
+    <span class="prod-badge badge-new">{{ product.badge }}</span>
+  {% endif %}
+
+  {% if product.discount_label %}
+    <span class="prod-badge badge-off">{{ product.discount_label }}</span>
+  {% endif %}
+  {% if product.is_featured %}
+    <span class="prod-badge badge-sell">🏆 BESTSELLER</span>
+  {% endif %}
+</div>
       </div>
     </div>
 
@@ -293,32 +297,69 @@
 
   <!-- RELATED PRODUCTS -->
   {% if related %}
-  <div class="rel-section">
-    <div class="section-title">🥭 More like this</div>
-    <div class="prod-cards">
-      {% for p in related %}
-      <a class="pc" href="{% url 'product_details' p.slug %}">
-        <div class="pc-img" style="background:{{ p.card_bg }};">
-          {% if p.image %}
-            <img src="{{ p.image.url }}" alt="{{ p.name }}">
-          {% else %}
-            <div class="pc-emoji">{{ p.emoji }}</div>
-          {% endif %}
-          {% if p.badge %}<span class="pc-badge">{{ p.badge }}</span>{% endif %}
+<div class="rel-section">
+  <div class="section-title">🥭 More like this</div>
+  <div class="prod-cards">
+    {% for p in related %}
+    <a class="pc" href="{% url 'product_details' p.slug %}">
+      <div class="pc-img" style="background:{{ p.card_bg }};">
+        {% if p.image %}
+          <img src="{{ p.image.url }}" alt="{{ p.name }}">
+        {% else %}
+          <div class="pc-emoji">{{ p.emoji }}</div>
+        {% endif %}
+
+        {% if p.active_offer %}
+          <span class="pc-badge">{{ p.active_offer.badge_label }}</span>
+        {% elif p.badge %}
+          <span class="pc-badge">{{ p.badge }}</span>
+        {% endif %}
+
+      </div>
+      <div class="pc-body">
+        <div class="pc-brand">{% if p.brand %}{{ p.brand.name }}{% endif %}</div>
+        <div class="pc-name">{{ p.name }}</div>
+        <div>
+          <span class="pc-price">₹{{ p.price }}</span>
+          {% if p.old_price %}<span class="pc-mrp">₹{{ p.old_price }}</span>{% endif %}
         </div>
-        <div class="pc-body">
-          <div class="pc-brand">{% if p.brand %}{{ p.brand.name }}{% endif %}</div>
-          <div class="pc-name">{{ p.name }}</div>
-          <div>
-            <span class="pc-price">₹{{ p.price }}</span>
-            {% if p.old_price %}<span class="pc-mrp">₹{{ p.old_price }}</span>{% endif %}
-          </div>
-        </div>
-      </a>
-      {% endfor %}
-    </div>
+{% if p.assigned_coupons_list and p.stock > 0 %}
+<div style="margin-bottom:14px;display:flex;flex-direction:column;gap:6px;">
+
+  {% for coupon in p.assigned_coupons_list %}
+  <div style="display:flex;align-items:center;justify-content:space-between;
+              background:#fff8f0;border:1px dashed #f48c06;
+              border-radius:10px;padding:8px 12px;">
+
+      <div>
+          <span style="font-family:monospace;font-size:12px;font-weight:800;
+                       color:#e85d04;letter-spacing:1px;">
+              {{ coupon.code }}
+          </span>
+          <span style="font-size:11px;color:#666;margin-left:6px;">
+              · {{ coupon.discount_display }}
+          </span>
+      </div>
+
+      <button onclick="copyCoupon('{{ coupon.code|escapejs }}')"
+              style="background:#e85d04;color:#fff;border:none;
+                     border-radius:6px;padding:4px 10px;
+                     font-size:11px;font-weight:700;cursor:pointer;">
+          Copy
+      </button>
+
   </div>
-  {% endif %}
+  {% endfor %}
+
+</div>
+{% endif %}
+        
+      </div>
+    </a>
+    {% endfor %}
+  </div>
+</div>
+{% endif %}
 
   <!-- ALSO BOUGHT -->
   {% if also_bought %}
@@ -384,6 +425,12 @@ function toast(msg, type){
   t.className = 'toast ' + (type || 'ok') + ' show';
   clearTimeout(t._t);
   t._t = setTimeout(function(){ t.classList.remove('show'); }, 3000);
+}
+
+function copyCoupon(code) {
+    navigator.clipboard.writeText(code).then(function() {
+        alert("Coupon " + code + " copied!");
+    });
 }
 </script>
 {% endblock %}
