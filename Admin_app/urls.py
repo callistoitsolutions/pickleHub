@@ -56,17 +56,74 @@ urlpatterns = [
     path('Save_Newsletter_Ajax', views.Save_Newsletter_Ajax, name='Save_Newsletter_Ajax'),
     path('dashboard/', views.dashboard, name='dashboard'),
     path('category_section',   views.category_section, name='category_section'),
+    
+    ########################## ProductsURLS Section Starts Here ###############################################
     path('product_builder', views.product_builder, name='product_builder'), # ← NEW
     
     path('brand-builder/',          views.brand_builder,                name='brand_builder'),         # NEW
     #path('product_builder/', views.product_builder, name='product_builder'),      # NEW
     path('product-filter/',         views.product_filter_builder,       name='product_filter_builder'),# NEW
+    
+    
+########################## Products URLS Section Ends Here ###############################################
+        
+#################################### Stocks URLS Section Starts Here ###############################################
+    
+    path('stock_manager/',                    views.stock_manager,     name='stock_manager'),
+    path('stock/update/<int:product_id>/', views.stock_update, name='stock_update'),
+    path('stock/bulk-update/',         views.stock_bulk_update, name='stock_bulk_update'),
+    
+#################################### Stocks URLS Section Ends Here ###############################################
+    
+   
+#################################### Deals & Offers URLS Section Start Here ###############################################
 
-    # ── AJAX sav
+    path('admin/deals/ticker/', views.admin_ticker_view, name='ticker'),
+    path('admin/api/deals/ticker/save/', views.save_ticker_api, name='save_ticker_api'),
+    
+   
 
-    # ── AJAX save endpoints ──
-      # ← NEW
+  
+  
 
-    # ── AJAX load endpoints (optional) ──
-        # ← NEW
+    # ── admin builder ──
+    path('admin/deals/todays-offers/',
+         views.todays_offer_admin,
+         name='todays_offer_admin'),
+
+    # ── admin APIs ──
+    path('admin/api/todays-offers/add/',
+         views.todays_offer_add,
+         name='todays_offer_add'),
+
+    path('admin/api/todays-offers/edit/<int:offer_id>/',
+         views.todays_offer_edit,
+         name='todays_offer_edit'),
+
+    path('admin/api/todays-offers/delete/<int:offer_id>/',
+         views.todays_offer_delete,
+         name='todays_offer_delete'),
+
+    path('admin/api/todays-offers/toggle/<int:offer_id>/',
+         views.todays_offer_toggle,
+         name='todays_offer_toggle'),
+
+    path('admin/api/todays-offers/reorder/',
+         views.todays_offer_reorder,
+         name='todays_offer_reorder'),
+    
+    
+    path('admin/coupon-wall/', views.coupon_wall_admin, name='coupon_wall'),
+    path('admin/coupon-wall/add/', views.coupon_add_ajax, name='coupon_add_ajax'),
+  
+    path('admin/deal-of-the-day/',       views.deal_of_the_day_admin, name='deal_of_the_day_admin'),
+    path('admin/deal-of-the-day/save/',  views.dotd_save_ajax,        name='dotd_save_ajax'),
+    
+    
+#################################### Deals & Offers URLS Section End Here ###############################################
 ]
+
+
+
+
+   

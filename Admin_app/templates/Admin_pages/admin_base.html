@@ -145,13 +145,13 @@
     </div>
 
     <div class="nav-section">Main</div>
-    <a class="nav-item {% block nav_dash %}{% endblock %}" href="{% url "dashboard" %}" aria-current="page"><i class="fa fa-tachometer-alt"></i> Dashboard</a>
+    <a class="nav-item {% block nav_dash %}{% endblock %}" href="{% url 'dashboard' %}" aria-current="page"><i class="fa fa-tachometer-alt"></i> Dashboard</a>
 
     <div class="nav-section">Orders</div>
     <a class="nav-item {% block nav_orders %}{% endblock %}" href="picklehub_orders_report.html"><i class="fa fa-shopping-bag"></i> All Orders <span class="nav-badge">12</span></a>
     <a class="nav-item" href="#" onclick="showSection('paymentReview')"><i class="fa fa-clock"></i> Payment Review <span class="nav-badge" style="background:#1565c0;">5</span></a>
-    <a class="nav-item" href="#"><i class="fa fa-truck"></i> Dispatched</a>
-    <a class="nav-item" href="#"><i class="fa fa-check-circle"></i> Delivered</a>
+    <a class="nav-item" href="{% url 'stock_manager' %}"><i class="fa fa-truck"></i> Stock</a>
+  
 
     <div class="nav-section">Catalogue</div>
     
@@ -193,6 +193,33 @@
             <a class="nav-item {% block nav_build_shopcat %}{% endblock %}" href="{% url 'category_section' %}"><i class="fa fa-circle"></i> Shop Categories</a>
 
 
+        </div>
+    </div>
+
+    <div class="nav-section">Deals & Offers</div>
+    
+    <a class="nav-item {% block nav_deals_main %}{% endblock %}" data-bs-toggle="collapse" href="#dealsDropdown" role="button" aria-expanded="false" aria-controls="dealsDropdown">
+        <i class="fa fa-bullhorn"></i> Offers Builder
+    </a>
+    
+    <div class="collapse {% block nav_deals_show %}{% endblock %}" id="dealsDropdown">
+        <div class="nav-submenu">
+            <a class="nav-item {% block nav_deal_ticker %}{% endblock %}" href="{% url 'ticker' %}">
+                <i class="fa fa-circle"></i> Ticker Messages
+            </a>
+            
+            <a class="nav-item {% block nav_deal_dotd %}{% endblock %}" href="{% url 'deal_of_the_day_admin' %}">
+                <i class="fa fa-circle"></i> Deal of the Day
+            </a>
+            <a class="nav-item {% block nav_deal_strip %}{% endblock %}" href="">
+                <i class="fa fa-circle"></i> Offer Strip
+            </a>
+         <a class="nav-item {% block nav_deal_today %}{% endblock %}" href="{% url 'todays_offer_admin' %}">
+    <i class="fa fa-circle"></i> Today's Offers
+</a>
+            <a class="nav-item {% block nav_deal_wall %}{% endblock %}" href="{% url 'coupon_wall' %}">
+                <i class="fa fa-circle"></i> Coupon Wall
+            </a>
         </div>
     </div>
 

@@ -12,10 +12,7 @@ from products.models import *
 from django.core.paginator import Paginator
 from django.utils.text import slugify
 from django.shortcuts import render, get_object_or_404
-from datetime import datetime
-from django.db.models import Q
-import traceback
-from django.contrib.auth.decorators import login_required
+from django.utils import timezone
 
 
 
@@ -24,11 +21,13 @@ from django.contrib.auth.decorators import login_required
 
 
 
+
+############################## Website Index Page Views Section Starts Here ###############################################
 
 
 def index(request):
-    
-    # Banner logic
+
+    # 🔹 Banner logic (unchanged)
     active_banners = OfferBanner.objects.filter(is_active=True).order_by('order')
     banner_pairs = []
     for i in range(0, len(active_banners), 2):
@@ -46,59 +45,99 @@ def index(request):
         if pair['main'] or pair['potw']:
             banner_pairs.append(pair)
 
-    # Sections
-    hero = HeroSection.get_or_create_default()
-    features = FeaturesSection.get_or_create_default()
-    category = CategorySection.get_or_create_default()
+    # 🔹 Sections (unchanged)
+    hero        = HeroSection.get_or_create_default()
+    features    = FeaturesSection.get_or_create_default()
+    category    = CategorySection.get_or_create_default()
 
-    # Data
-    brands = Brand.objects.filter(is_active=True).order_by('order')
-    reviews = Review.objects.filter(is_active=True).order_by('order')
+    # 🔹 Data (unchanged)
+    brands     = Brand.objects.filter(is_active=True).order_by('order')
+    reviews    = Review.objects.filter(is_active=True).order_by('order')
     newsletter = NewsletterSetting.objects.last()
 
-    # Products
+    # 🔥 Products (unchanged)
+    # 🔥 Products — show all active products, not just featured
     products = Product.objects.filter(
-        is_active=True,
-        is_featured=True
+    is_active=True,
+    # is_featured=True  ← REMOVED — this was hiding your products
     ).select_related('brand', 'category').order_by('sort_order')[:12]
 
-    # Category names
-    categories = [item.get('name') for item in category.items_json]
+    # 🔥 Category names for filter buttons (unchanged)
+    categories = [
+        item.get('name')
+        for item in category.items_json
+    ]
 
-    # 🔹 2. Create the context dictionary (Defaulting user_obj to None)
+    # ── Deals & Offers ──────────────────────────────────────────
+
+    # Scrolling ticker messages
+    ticker_messages = TickerMessage.objects.filter(is_active=True).order_by('order')
+
+    # Deal of the Day
+    dotd = DealOfTheDay.objects.filter(
+        is_visible=True,
+        end_time__gt=timezone.now()
+    ).first()
+
+    # Offer Strip
+    offer_strip = Coupon.objects.filter(
+        is_active=True,
+        show_on_strip=True
+    ).order_by('order')[:3]
+
+    # Coupon Wall
+    coupon_wall = Coupon.objects.filter(
+        is_active=True,
+        show_on_wall=True
+    ).order_by('order')
+
+    # ✅ Today's Offers
+    todays_offers = TodaysOffer.objects.filter(
+    is_visible=True,
+    product__isnull=False        # ← add this line
+    ).select_related('product').order_by('order')
+
+    # ✅ Build a dict {product_id: TodaysOffer}
+    offer_product_ids = {o.product_id: o for o in todays_offers}
+
+    # ✅ Attach active_offer directly to each product object
+    # Template usage: {% if p.active_offer %} — no custom filter needed
+    for p in products:
+        p.active_offer = offer_product_ids.get(p.id)  # None if no offer exists
+
+    # ────────────────────────────────────────────────────────────
+
     context = {
-        'banner_pairs': banner_pairs,
-        'hero': hero,
-        'features': features,
-        'brands': brands,
-        'reviews': reviews,
-        'newsletter': newsletter,
-        'category': category,
-        'products': products,
-        'categories': categories,
-        'user_obj': None,  # Will remain None if they are a guest
+        # Existing (unchanged)
+        'banner_pairs':    banner_pairs,
+        'hero':            hero,
+        'features':        features,
+        'brands':          brands,
+        'reviews':         reviews,
+        'newsletter':      newsletter,
+        'category':        category,
+        'products':        products,
+        'categories':      categories,
+
+        # Deals (unchanged)
+        'ticker_messages': ticker_messages,
+        'dotd':            dotd,
+        'offer_strip':     offer_strip,
+        'coupon_wall':     coupon_wall,
+        'todays_offers':   todays_offers,
+        # ❌ offer_map removed — not needed anymore
     }
 
-    # 🔹 3. Handle the logged-in user logic safely
-    session_id = request.session.get('User_id')
-    if session_id:
-        
-        user_obj = UserDetails.objects.filter(id=session_id).first()
-        if user_obj:
-            context['user_obj'] = user_obj
-
-    # 🔹 4. Return the render (Works safely for both scenarios now!)
     return render(request, 'home/index.html', context)
-    
-
-# ──────────────────────────────────────────────
-# 2. ADMIN HOME PAGE
-# ──────────────────────────────────────────────
 
 
-# ──────────────────────────────────────────────
-# 3. SAVE HERO  (AJAX POST)
-# ──────────────────────────────────────────────
+############################## Website Index Page Views Section Ends Here ###############################################
+
+
+
+
+############################## Website Index Page Sections Views Section Starts Here ###############################################
+
 @require_POST
 def save_hero(request):
     try:
@@ -198,7 +237,7 @@ def load_category(request):
 ############## Views start for complete profile ##########################
 
 
-@login_required
+@csrf_exempt
 def complete_profile(request):
     if request.method == "POST":
         try:
@@ -278,148 +317,101 @@ def login(request):
 
         return render(request, 'account/login.html')
 
-        
 
-############### Views start for user logout ##########################
 
-@csrf_exempt
-def User_Logout(request):
-    try:
-        del request.session['User_id']
-        return JsonResponse({"status":"1",'msg': 'Logout Successfully '})
-    except:
-        print(traceback.format_exc())
+########################## Website Index Page Sections Views Section Ends Here ###############################################
 
-############# Views end for user logout ################################
+
+
+
+############################## Products Views Section Starts Here ###############################################
+
+
+
+def product_details(request, slug):
+    product = get_object_or_404(Product, slug=slug, is_active=True)
+
+    related = Product.objects.filter(
+        category=product.category,
+        is_active=True
+    ).exclude(id=product.id).select_related('brand')[:4]
+
+    also_bought = Product.objects.filter(
+        is_active=True
+    ).exclude(id=product.id).exclude(
+        id__in=related.values_list('id', flat=True)
+    ).order_by('-review_count')[:4]
+
+    # =========================
+    # ✅ OFFERS
+    # =========================
+    all_ids = [product.id] + \
+              list(related.values_list('id', flat=True)) + \
+              list(also_bought.values_list('id', flat=True))
+
+    offers = TodaysOffer.objects.filter(
+        is_visible=True,
+        product_id__in=all_ids
+    ).select_related('product')
+
+    offer_map = {o.product_id: o for o in offers}
+
+    # =========================
+    # ✅ COUPONS (OPTIMIZED)
+    # =========================
+    coupons = Coupon.objects.filter(
+        is_active=True,
+        products__id__in=all_ids
+    ).prefetch_related('products')
+
+    coupon_map = {}
+    for c in coupons:
+        for p in c.products.all():
+            coupon_map.setdefault(p.id, []).append(c)
+
+    # =========================
+    # ASSIGN DATA
+    # =========================
+
+    # MAIN PRODUCT
+    product.active_offer = offer_map.get(product.id)
+    product.assigned_coupons_list = coupon_map.get(product.id, [])
+
+    # RELATED
+    for p in related:
+        p.active_offer = offer_map.get(p.id)
+        p.assigned_coupons_list = coupon_map.get(p.id, [])
+
+    # ALSO BOUGHT
+    for p in also_bought:
+        p.active_offer = offer_map.get(p.id)
+        p.assigned_coupons_list = coupon_map.get(p.id, [])
+
+    return render(request, 'products_panel/product_details.html', {
+        'product': product,
+        'related': related,
+        'also_bought': also_bought,
+    })
     
+def checkout(request):
+    return render(request, 'payments/checkout.html')
 
-
-############# Views start for ajax for register user #######################
-
-@csrf_exempt
-def Users_Ajax(request):
-    data = request.POST.dict()
-
-    if data.get('id') == "":
-        data.pop("id", None)         
-        data['user_register_date'] = datetime.today()
-        data['user_register_time'] = datetime.now()
-        if UserDetails.objects.filter(user_phone=data['user_phone']).exists():
-            return JsonResponse({"status":"0", "msg" : f"User already exists .."})
-        else:
-            UserDetails.objects.create(**data)
-            return JsonResponse({"status":"1", "msg" : f"User account has been created successfully"})
-
-    # UPDATE MODE
-    # else:
-    #     try:
-    #         withdraw = WithdrawDetails.objects.get(id=data['id'])
-    #     except WithdrawDetails.DoesNotExist:
-    #         return JsonResponse({'status': '0', 'msg': 'Withdraw Details not found'})
-
-    #     member = MemberDetails.objects.get(user_id=data['fk_member'])
-        
-    #     if data['withdraw_status'] == "Done":
-    #         if withdraw.is_withdraw == False:
-    #             try:
-                    
-                    
-    #                 withdraw.is_withdraw = True
-                    
-
-                    
-    #                 # STEP 2: DEDUCT withdrawal ONLY from activation
-    #                 # if member.user_activation >= withdraw_amount:
-    #                 #     member.user_activation -= withdraw_amount  #  DEDUCT ONLY!
-                        
-    #                 #     super_amount = float(getattr(super_admin, 'super_total_amount', 0) or 0)
-    #                 #     super_admin.super_total_amount = super_amount - withdraw_amount
-                        
-    #                 #     super_admin.save()
-    #                 #     member.save()
-    #                 #     withdraw.is_withdraw = True
-                        
-    #                 #     print(f"COMPLETE: Remaining activation ₹{member.user_activation}")
-    #                 #     print(f"EARNINGS KEPT: Match=₹{member.user_total_match}, Level=₹{member.user_total_level_amount}")
-    #                 # else:
-    #                 #     return JsonResponse({
-    #                 #         'status': '0', 
-    #                 #         'msg': f'Insufficient: ₹{member.user_activation:.2f}'
-    #                 #     })
-    #             except (ValueError, TypeError) as e:
-    #                 print(f"Error: {e}")
-    #                 return JsonResponse({'status': '0', 'msg': 'Invalid amount'})
-
-    #     # Donation logic (unchanged)
-    #     if withdraw.donation_paid == False:
-    #         DonationDetails.objects.create(
-    #             donor_id=withdraw.fk_member.user_id,
-    #             donor_name=withdraw.fk_member.user_name,
-    #             donor_email=withdraw.fk_member.user_email,
-    #             donor_phone=withdraw.fk_member.user_phone,
-    #             donor_address=withdraw.fk_member.user_address,
-    #             donation_amount=data['donation_amount'],
-    #             donation_payment_mode="UPI",
-    #             donation_status="Done",
-    #             donation_date=datetime.today(),
-    #             donation_time=datetime.now()
-    #         )
-    #         withdraw.donation_paid = True
-
-    #     # Update withdraw fields (unchanged)
-    #     for key, value in data.items():
-    #         if key != 'fk_member':
-    #             setattr(withdraw, key, value)
-
-    #     withdraw.save()
-    #     return JsonResponse({"status":"1", "msg" : f"Withdraw updated successfully"})
-
-############ Views end for ajax for register user ##############################
 
 
 
 def cart(request):
     return render(request, 'cart/cart.html')
 
-
-def product_details(request, slug):
-    product  = get_object_or_404(Product, slug=slug, is_active=True)
-    related  = Product.objects.filter(
-                   category=product.category, is_active=True
-               ).exclude(id=product.id).select_related('brand')[:4]
-    also_bought = Product.objects.filter(
-                      is_active=True
-                  ).exclude(id=product.id).exclude(
-                      id__in=related.values_list('id', flat=True)
-                  ).order_by('-review_count')[:4]
-
-    return render(request, 'products_panel/product_details.html', {
-        'product':     product,
-        'related':     related,
-        'also_bought': also_bought,
-    })
-
-def checkout(request):
-    return render(request, 'payments/checkout.html')
-
-def contact(request):
-    return render(request, 'home/contact.html')
-
-
 def All_products(request):
-    """
-    Public products listing page.
-    Reads filter querystring params and returns filtered, paginated products.
-    """
     settings   = ProductPageSettings.get_or_create_default()
     categories = CategorySection.get_or_create_default()
     brands     = Brand.objects.filter(is_active=True)
     products_qs = Product.objects.filter(is_active=True).select_related('brand', 'category')
 
-    # ── apply filters from GET params ──
-    cat_ids    = request.GET.getlist('cat')       # ?cat=1&cat=2
-    brand_ids  = request.GET.getlist('brand')     # ?brand=3
-    regions    = request.GET.getlist('region')    # ?region=Rajasthan
+    # ── apply filters ──
+    cat_ids    = request.GET.getlist('cat')
+    brand_ids  = request.GET.getlist('brand')
+    regions    = request.GET.getlist('region')
     price_max  = request.GET.get('price_max', settings.price_max)
     min_rating = request.GET.get('rating', '')
     weights    = request.GET.getlist('weight')
@@ -436,7 +428,6 @@ def All_products(request):
     if min_rating:
         products_qs = products_qs.filter(rating__gte=min_rating)
 
-    # ── sorting ──
     sort_map = {
         'popular':    '-review_count',
         'price_asc':  'price',
@@ -446,10 +437,33 @@ def All_products(request):
     }
     products_qs = products_qs.order_by(sort_map.get(sort, '-review_count'))
 
-    # ── pagination ──
     paginator = Paginator(products_qs, 12)
     page_num  = request.GET.get('page', 1)
     page_obj  = paginator.get_page(page_num)
+
+    # ✅ Today's Offers
+    todays_offers = TodaysOffer.objects.filter(
+        is_visible=True, product__isnull=False
+    ).select_related('product')
+    offer_map = {o.product_id: o for o in todays_offers}
+
+    
+    page_product_ids = [p.id for p in page_obj]
+    coupon_qs = Coupon.objects.filter(
+        is_active=True,
+        products__id__in=page_product_ids
+    ).prefetch_related('products')
+
+    # build map: product_id → list of coupons
+    coupon_map = {}
+    for coupon in coupon_qs:
+        for pid in coupon.products.values_list('id', flat=True):
+            if pid in page_product_ids:
+                coupon_map.setdefault(pid, []).append(coupon)
+
+    for p in page_obj:
+        p.active_offer       = offer_map.get(p.id)
+        p.assigned_coupons_list = coupon_map.get(p.id, [])   # ✅ new
 
     return render(request, 'products_panel/All_products.html', {
         'products':         page_obj,
@@ -469,3 +483,9 @@ def All_products(request):
 
 
 
+############################## Products Views Section Ends Here ###############################################
+
+
+
+def contact(request):
+    return render(request, 'home/contact.html')

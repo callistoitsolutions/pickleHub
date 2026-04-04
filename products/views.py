@@ -12,17 +12,8 @@ from products.product_utils  import _product_page_data
 
 
 
-# ── HELPER ────────────────────────────────────────────────────────────────────
-
-# ══════════════════════════════════════════════════════════════════════════════
-# PUBLIC: PRODUCTS LISTING PAGE
-# ══════════════════════════════════════════════════════════════════════════════
 
 
-
-# ══════════════════════════════════════════════════════════════════════════════
-# ADMIN: BRAND BUILDER PAGE
-# ══════════════════════════════════════════════════════════════════════════════
 
 
 
@@ -130,20 +121,19 @@ def load_brands(request):
     })
 
 
-# ══════════════════════════════════════════════════════════════════════════════
-# ADMIN: PRODUCT BUILDER PAGE
-# ══════════════════════════════════════════════════════════════════════════════
 
 
-# ── SAVE PRODUCT (AJAX POST) ──────────────────────────────────────────────────
+############################## Products Views Section Starts Here ###############################################
+
+
 @require_POST
 def save_product(request):
     try:
         if request.content_type and 'multipart' in request.content_type:
-            data = request.POST
+            data   = request.POST
             raw_id = data.get('id', '').strip()
-            pid  = int(raw_id) if raw_id else None
-            name = data.get('name', '').strip()
+            pid    = int(raw_id) if raw_id else None
+            name   = data.get('name', '').strip()
         else:
             data = json.loads(request.body)
             pid  = data.get('id')
@@ -152,7 +142,7 @@ def save_product(request):
         product_slug = slugify(name)
         brand_id     = data.get('brand_id')
         category_id  = data.get('category_id')
-        brand_obj    = Brand.objects.filter(id=brand_id).first()  if brand_id  else None
+        brand_obj    = Brand.objects.filter(id=brand_id).first()        if brand_id    else None
         category_obj = CategorySection.objects.filter(id=category_id).first() if category_id else None
 
         if pid:
@@ -162,13 +152,12 @@ def save_product(request):
                 return JsonResponse({'ok': False, 'error': 'Product not found'}, status=404)
         else:
             p = Product()
-            counter = 1
-            original_slug = product_slug
+            counter, original_slug = 1, product_slug
             while Product.objects.filter(slug=product_slug).exists():
-                product_slug = f'{original_slug}-{counter}'
-                counter += 1
+                product_slug = f'{original_slug}-{counter}'; counter += 1
             p.slug = product_slug
 
+        # ── existing fields ──
         p.emoji           = data.get('emoji',            p.emoji if pid else '🫙')
         p.name            = name
         p.brand           = brand_obj
@@ -191,10 +180,49 @@ def save_product(request):
         p.is_featured     = str(data.get('is_featured',  getattr(p, 'is_featured',     False))).lower() not in ('false', '0', 'no')
         p.sort_order      = int(data.get('sort_order',   getattr(p, 'sort_order',      0))   or 0)
 
+        # ✅ new fields
+        p.short_description = data.get('short_description', getattr(p, 'short_description', ''))
+        p.long_description  = data.get('long_description',  getattr(p, 'long_description',  ''))
+        p.sku               = data.get('sku',               getattr(p, 'sku',               ''))
+        p.hsn_code          = data.get('hsn_code',          getattr(p, 'hsn_code',          ''))
+        p.unit_type         = data.get('unit_type',         getattr(p, 'unit_type',         'grams'))
+        p.cost_price        = int(data.get('cost_price',    getattr(p, 'cost_price',        0))   or 0)
+        p.gst_rate          = int(data.get('gst_rate',      getattr(p, 'gst_rate',          5))   or 5)
+        p.gst_inclusive     = str(data.get('gst_inclusive', getattr(p, 'gst_inclusive',     True))).lower() not in ('false', '0', 'no')
+        p.free_delivery     = data.get('free_delivery',     getattr(p, 'free_delivery',     'site_rule'))
+        p.shelf_life        = data.get('shelf_life',        getattr(p, 'shelf_life',        ''))
+        p.storage_info      = data.get('storage_info',      getattr(p, 'storage_info',      ''))
+        p.min_order_qty     = int(data.get('min_order_qty', getattr(p, 'min_order_qty',     1))   or 1)
+        p.max_order_qty     = int(data.get('max_order_qty', getattr(p, 'max_order_qty',     5))   or 5)
+        p.seo_title         = data.get('seo_title',         getattr(p, 'seo_title',         ''))
+        p.seo_description   = data.get('seo_description',   getattr(p, 'seo_description',   ''))
+        p.seo_keywords      = data.get('seo_keywords',      getattr(p, 'seo_keywords',      ''))
+
+        # highlights and tags are JSON arrays sent as JSON strings
+        import json as _json
+        raw_highlights = data.get('highlights', '')
+        raw_tags       = data.get('tags', '')
+        try:
+            p.highlights = _json.loads(raw_highlights) if raw_highlights else getattr(p, 'highlights', [])
+        except Exception:
+            p.highlights = []
+        try:
+            p.tags = _json.loads(raw_tags) if raw_tags else getattr(p, 'tags', [])
+        except Exception:
+            p.tags = []
+
         if 'image' in request.FILES:
             p.image = request.FILES['image']
 
         p.save()
+
+        # ✅ save assigned coupons (M2M) — ids sent as JSON array string
+        raw_coupons = data.get('assigned_coupon_ids', '[]')
+        try:
+            coupon_ids = _json.loads(raw_coupons) if isinstance(raw_coupons, str) else raw_coupons
+            p.assigned_coupons.set(coupon_ids)
+        except Exception:
+            pass
 
         return JsonResponse({
             'ok':        True,
@@ -207,10 +235,10 @@ def save_product(request):
     except Exception as e:
         import traceback
         return JsonResponse({
-            'ok': False,
-            'error': str(e),
-            'traceback': traceback.format_exc()   # ← EXACT line that crashes
+            'ok': False, 'error': str(e), 'traceback': traceback.format_exc()
         }, status=400)
+        
+        
 # ── DELETE PRODUCT (AJAX POST) ────────────────────────────────────────────────
 @require_POST
 def delete_product(request, product_id):
@@ -264,3 +292,9 @@ def save_product_filter_settings(request):
     s.save()
 
     return JsonResponse({'ok': True, 'message': '✅ Filter settings saved!'})
+
+
+
+
+############################## Products  Urls Section Ends Here ###############################################
+

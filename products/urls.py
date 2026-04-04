@@ -7,7 +7,8 @@ from products import views
  
 
 urlpatterns = [
-
+ 
+############################## Products  Urls Section Starts Here ###############################################
    
     path('api/brand/save/',                     views.save_brand,                   name='save_brand'),            # NEW
     path('api/brand/delete/<int:brand_id>/',    views.delete_brand,                 name='delete_brand'),          # NEW
@@ -17,4 +18,8 @@ urlpatterns = [
 
  
     path('api/brands/load/',                    views.load_brands,                  name='load_brands'),           # NEW
+    
+    
+############################## Products  Urls Section Ends Here ###############################################
+    
 ]
